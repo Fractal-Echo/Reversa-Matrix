@@ -1,39 +1,84 @@
-# Reversa 
-<small>by sandeco</small>
+# Reversa-Matrix
+<small>by sandeco / Fractal-Echo</small>
 
-**Turn legacy systems into executable specifications and evidence datasets for AI agents.**
+**Reverse-engineering evidence mapper for source trees, contradictions, and analysis.**
 
-[![English Docs](https://img.shields.io/badge/DOCS-English-009c3b?style=for-the-badge&logo=material-for-mkdocs&logoColor=white&labelColor=2d2d2d)](https://sandeco.github.io/reversa/)<br>
-[![Português Docs](https://img.shields.io/badge/DOCS-Portugu%C3%AAs-ffcc00?style=for-the-badge&logo=material-for-mkdocs&logoColor=black&labelColor=2d2d2d)](https://sandeco.github.io/reversa/pt/)<br>
-[![Español Docs](https://img.shields.io/badge/DOCS-Espa%C3%B1ol-c60b1e?style=for-the-badge&logo=material-for-mkdocs&logoColor=white&labelColor=2d2d2d)](https://sandeco.github.io/reversa/es/)
+[![English Docs](https://img.shields.io/badge/DOCS-English-009c3b?style=for-the-badge&logo=material-for-mkdocs&logoColor=white&labelColor=2d2d2d)](https://fractal-echo.github.io/Reversa-Matrix/)<br>
+[![Português Docs](https://img.shields.io/badge/DOCS-Portugu%C3%AAs-ffcc00?style=for-the-badge&logo=material-for-mkdocs&logoColor=black&labelColor=2d2d2d)](https://fractal-echo.github.io/Reversa-Matrix/pt/)<br>
+[![Español Docs](https://img.shields.io/badge/DOCS-Espa%C3%B1ol-c60b1e?style=for-the-badge&logo=material-for-mkdocs&logoColor=white&labelColor=2d2d2d)](https://fractal-echo.github.io/Reversa-Matrix/es/)
 
-Reversa is a reverse-engineering framework for agent-assisted software work. It can install a coordinated team of specialized AI agents inside a legacy project, and it can also scan a source tree into structured, machine-readable evidence that another Codex/Claude/Cursor-style agent can consume without scraping HTML.
-
-Enhanced Reversa is built around one rule: **HTML is a view, JSON/JSONL is the source of truth.** The scanner emits normalized findings, contradictions, known-good comparisons, patch candidates, validation commands, and an `agent_handoff/` bundle designed for the next agent to continue from evidence instead of vibes.
+Reversa-Matrix is a lightweight reverse-engineering workspace for source trees. It scans folders of code and device configuration, turns observations into structured evidence, finds contradictions, compares trees, and generates a local dashboard plus an agent handoff bundle. It is useful for noobs who need a readable map and for Codex agents that need JSON/JSONL instead of scraped HTML.
 
 ---
 
-![Reversa installer](https://raw.githubusercontent.com/sandeco/reversa/main/docs/img/reversa-installer.png)
+## Dashboard Preview
+
+After a scan, open the local dashboard:
+
+```bash
+node ./bin/reversa.js gui --out reversa_out
+```
+
+The GUI is a generated offline `dashboard.html` with overview cards, setup help, search, severity/confidence/category filters, findings, contradictions, patch candidates, known-good comparison, commands, tree inventory, agent handoff notes, and compare results when present.
+
+Screenshot placeholder:
+
+```text
+Reversa-Matrix Dashboard
+├── Home / overview
+├── Setup checklist
+├── Findings browser
+├── Contradictions browser
+├── Patch candidates
+├── Known-good comparison
+├── Commands to run
+└── Agent handoff
+```
 
 ---
 
-## Why Reversa exists
+## Beginner Path
 
-Most production systems carry years of accumulated knowledge: implicit business rules, undocumented architectural decisions, critical logic buried in code nobody wants to touch. That knowledge exists, but it's trapped.
+Clone, install, test, and inspect the CLI:
 
-AI agents are transformative for creating and evolving software, but they depend on specifications to operate safely. For new systems, you write the spec and the agent executes. For legacy systems — or those built with pure vibe coding — there is no spec: the agent has no way of knowing what it cannot break.
+```bash
+git clone https://github.com/Fractal-Echo/Reversa-Matrix.git
+cd Reversa-Matrix
+npm install
+npm test
+node ./bin/reversa.js scan --help
+```
 
-**Reversa is the bridge between the legacy system and AI agents.**
+Run the included Android recovery fixture scan:
 
-It analyzes the existing code, extracts accumulated knowledge (business rules, flows, module contracts, retroactive architectural decisions) and transforms everything into executable, traceable specifications ready for any coding agent.
+```bash
+node ./bin/reversa.js scan \
+  --project-root ./test/fixtures/android-recovery-current \
+  --profile android_recovery \
+  --known-good examples/known_good_rm11pro_nx809j.json \
+  --out reversa_out
+```
 
-The result is not documentation for humans to read. These are **operational contracts** that allow an agent to evolve the system with fidelity to what already exists.
+Open the dashboard:
+
+```bash
+node ./bin/reversa.js gui --out reversa_out
+```
+
+If you are using Reversa-Matrix as an installed package, the equivalent package-style commands are:
+
+```bash
+npx reversa scan --help
+npx reversa gui --out reversa_out
+```
+
+Inside this cloned repository, `node ./bin/reversa.js ...` is the most explicit local command and avoids accidentally resolving a published package from the network.
 
 ---
 
-## Enhanced Reversa
+## What It Does
 
-Enhanced Reversa adds a professional evidence layer for complex source-tree research, including Android recovery/device bring-up work.
+A source tree is the folder of files you want to inspect: code, build files, recovery configs, fstab files, init scripts, vendor blob lists, docs, and generated metadata. Reversa-Matrix reads that tree and writes a separate evidence dataset.
 
 It can:
 
@@ -44,23 +89,57 @@ It can:
 - compare source declarations against known-good device facts
 - classify contradictions and patch candidates by risk
 - keep validation commands read-only by default
+- generate an offline noob-friendly dashboard over the same structured data
 
-For RM11Pro / NX809J recovery work, the repository includes `examples/known_good_rm11pro_nx809j.json`.
+HTML is a view. JSON and JSONL are the source of truth.
 
-Example scan:
+---
+
+## First Real Scan
 
 ```bash
-npx reversa scan \
+node ./bin/reversa.js scan \
+  --project-root /path/to/source/tree \
+  --profile generic_source_tree \
+  --out reversa_out
+```
+
+Then:
+
+```bash
+node ./bin/reversa.js gui --out reversa_out
+```
+
+---
+
+## Android Recovery / RM11Pro Example
+
+For RM11Pro / NX809J / canoe recovery work, the repository includes:
+
+```text
+examples/known_good_rm11pro_nx809j.json
+```
+
+Run:
+
+```bash
+node ./bin/reversa.js scan \
   --project-root /path/to/device/nubia/canoe \
   --profile android_recovery \
   --known-good examples/known_good_rm11pro_nx809j.json \
   --out reversa_out
 ```
 
-Example compare:
+This flags old RM10Pro/sm8750/non-canoe leftovers, partition size mismatches, boot header mismatches, init rc service path problems, fstab issues, vendor blob references, decrypt stack assumptions, display/touch/theme assumptions, and patch candidates.
+
+---
+
+## Compare Mode
+
+Compare a current tree with a reference tree:
 
 ```bash
-npx reversa compare \
+node ./bin/reversa.js compare \
   --left /path/to/current/tree \
   --right /path/to/reference/tree \
   --profile android_recovery \
@@ -72,7 +151,84 @@ Compare mode only classifies differences and manual import candidates. It does n
 
 ---
 
-## Installation
+## Outputs
+
+Scan output:
+
+```text
+reversa_out/
+├── report.json
+├── evidence.jsonl
+├── summary.md
+├── report.html
+├── dashboard.html
+└── agent_handoff/
+    ├── findings.json
+    ├── contradictions.json
+    ├── patch_candidates.json
+    ├── commands_to_run.md
+    ├── questions_for_human.md
+    ├── known_good_facts.json
+    ├── risky_assumptions.json
+    └── tree_inventory.json
+```
+
+Compare output:
+
+```text
+reversa_compare_out/
+├── compare_report.json
+├── compare_summary.md
+├── compare.html
+├── dashboard.html
+└── agent_handoff/
+    ├── compare_findings.json
+    ├── safe_import_candidates.json
+    └── risky_import_candidates.json
+```
+
+## Plain-English Concepts
+
+- A finding is one evidence-backed observation from a file, line, inventory check, or known-good comparison.
+- A contradiction is a conflict between claims, such as one file saying `sm8750` while known-good facts say `sm8850`.
+- A patch candidate is a reviewable source-tree change idea. Reversa-Matrix does not blindly patch.
+- Known-good facts are observations from real testing, stored as JSON, used to catch stale source assumptions.
+- Evidence IDs matter because agents can cite, track, and compare the same claim across scans.
+- Destructive commands are separated because source-tree research must not quietly become flashing, partition writing, or bootloader work.
+
+## Agent Handoff
+
+Codex agents should start with:
+
+1. `agent_handoff/summary.md`
+2. `agent_handoff/contradictions.json`
+3. `agent_handoff/patch_candidates.json`
+4. `agent_handoff/commands_to_run.md`
+5. `agent_handoff/known_good_facts.json`
+6. `agent_handoff/risky_assumptions.json`
+7. `agent_handoff/tree_inventory.json`
+
+The dashboard is for browsing. The handoff bundle is for agent continuation.
+
+## Safety
+
+Reversa-Matrix does not add destructive device workflows. Normal validation commands are read-only: `grep`, `find`, `test -f`, `sha256sum`, and local `node` checks. If imported output ever contains destructive commands, the GUI isolates them under:
+
+```text
+DESTRUCTIVE / HUMAN REVIEW REQUIRED / BACKUP REQUIRED
+```
+
+## Deeper Docs
+
+- [CLI](docs/cli.md)
+- [Enhanced Reversa](docs/enhanced-reversa.md)
+- [GUI Dashboard](docs/gui.md)
+- [Generated outputs](docs/saidas/index.md)
+- [Developing from specs](docs/desenvolvendo-com-specs.md)
+
+---
+
+## Agent Installation
 
 In the root of the legacy project:
 
@@ -438,8 +594,8 @@ The scan command is read-only against the target tree. It writes structured arti
 Contributions are welcome. Open an issue to discuss before submitting a PR.
 
 ```bash
-git clone https://github.com/sandeco/reversa.git
-cd reversa
+git clone https://github.com/Fractal-Echo/Reversa-Matrix.git
+cd Reversa-Matrix
 npm install
 ```
 

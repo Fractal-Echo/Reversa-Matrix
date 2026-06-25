@@ -8,9 +8,22 @@ The scanner is read-only against the target tree. It writes artifacts to an outp
 - `evidence.jsonl`
 - `summary.md`
 - `report.html`
+- `dashboard.html` when generated with `reversa gui`
 - `agent_handoff/`
 
 HTML is a dashboard. Agents should consume `report.json`, `evidence.jsonl`, and the handoff bundle.
+
+## Local GUI
+
+Generate a noob-friendly offline dashboard after a scan:
+
+```bash
+node ./bin/reversa.js gui --out reversa_out
+```
+
+The dashboard provides overview cards, setup checklist, search, severity/confidence/category filters, findings, contradictions, patch candidates, known-good facts, commands, tree inventory, agent handoff guidance, and compare results when available.
+
+The GUI reads existing structured outputs. It does not make HTML authoritative and does not modify scan data.
 
 ## Evidence Contract
 

@@ -13,8 +13,8 @@ Open an issue first to discuss what you want to change. This avoids wasted work 
 ## Local setup
 
 ```bash
-git clone https://github.com/sandeco/reversa.git
-cd reversa
+git clone https://github.com/Fractal-Echo/Reversa-Matrix.git
+cd Reversa-Matrix
 npm install
 ```
 
@@ -23,7 +23,7 @@ npm install
 ## Project structure
 
 ```
-reversa/
+Reversa-Matrix/
 ├── agents/             ← each agent has its folder with SKILL.md
 ├── bin/                ← CLI entry point (reversa.js)
 ├── lib/
@@ -46,4 +46,4 @@ reversa/
 
 ## License
 
-MIT. See [LICENSE](https://github.com/sandeco/reversa/blob/main/LICENSE) for details.
+MIT. See [LICENSE](https://github.com/Fractal-Echo/Reversa-Matrix/blob/main/LICENSE) for details.

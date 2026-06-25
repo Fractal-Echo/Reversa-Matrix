@@ -1,11 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
+import { spawnSync } from 'child_process';
 import { mkdtemp, readFile, stat } from 'fs/promises';
 import { existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import { compareProjects, writeCompareOutputs } from '../lib/scan/compare.js';
+import guiCommand from '../lib/commands/gui.js';
+import { generateDashboard } from '../lib/gui/dashboard.js';
 import { scanProject } from '../lib/scan/scanner.js';
 import { validateScanReport } from '../lib/scan/schema.js';
 import { writeScanOutputs } from '../lib/scan/writers.js';
@@ -139,6 +142,53 @@ test('compare mode emits classified compare artifacts', async () => {
     assert(existsSync(file), `${relPath} should exist`);
     assert((await stat(file)).size > 0, `${relPath} should not be empty`);
   }
+});
+
+test('gui command help and missing output handling are clear', async () => {
+  const help = spawnSync(process.execPath, [join(repoRoot, 'bin/reversa.js'), 'gui', '--help'], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(help.status, 0);
+  assert.match(help.stdout, /reversa gui/);
+  assert.match(help.stdout, /dashboard\.html/);
+
+  await assert.rejects(
+    () => guiCommand(['--out', join(tmpdir(), 'reversa-missing-output-for-test')]),
+    /Output directory does not exist/
+  );
+});
+
+test('gui dashboard is generated from valid scan output', async () => {
+  const report = await scanCurrent();
+  const outDir = await mkdtemp(join(tmpdir(), 'reversa-gui-test-'));
+  await writeScanOutputs(report, {
+    outDir,
+    html: true,
+    json: true,
+    jsonl: true,
+    markdown: true,
+    agentHandoff: true,
+  });
+
+  const result = await generateDashboard({ outDir });
+  assert(existsSync(result.dashboardPath));
+  assert.equal(result.hasScan, true);
+  assert.equal(result.hasCompare, false);
+
+  const html = await readFile(result.dashboardPath, 'utf8');
+  assert.match(html, /Reversa-Matrix Dashboard/);
+  assert.match(html, /Findings Browser/);
+  assert.match(html, /DESTRUCTIVE \/ HUMAN REVIEW REQUIRED \/ BACKUP REQUIRED/);
+});
+
+test('README beginner command examples remain smoke-testable', async () => {
+  const readme = await readFile(join(repoRoot, 'README.md'), 'utf8');
+  assert.match(readme, /git clone https:\/\/github\.com\/Fractal-Echo\/Reversa-Matrix\.git/);
+  assert.match(readme, /npm install/);
+  assert.match(readme, /npm test/);
+  assert.match(readme, /node \.\/bin\/reversa\.js scan --help/);
+  assert.match(readme, /node \.\/bin\/reversa\.js gui --out reversa_out/);
 });
 
 function assertEvidence(report, category, claimIncludes) {

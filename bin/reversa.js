@@ -17,6 +17,7 @@ const commands = {
   status:             () => import('../lib/commands/status.js'),
   scan:               () => import('../lib/commands/scan.js'),
   compare:            () => import('../lib/commands/compare.js'),
+  gui:                () => import('../lib/commands/gui.js'),
   uninstall:          () => import('../lib/commands/uninstall.js'),
   'add-agent':        () => import('../lib/commands/add-agent.js'),
   'add-engine':       () => import('../lib/commands/add-engine.js'),
@@ -37,6 +38,7 @@ if (!command || command === '--help' || command === '-h') {
     status             Mostra o estado atual da análise
     scan               Escaneia uma árvore e gera evidências estruturadas
     compare            Compara duas árvores e classifica diferenças
+    gui                Gera um painel local para resultados de scan/compare
     uninstall          Remove o Reversa do projeto
     add-agent          Adiciona um agente ao projeto
     add-engine         Adiciona suporte a uma engine
@@ -44,7 +46,7 @@ if (!command || command === '--help' || command === '-h') {
                        Opções: --format=svg|png  --output=<pasta>
                        Requer: npm install -g @mermaid-js/mermaid-cli
 
-  Documentação: https://github.com/sandeco/reversa
+  Documentação: https://github.com/Fractal-Echo/Reversa-Matrix
   `);
   process.exit(0);
 }

@@ -1,7 +1,7 @@
 {
   "name": "reversa",
   "version": "1.2.44",
-  "description": "Transform legacy systems into executable specifications for AI coding agents",
+  "description": "Reverse-engineering evidence mapper for source trees, contradictions, and analysis",
   "bin": {
     "reversa": "bin/reversa.js"
   },
@@ -32,11 +32,11 @@
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sandeco/reversa.git"
+    "url": "git+https://github.com/Fractal-Echo/Reversa-Matrix.git"
   },
-  "homepage": "https://github.com/sandeco/reversa",
+  "homepage": "https://github.com/Fractal-Echo/Reversa-Matrix",
   "bugs": {
-    "url": "https://github.com/sandeco/reversa/issues"
+    "url": "https://github.com/Fractal-Echo/Reversa-Matrix/issues"
   },
   "engines": {
     "node": ">=18.20.2"

@@ -180,6 +180,41 @@ It never auto-imports anything. Safe and risky import candidates are classificat
 
 ---
 
+### `gui`
+
+```bash
+npx reversa gui --out reversa_out
+```
+
+Builds an offline local dashboard from existing scan or compare outputs. The command verifies that the output directory exists and contains `report.json` or `compare_report.json`, then writes:
+
+```text
+dashboard.html
+```
+
+The GUI reads structured files such as:
+
+- `report.json`
+- `summary.md`
+- `agent_handoff/findings.json`
+- `agent_handoff/contradictions.json`
+- `agent_handoff/patch_candidates.json`
+- `agent_handoff/commands_to_run.md`
+- `compare_report.json`
+- `agent_handoff/compare_findings.json`
+
+It includes Home, setup checklist, metadata, findings, contradictions, patch candidates, known-good comparison, risky assumptions, commands, tree inventory, agent handoff guidance, and compare results when present.
+
+Inside a cloned repository, the explicit local command is:
+
+```bash
+node ./bin/reversa.js gui --out reversa_out
+```
+
+The GUI does not replace JSON/JSONL outputs and does not modify scan data.
+
+---
+
 ### `update`
 
 ```bash

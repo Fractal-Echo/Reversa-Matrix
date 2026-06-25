@@ -1,11 +1,11 @@
-site_name: Reversa
-site_url: https://sandeco.github.io/reversa
-site_description: Transforme sistemas legados em especificações executáveis por agentes de IA.
-site_author: sandeco
-repo_url: https://github.com/sandeco/reversa
-repo_name: sandeco/reversa
+site_name: Reversa-Matrix
+site_url: https://fractal-echo.github.io/Reversa-Matrix
+site_description: Reverse-engineering evidence mapper for source trees, contradictions, and analysis.
+site_author: sandeco / Fractal-Echo
+repo_url: https://github.com/Fractal-Echo/Reversa-Matrix
+repo_name: Fractal-Echo/Reversa-Matrix
 edit_uri: edit/main/docs/
-copyright: '"Reversa" by sandeco'
+copyright: '"Reversa-Matrix" by sandeco / Fractal-Echo'
 
 theme:
   name: material
@@ -80,6 +80,7 @@ plugins:
             Installation: Instalação
             How to use: Como usar
             CLI: CLI
+            GUI Dashboard: Painel GUI
             Configuration: Configuração
             Supported engines: Engines suportadas
             Analysis pipeline: Pipeline de análise
@@ -138,6 +139,7 @@ plugins:
             Installation: Instalación
             How to use: Cómo usar
             CLI: CLI
+            GUI Dashboard: Panel GUI
             Configuration: Configuración
             Supported engines: Motores compatibles
             Analysis pipeline: Pipeline de análisis
@@ -194,6 +196,7 @@ nav:
   - Installation: instalacao.md
   - How to use: uso.md
   - CLI: cli.md
+  - GUI Dashboard: gui.md
   - Enhanced Reversa: enhanced-reversa.md
   - Configuration: configuracao.md
   - Supported engines: engines.md
