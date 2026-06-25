@@ -1,103 +1,88 @@
-# Generated outputs
+# Generated Outputs
 
-Everything Reversa produces goes to the `_reversa_sdd/` folder (or whatever name you configure in `config.toml`). The legacy project is never touched.
+Reversa-Matrix writes outputs to the directory passed with `--out`.
 
-The set of artifacts generated depends on the **documentation level** chosen at the start of the analysis:
-
-| Legend | Level |
-|--------|-------|
-| *(all)* | Generated at all 3 levels |
-| *(complete+)* | Only at `complete` and `detailed` levels |
-| *(detailed)* | Only at `detailed` level |
+The inspected source tree is read-only during scan and compare.
 
 ---
 
-## Full structure
+## Scan Output
 
-```
-_reversa_sdd/
-├── inventory.md              # Project inventory — all levels
-├── dependencies.md           # Dependencies with versions — all levels
-├── code-analysis.md          # Technical analysis per module — all levels
-├── data-dictionary.md        # Complete data dictionary — complete+
-├── domain.md                 # Glossary and business rules — all levels
-├── state-machines.md         # State machines in Mermaid — complete+
-├── permissions.md            # Permission matrix — complete+
-├── architecture.md           # General architectural overview — all levels
-├── c4-context.md             # C4 Diagram: Context — all levels
-├── c4-containers.md          # C4 Diagram: Containers — complete+
-├── c4-components.md          # C4 Diagram: Components — complete+
-├── erd-complete.md           # Full ERD in Mermaid — complete+
-├── deployment.md             # Infrastructure diagram — detailed only
-├── confidence-report.md      # Confidence report 🟢🟡🔴 — all levels
-├── gaps.md                   # Unresolved gaps — complete+
-├── questions.md              # Human validation questions — all levels
-├── sdd/                      # Specs per component — all levels
-│   └── [component].md
-│
-├── openapi/                  # API specs — complete+
-│   └── [api].yaml
-│
-├── user-stories/             # User stories — complete+
-│   └── [flow].md
-│
-├── adrs/                     # Retroactive architectural decisions — complete+
-│   └── [number]-[title].md
-│
-├── flowcharts/               # Mermaid flowcharts — complete+
-│   └── [module].md
-│
-├── ui/                       # Interface specs (Visor)
-│   ├── inventory.md
-│   ├── flow.md
-│   └── screens/
-│       └── [screen].md
-│
-├── database/                 # Database specs (Data Master)
-│   ├── erd.md
-│   ├── data-dictionary.md
-│   ├── relationships.md
-│   ├── business-rules.md
-│   └── procedures.md
-│
-├── design-system/            # Design tokens (Design System)
-│   ├── color-palette.md
-│   ├── typography.md
-│   ├── spacing.md
-│   ├── tokens.md
-│   └── design-system.md
-│
-└── traceability/
-    ├── spec-impact-matrix.md # Which spec impacts which — complete+
-    └── code-spec-matrix.md   # Code file to corresponding spec — complete+
+```text
+reversa_out/
+├── report.json
+├── evidence.jsonl
+├── summary.md
+├── report.html
+├── dashboard.html
+└── agent_handoff/
+    ├── summary.md
+    ├── findings.json
+    ├── evidence.jsonl
+    ├── contradictions.json
+    ├── patch_candidates.json
+    ├── commands_to_run.md
+    ├── questions_for_human.md
+    ├── known_good_facts.json
+    ├── risky_assumptions.json
+    └── tree_inventory.json
 ```
 
 ---
 
-## Traceability
+## Compare Output
 
-Two files connect everything:
-
-**`traceability/code-spec-matrix.md`:** maps each code file to its corresponding spec, with coverage level. You know what's covered and what isn't.
-
-**`traceability/spec-impact-matrix.md`:** maps which component impacts which. Before changing something, you know the blast radius of the change.
+```text
+reversa_compare_out/
+├── compare_report.json
+├── compare_summary.md
+├── compare.html
+├── dashboard.html
+└── agent_handoff/
+    ├── compare_findings.json
+    ├── safe_import_candidates.json
+    └── risky_import_candidates.json
+```
 
 ---
 
-## What not to commit
+## Source Of Truth
 
-Suggested `.gitignore` to avoid versioning Reversa outputs alongside code (unless you want to):
+Use these for automation:
+
+- `report.json`
+- `evidence.jsonl`
+- `compare_report.json`
+- `agent_handoff/*.json`
+
+Use these for human browsing:
+
+- `summary.md`
+- `report.html`
+- `compare.html`
+- `dashboard.html`
+
+Do not scrape dashboard HTML when JSON exists.
+
+---
+
+## What To Commit
+
+For repeatable research, commit small, intentional output sets when they are part of the investigation:
+
+- known-good JSON
+- `summary.md`
+- curated `agent_handoff/` files
+- notes that explain what scan produced the artifact
+
+For noisy local runs, keep output directories ignored.
+
+Suggested ignore pattern:
 
 ```gitignore
-# Reversa outputs (optional: remove if you want to version the specs)
-_reversa_sdd/
-
-# Personal Reversa configuration (never commit)
+reversa_out/
+reversa_compare_out/
 .reversa/config.user.toml
 ```
 
----
-
-## Next step
-
-Specs in hand? See [Developing from specs](../desenvolvendo-com-specs.md) for the recommended order to build the system.
+Do not commit secrets, device tokens, private keys, or proprietary blobs unless the repository is explicitly meant to contain them.

@@ -10,14 +10,15 @@
     "test": "node --test"
   },
   "keywords": [
-    "legacy",
     "reverse-engineering",
-    "specifications",
+    "source-tree",
+    "android",
+    "linux",
+    "windows",
+    "evidence",
+    "contradictions",
     "ai",
-    "claude",
     "codex",
-    "gemini",
-    "cursor",
     "agents"
   ],
   "files": [
@@ -28,7 +29,7 @@
     "README.md",
     "LICENSE"
   ],
-  "author": "sandeco",
+  "author": "Fractal-Echo",
   "license": "MIT",
   "repository": {
     "type": "git",

@@ -30,23 +30,23 @@ if (!command || command === '--help' || command === '-h') {
 
   reversa v${pkg.version}
 
-  Uso: npx reversa <comando>
+  Usage: npx reversa <command>
 
-  Comandos:
-    install            Instala o Reversa no projeto atual
-    update             Atualiza os agentes para a última versão
-    status             Mostra o estado atual da análise
-    scan               Escaneia uma árvore e gera evidências estruturadas
-    compare            Compara duas árvores e classifica diferenças
-    gui                Gera um painel local para resultados de scan/compare
-    uninstall          Remove o Reversa do projeto
-    add-agent          Adiciona um agente ao projeto
-    add-engine         Adiciona suporte a uma engine
-    export-diagrams    Exporta diagramas Mermaid como imagens SVG/PNG
-                       Opções: --format=svg|png  --output=<pasta>
-                       Requer: npm install -g @mermaid-js/mermaid-cli
+  Commands:
+    scan               Scan a source tree and generate structured evidence
+    compare            Compare two trees and classify differences
+    gui                Generate a local dashboard for scan/compare results
+    install            Install compatibility agent workflow files
+    update             Update installed compatibility agents
+    status             Show current compatibility analysis state
+    uninstall          Remove Reversa-created files from a project
+    add-agent          Add a compatibility agent
+    add-engine         Add engine support
+    export-diagrams    Export Mermaid diagrams as SVG/PNG images
+                       Options: --format=svg|png  --output=<folder>
+                       Requires: npm install -g @mermaid-js/mermaid-cli
 
-  Documentação: https://github.com/Fractal-Echo/Reversa-Matrix
+  Documentation: https://github.com/Fractal-Echo/Reversa-Matrix
   `);
   process.exit(0);
 }
@@ -57,8 +57,8 @@ if (command === '--version' || command === '-v') {
 }
 
 if (!commands[command]) {
-  console.error(`\n  Comando desconhecido: "${command}"`);
-  console.error('  Execute "npx reversa --help" para ver os comandos disponíveis.\n');
+  console.error(`\n  Unknown command: "${command}"`);
+  console.error('  Run "npx reversa --help" to list available commands.\n');
   process.exit(1);
 }
 

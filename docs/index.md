@@ -1,82 +1,123 @@
-# Reversa
+# Reversa-Matrix
 
-**Turn legacy systems into executable specifications for AI agents.**
+**Reverse-engineering evidence mapper for Windows, Android, Linux, and mixed source trees.**
 
-You know that system nobody wants to touch? The one that's been running for 10 years, makes money every day, but nobody really knows what it does on the inside? Reversa was built for it.
+Reversa-Matrix is an evidence-first research assistant for operating-system, device, application, kernel, userspace, build, and recovery trees.
 
----
-
-## What is Reversa?
-
-Reversa is a specification reverse-engineering framework. You install it inside a legacy project, activate an AI agent you already use, and it coordinates a team of specialists to analyze the code and generate complete, traceable, ready-to-use specifications for any coding agent.
-
-**In other words:** Reversa turns undocumented code into operational contracts that an AI agent can understand and use to safely evolve the system.
+It does not assume a web application or modernization workflow. It starts with files, symbols, build declarations, device facts, paths, configs, logs, and contradictions.
 
 ---
 
-## Quick start
+## What It Is
 
-In the root of the legacy project:
+Reversa-Matrix scans a source tree and emits structured evidence:
+
+- findings with file and line references
+- contradictions between source claims and known-good facts
+- patch candidates that stay reviewable instead of automatic
+- compare reports between current and reference trees
+- offline dashboards for humans
+- JSON/JSONL handoff bundles for Codex and other agents
+
+The core rule is simple:
+
+```text
+HTML is a view.
+JSON and JSONL are the source of truth.
+```
+
+---
+
+## Supported Direction
+
+The current scanner already understands Android recovery-style trees and generic source trees. The project direction is broader:
+
+| Platform | What Reversa-Matrix should map |
+|---|---|
+| Android | recovery trees, kernels, vendor blobs, fstab, init rc, BoardConfig, device facts |
+| Linux | containers, distro roots, desktop graphics stacks, systemd, kernel/userland boundaries |
+| Windows | source projects, drivers, services, registry assumptions, PE metadata, build scripts |
+| Cross-platform | C/C++/Rust/Java/Kotlin/Python/JS projects, generated artifacts, copied constants, risky assumptions |
+
+Reversa-Matrix is a platform-aware evidence mapper, not a website modernization wrapper.
+
+---
+
+## Quick Start
+
+Clone and run the local CLI:
 
 ```bash
-npx reversa install
+git clone https://github.com/Fractal-Echo/Reversa-Matrix.git
+cd Reversa-Matrix
+npm install
+npm test
+node ./bin/reversa.js scan --help
 ```
 
-Then open the project in your favorite AI agent and type:
+Run the included Android recovery fixture:
 
-```
-/reversa
+```bash
+node ./bin/reversa.js scan \
+  --project-root ./test/fixtures/android-recovery-current \
+  --profile android_recovery \
+  --known-good examples/known_good_rm11pro_nx809j.json \
+  --out reversa_out
 ```
 
-That's it. Reversa takes the wheel and guides you to the end.
+Open the local dashboard:
+
+```bash
+node ./bin/reversa.js gui --out reversa_out
+```
 
 ---
 
-## What you'll find here
+## What You Get
 
-<div class="grid cards" markdown>
+```text
+reversa_out/
++-- report.json
++-- evidence.jsonl
++-- summary.md
++-- report.html
++-- dashboard.html
++-- agent_handoff/
+    +-- summary.md
+    +-- findings.json
+    +-- contradictions.json
+    +-- patch_candidates.json
+    +-- commands_to_run.md
+    +-- known_good_facts.json
+    +-- risky_assumptions.json
+    +-- tree_inventory.json
+```
 
-- **Why Reversa exists**
-
-    The problem it solves and why it matters.
-
-    [:octicons-arrow-right-24: Read more](por-que-reversa.md)
-
-- **Installation**
-
-    Two minutes and you're ready to go.
-
-    [:octicons-arrow-right-24: Install](instalacao.md)
-
-- **Analysis pipeline**
-
-    The 5 phases that turn code into specification.
-
-    [:octicons-arrow-right-24: See pipeline](pipeline.md)
-
-- **Agents**
-
-    5 specialized Teams: Core (always installed), Migration, Code Forward, Pricing and Translators.
-
-    [:octicons-arrow-right-24: See agents](agentes/index.md)
-
-</div>
+Use `dashboard.html` to browse. Use `report.json`, `evidence.jsonl`, and `agent_handoff/` for automation.
 
 ---
 
-## Safety guarantee
+## Safety Model
 
-!!! danger "💾 Back up your project before starting"
-    Although Reversa never modifies your files, AI agents can make mistakes. **We strongly recommend:**
+Reversa-Matrix is read-only against the target tree during scan and compare. It does not flash devices, write partitions, run bootloader flows, or patch source files by itself.
 
-    1. **Version the project in Git** — make sure all files are committed before starting the analysis
-    2. **Have the repository on GitHub** (or GitLab, Bitbucket) — so you have a safe remote copy
-    3. **Make a local copy of the folder** — a simple `cp -r my-project my-project-backup` protects against any unexpected event
+When a command list contains risky operations, the dashboard separates them under:
 
-    If something unexpected happens during analysis, you can restore the original state with `git restore .` or from the backup copy.
+```text
+DESTRUCTIVE / HUMAN REVIEW REQUIRED / BACKUP REQUIRED
+```
 
-!!! warning "Reversa never touches your files"
-    Agents write **only** to `.reversa/` and `_reversa_sdd/`. No file in your project is modified, deleted, or overwritten. Ever.
+That safety boundary matters because Reversa-Matrix is meant for kernel, recovery, driver, and OS-adjacent work where a careless command can do real damage.
 
-!!! info "No API keys"
-    Reversa does not request, store, or transmit API keys from any service. The intelligence comes from the agent you already use in your environment, like Claude Code, Codex, Gemini CLI etc.
+---
+
+## Where To Go Next
+
+- [Installation](instalacao.md)
+- [First scan](uso.md)
+- [CLI](cli.md)
+- [GUI Dashboard](gui.md)
+- [Platform scope](platforms.md)
+- [Evidence pipeline](pipeline.md)
+- [Generated outputs](saidas/index.md)
+- [Original Reversa compatibility](original-reversa-compatibility.md)

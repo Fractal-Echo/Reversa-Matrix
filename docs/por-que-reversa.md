@@ -1,44 +1,70 @@
-# Why Reversa exists
+# Why Reversa-Matrix Exists
 
-## The classic problem
+Modern code research spans mixed trees: Android device sources, Linux graphics stacks, Windows services, kernels, build systems, generated files, vendor blobs, copied constants, logs, patches, and half-true assumptions from previous ports.
 
-Imagine a system that went live in 2015. Nobody who wrote it is still at the company. The original documentation was a Word file nobody knows where it went. The code works, generates revenue every day, but there are parts nobody dares to touch because "change this, break that."
-
-That system carries years of accumulated knowledge: implicit business rules, architectural decisions made at 11pm before a deadline, critical logic buried in functions with names like `process_v2_final_revised`. The knowledge exists. It's in the code. But it's trapped there, inaccessible to any AI agent.
+Reversa-Matrix exists for that mess.
 
 ---
 
-## The problem with AI agents
+## The Problem
 
-AI agents are transformative for creating and evolving software. But they depend on specifications to operate safely.
+When a tree gets large enough, nobody can safely reason from memory. A single target may have:
 
-For new systems it works well: you write the spec, the agent executes. But for legacy systems? The agent has no way of knowing what it can't break. If you ask it to "refactor the payments module," it will refactor based on what the code *seems* to do, without knowing what the code *should* do.
+- old device names copied into new bring-up work
+- one file claiming one SoC and another file claiming another
+- paths that only exist on-device
+- partition sizes from a different board
+- build flags that contradict known-good test results
+- generated files mixed with hand-edited files
+- reference trees that are useful but unsafe to import blindly
 
-The result is that classic moment: the agent breaks a business rule that nobody had documented, and you only find out when the client calls to complain.
-
----
-
-## The solution
-
-Reversa is the bridge between the legacy system and AI agents.
-
-It analyzes the existing code and extracts the accumulated knowledge: business rules, flows, contracts between modules, retroactive architectural decisions. Then it transforms everything into executable, traceable specifications ready for any coding agent.
-
-The result is not documentation for humans to read on a quiet afternoon. These are **operational contracts** that allow an agent to evolve the system with fidelity to what already exists.
+An agent can help, but only if it has durable evidence. A polished paragraph is not enough. It needs file paths, line numbers, normalized claims, severity, confidence, and a way to compare claims across runs.
 
 ---
 
-## Who it's for
+## Product Position
 
-- **Companies with legacy systems** that want to modernize without rewriting everything from scratch
-- **Teams that use vibe coding** and never wrote formal specs (no judgment)
-- **Developers who inherited a project** and need to understand what it does before changing anything
-- **Anyone** with a working but undocumented system who wants to use AI agents to evolve it safely
+Reversa-Matrix is shaped around:
+
+- Windows, Android, Linux, and mixed codebases
+- source-tree and artifact evidence
+- contradiction detection
+- known-good facts from real testing
+- compare mode between trees
+- safe patch candidate review
+- dashboard browsing for humans
+- JSON/JSONL handoff for Codex agents
+
+The product should read as a professional evidence system, not a migration assistant.
 
 ---
 
-## What Reversa is not
+## The Operating Principle
 
-Reversa is not a traditional static analysis tool. It doesn't generate code coverage, doesn't do linting, doesn't flag bugs. It's a **knowledge extraction** framework: it takes what is implicit in the code and makes it explicit in formal specifications.
+```text
+Claims must be traceable.
+Risk must be labeled.
+HTML must not become the source of truth.
+Agents must inherit evidence, not informal summaries.
+```
 
-It's also not a magic solution. Parts of the system that are genuinely inaccessible through static analysis (behavior dependent on real data, rules that only exist in someone's head) will appear as gaps, marked with 🔴, waiting for human validation. Honesty is part of the design.
+That means Reversa-Matrix favors structured outputs, stable evidence IDs, and boring reproducibility over magical auto-fixes.
+
+---
+
+## Who It Is For
+
+- Android recovery, kernel, and vendor bring-up work
+- Linux userspace, graphics, compositor, and container research
+- Windows service, driver, application, and build-tree analysis
+- cross-platform ports where constants and paths drift over time
+- Codex-assisted research where the next agent needs a clean handoff
+- anyone comparing a current tree to a known-good or reference tree
+
+---
+
+## What It Should Not Do
+
+Reversa-Matrix should not quietly mutate the target. It should not hide weak evidence. It should not run destructive device workflows as normal actions. It should not treat a reference tree as automatically correct.
+
+The tool maps the evidence. Humans and agents still weigh the fix.

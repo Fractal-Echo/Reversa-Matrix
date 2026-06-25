@@ -1,58 +1,39 @@
-# Confidence scale
+# Confidence Scale
 
-One of the most important parts of Reversa is honesty. The system doesn't pretend to know what it doesn't know.
+Reversa-Matrix separates evidence strength from severity.
 
-Every statement generated in the specifications is marked with one of the three levels below. No exceptions.
+Severity answers: how serious is the issue?
 
----
-
-## The three levels
-
-| Mark | Name | Meaning |
-|------|------|---------|
-| 🟢 | **CONFIRMED** | Extracted directly from code, with file and line as evidence. Can be cited. |
-| 🟡 | **INFERRED** | Deduced from patterns, naming, or context. Probably right, but might be wrong. |
-| 🔴 | **GAP** | Not determinable from code analysis. Requires human validation. |
+Confidence answers: how strongly does the evidence support the claim?
 
 ---
 
-## Why this matters
+## Labels
 
-Without this marking, an AI-generated specification is a black box of trust. You don't know what was extracted from the code and what was made up.
-
-With the confidence scale, you know exactly where to trust and where to question. An AI agent using this spec knows the same: "this item is 🟢, safe to use. This one is 🔴, needs a human source."
-
----
-
-## Practical examples
-
-**🟢 CONFIRMED**
-
-> The `calculate_discount` function applies 15% for orders above $500.
-> Source: `src/pricing/discount.js`, line 47.
-
-This was extracted literally from the code. If someone disputes it, there's somewhere to point.
+| Label | Meaning |
+|---|---|
+| `confirmed` | Directly supported by file content, known-good facts, or another reproducible artifact. |
+| `likely` | Strongly supported by patterns or multiple related observations, but not fully proven. |
+| `possible` | Plausible and worth tracking, but needs more evidence before action. |
+| `weak` | Low-confidence signal. Treat as a prompt for investigation, not a conclusion. |
 
 ---
 
-**🟡 INFERRED**
+## How To Use Confidence
 
-> The system appears to use soft delete for customer records (field `deleted_at` present in the table).
+Use confidence before planning edits:
 
-The field exists, the pattern is well-known, but nowhere in the code is it explicitly written "we use soft delete." The field might be there for another reason.
-
----
-
-**🔴 GAP**
-
-> Could not determine the system's behavior when payment fails due to gateway timeout.
-
-The code calls the gateway, but there's no timeout error handling. The actual behavior may exist at the infrastructure layer, in a database that wasn't analyzed, or may never have been implemented. Someone who knows the system needs to answer this.
+- `confirmed`: safe to cite as evidence, still review context before patching.
+- `likely`: validate with another source before broad changes.
+- `possible`: collect more evidence.
+- `weak`: do not patch from this alone.
 
 ---
 
-## How gaps are resolved
+## Severity Is Separate
 
-The Reviewer collects all 🔴 gaps and presents them as questions for you to answer. After you answer, it updates the specs and reclassifies: 🔴 becomes 🟢 if you confirmed with evidence, or 🟡 if you gave an answer but without absolute certainty.
+A finding can be high severity and low confidence. For example, a possible partition-size mismatch is important, but it still needs verification before acting.
 
-Gaps that couldn't be answered remain in `_reversa_sdd/gaps.md` for later handling.
+A finding can also be low severity and confirmed. For example, a stale comment may be clearly present but not dangerous.
+
+The dashboard exposes both fields so humans and agents do not confuse urgency with proof.

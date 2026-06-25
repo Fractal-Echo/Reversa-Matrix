@@ -1,97 +1,70 @@
-# Supported engines
+# Agent And Engine Use
 
-Reversa works with the leading AI engines on the market. The installer automatically detects which ones are present in the environment, but you can add more at any time with `npx reversa add-engine`.
-
----
-
-## Compatibility
-
-| Engine | File created | Skills path | How to activate |
-|--------|-------------|-------------|-----------------|
-| **Claude Code** ⭐ | `CLAUDE.md` | `.claude/skills/reversa-*/` and `.agents/skills/reversa-*/` | `/reversa` |
-| **Codex** ⭐ | `AGENTS.md` | `.agents/skills/reversa-*/` | `reversa` |
-| **Cursor** ⭐ | `.cursorrules` | `.agents/skills/reversa-*/` | `/reversa` |
-| **Gemini CLI** | `GEMINI.md` | `.agents/skills/reversa-*/` | `/reversa` |
-| **Windsurf** | `.windsurfrules` | `.agents/skills/reversa-*/` | `/reversa` |
-| **Antigravity** | `AGENTS.md` | `.agents/skills/reversa-*/` | `/reversa` |
-| **Kiro** | (none) | `.kiro/skills/reversa-*/` and `.agents/skills/reversa-*/` | `/reversa` |
-| **Opencode** | `AGENTS.md` | `.agents/skills/reversa-*/` | `reversa` |
-| **Cline** | `.clinerules` | `.agents/skills/reversa-*/` | `/reversa` |
-| **Roo Code** | `.roorules` | `.agents/skills/reversa-*/` | `/reversa` |
-| **GitHub Copilot** | `.github/copilot-instructions.md` | `.agents/skills/reversa-*/` | `/reversa` |
-| **Aider** | `CONVENTIONS.md` | `.agents/skills/reversa-*/` | `reversa` |
-| **Amazon Q Developer** | `.amazonq/rules/reversa.md` | `.agents/skills/reversa-*/` | `/reversa` |
+Reversa-Matrix can be used without installing any agent skills. The scanner produces JSON, JSONL, Markdown, HTML, and dashboard files that any agent can read.
 
 ---
 
-## Claude Code
+## Best Current Agent Flow
 
-The most tested engine with the best support. Uses native slash commands, making activation intuitive. Reversa creates files in both `.claude/skills/` and `.agents/skills/` (for compatibility with other engines that may be added later).
+1. Run `scan` or `compare`.
+2. Generate the GUI with `gui`.
+3. Give Codex the `agent_handoff/` bundle.
+4. Ask it to reason from evidence IDs, file paths, and line references.
 
----
+Start Codex with:
 
-## Codex
-
-Fully compatible. Since Codex doesn't use slash commands, activation is by the agent name directly: `reversa`, `reversa-scout`, etc. The `AGENTS.md` file at the project root serves as the entry point.
-
----
-
-## Cursor
-
-Compatible via `.cursorrules`. Cursor reads the rules from this file and the agents are available as skills.
-
----
-
-## Gemini CLI and Windsurf
-
-Full support. Agents live in `.agents/skills/` and are accessed via each engine's native mechanisms.
+```text
+Read agent_handoff/summary.md first.
+Then inspect contradictions.json, patch_candidates.json, commands_to_run.md, known_good_facts.json, risky_assumptions.json, and tree_inventory.json.
+Do not scrape dashboard.html when JSON exists.
+Do not run destructive commands.
+```
 
 ---
 
-## Antigravity
+## Compatible Agents
 
-Google's agentic development platform, released in November 2025. Reads `AGENTS.md` natively (same file as Codex). If Codex is already installed in the project, the existing `AGENTS.md` is reused without duplication. CLI command: `agy`.
+The output format is plain files, so it works with:
 
----
+- Codex
+- Claude Code
+- Cursor
+- Gemini CLI
+- Windsurf
+- Aider
+- other agents that can read local files
 
-## Kiro
-
-Amazon's agentic IDE. Kiro natively discovers skills in `.kiro/skills/`, no steering document required. The installer places agents in `.kiro/skills/` (and also in `.agents/skills/` for compatibility with other engines). Activation is via `/reversa` or auto-discovery from the skill description.
-
----
-
-## Opencode
-
-Open source coding agent for the terminal (SST). Reads `AGENTS.md` natively, same convention as Codex. CLI command: `opencode`. Like Codex, activation is by agent name: `reversa`.
+No engine-specific API key is required by Reversa-Matrix itself.
 
 ---
 
-## Cline and Roo Code
+## Optional Original Reversa Installer
 
-VS Code extensions with custom rules support via `.clinerules` and `.roorules` respectively. The pattern is identical to Cursor and Windsurf: a rules file at the project root that instructs the agent when activating `/reversa`.
+The older installer can still create engine entry files and skill folders:
 
----
+```bash
+npx reversa install
+```
 
-## GitHub Copilot
+It can create files such as:
 
-Uses `.github/copilot-instructions.md` as a custom instructions file, automatically read by Copilot in every session. The installer creates the file inside `.github/` (which may already exist in the project).
+- `AGENTS.md`
+- `CLAUDE.md`
+- `.agents/skills/`
+- `.claude/skills/`
+- `.reversa/`
 
----
-
-## Aider
-
-Coding agent for the terminal. The entry file `CONVENTIONS.md` at the root is passed via `--read CONVENTIONS.md` or configured in `.aider.conf.yml`. Like Codex and Opencode, activation is by name: `reversa`.
-
----
-
-## Amazon Q Developer
-
-AWS AI CLI. Uses rules in `.amazonq/rules/` to instruct the agent per project. The installer creates `.amazonq/rules/reversa.md` without interfering with other rules you may already have in that folder.
+That is compatibility support. The new product center is scanner output plus agent handoff.
 
 ---
 
-## Multiple engines in the same project
+## Agent Ground Rules
 
-You can have all engines installed at the same time. Agents in `.agents/skills/` are shared by all of them. The installer creates the specific entry files for each engine without conflict.
+Agents using Reversa-Matrix output should:
 
-If you work in a team where each person uses a different engine, this works normally: everyone uses their engine's entry file, but all agents are in the same place.
+- cite evidence IDs
+- preserve file/line references
+- separate confirmed facts from assumptions
+- run only read-only validation commands unless a human explicitly authorizes more
+- treat compare candidates as suggestions, not imports
+- update notes when new evidence supersedes old evidence

@@ -1,6 +1,6 @@
-# Enhanced Reversa
+# Scanner Contract
 
-Enhanced Reversa turns source-tree research into a structured evidence dataset for coding agents.
+Enhanced Reversa was the durable scanner pass. Reversa-Matrix is the broader product direction: cross-platform evidence mapping for Windows, Android, Linux, and mixed source trees.
 
 The scanner is read-only against the target tree. It writes artifacts to an output directory and treats JSON/JSONL as the source of truth:
 
@@ -13,9 +13,11 @@ The scanner is read-only against the target tree. It writes artifacts to an outp
 
 HTML is a dashboard. Agents should consume `report.json`, `evidence.jsonl`, and the handoff bundle.
 
+The scanner should expand by adding platform profiles, not by replacing the report contract.
+
 ## Local GUI
 
-Generate a noob-friendly offline dashboard after a scan:
+Generate a guided offline dashboard after a scan:
 
 ```bash
 node ./bin/reversa.js gui --out reversa_out
@@ -55,7 +57,7 @@ Unknown values are represented as `null`, `[]`, or `"unknown"` depending on fiel
 
 ## Known-Good Facts
 
-Known-good facts are JSON files that record real device observations. Reversa compares source-tree declarations against those facts and flags mismatches.
+Known-good facts are JSON files that record trusted observations. Reversa-Matrix compares source-tree declarations against those facts and flags mismatches.
 
 Example:
 
@@ -68,6 +70,8 @@ npx reversa scan \
 ```
 
 The RM11Pro / NX809J example includes `product`, `model`, `device`, `SoC/platform`, boot header version, recovery partition size, slot suffix, and stock recovery backup requirements.
+
+The same pattern should be reusable for Linux runtime facts and Windows host/application facts.
 
 ## Android Recovery Profile
 

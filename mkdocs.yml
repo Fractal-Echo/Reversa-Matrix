@@ -1,28 +1,28 @@
 site_name: Reversa-Matrix
 site_url: https://fractal-echo.github.io/Reversa-Matrix
-site_description: Reverse-engineering evidence mapper for source trees, contradictions, and analysis.
-site_author: sandeco / Fractal-Echo
+site_description: Reverse-engineering evidence mapper for Windows, Android, Linux, and mixed source trees.
+site_author: Fractal-Echo
 repo_url: https://github.com/Fractal-Echo/Reversa-Matrix
 repo_name: Fractal-Echo/Reversa-Matrix
 edit_uri: edit/main/docs/
-copyright: '"Reversa-Matrix" by sandeco / Fractal-Echo'
+copyright: "Reversa-Matrix"
 
 theme:
   name: material
-  language: pt-BR
+  language: en
   palette:
     - scheme: slate
       primary: indigo
       accent: indigo
       toggle:
         icon: material/brightness-4
-        name: Mudar para modo claro
+        name: Switch to light mode
     - scheme: default
       primary: indigo
       accent: indigo
       toggle:
         icon: material/brightness-7
-        name: Mudar para modo escuro
+        name: Switch to dark mode
   features:
     - navigation.sections
     - navigation.top
@@ -37,20 +37,6 @@ theme:
 
 markdown_extensions:
   - admonition
-  - pymdownx.details
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
-  - pymdownx.tabbed:
-      alternate_style: true
-  - pymdownx.emoji:
-      emoji_index: !!python/name:material.extensions.emoji.twemoji
-      emoji_generator: !!python/name:material.extensions.emoji.to_svg
-  - pymdownx.highlight:
-      anchor_linenums: true
-  - pymdownx.inlinehilite
   - tables
   - attr_list
   - md_in_html
@@ -63,179 +49,22 @@ extra_css:
 plugins:
   - search:
       lang:
-        - pt
         - en
-  - i18n:
-      docs_structure: suffix
-      languages:
-        - locale: en
-          default: true
-          name: English
-        - locale: pt
-          name: Português
-          build: true
-          nav_translations:
-            Home: Início
-            Why Reversa: Por que o Reversa
-            Installation: Instalação
-            How to use: Como usar
-            CLI: CLI
-            GUI Dashboard: Painel GUI
-            Configuration: Configuração
-            Supported engines: Engines suportadas
-            Analysis pipeline: Pipeline de análise
-            Confidence scale: Escala de confiança
-            Agents: Agentes
-            Overview: Visão geral
-            Guide with analogies: Guia com analogias
-            Reversa (Orchestrator): Reversa (Orquestrador)
-            Soul Extractor: Extrator de Alma
-            Translators: Tradutores
-            N8N Translator: N8N Translator
-            Generated outputs: Saídas geradas
-            Developing from specs: Desenvolvendo com as specs
-            Migration: Migração
-            The 5 agents: Os 5 agentes
-            Paradigm shift: Mudança de paradigma
-            Strategies: Estratégias
-            Brief schema: Schema do brief
-            Contributing: Contribuindo
-            Code New Project Agents: Code New Project Agents
-            The greenfield agents: Os agentes do greenfield
-            Code Forward Agents: Code Forward Agents
-            The Forward agents: Os agentes do Forward
-            Migration Agents: Agentes de Migração
-            Pricing and Size Agents: Pricing and Size Agents
-            Translators N8N->Specs->Python: Tradutores N8N->Specs->Python
-            Documentation Team: Time de Documentação
-            The 4 visual agents: Os 4 agentes visuais
-            Forward orchestrator: Orquestrador Forward
-            Requirements: Requirements
-            Clarify: Clarify
-            Quality: Quality
-            Plan: Plan
-            To-Do: To-Do
-            Audit: Audit
-            Coding: Coding
-            Principles: Principles
-            Resume: Resume
-            Ideator: Ideator
-            Researcher: Researcher
-            Drafter: Drafter
-            Spec SDD: Spec SDD
-            Mapper: Mapper
-            Analyst: Analyst
-            Storyteller: Storyteller
-            Publisher: Publisher
-            Reversa Docs: Reversa Docs
-            Reversa New: Reversa New
-            Reversa Forward: Reversa Forward
-        - locale: es
-          name: Español
-          build: true
-          nav_translations:
-            Home: Inicio
-            Why Reversa: Por qué Reversa
-            Installation: Instalación
-            How to use: Cómo usar
-            CLI: CLI
-            GUI Dashboard: Panel GUI
-            Configuration: Configuración
-            Supported engines: Motores compatibles
-            Analysis pipeline: Pipeline de análisis
-            Confidence scale: Escala de confianza
-            Agents: Agentes
-            Overview: Visión general
-            Guide with analogies: Guía con analogías
-            Reversa (Orchestrator): Reversa (Orquestador)
-            Soul Extractor: Extractor de Alma
-            Translators: Traductores
-            N8N Translator: N8N Translator
-            Generated outputs: Salidas generadas
-            Developing from specs: Desarrollando con las specs
-            Migration: Migración
-            The 5 agents: Los 5 agentes
-            Paradigm shift: Cambio de paradigma
-            Strategies: Estrategias
-            Brief schema: Schema del brief
-            Contributing: Contribuir
-            Code New Project Agents: Code New Project Agents
-            The greenfield agents: Los agentes del greenfield
-            Code Forward Agents: Code Forward Agents
-            The Forward agents: Los agentes del Forward
-            Migration Agents: Agentes de Migración
-            Pricing and Size Agents: Pricing and Size Agents
-            Translators N8N->Specs->Python: Traductores N8N->Specs->Python
-            Documentation Team: Equipo de Documentación
-            The 4 visual agents: Los 4 agentes visuales
-            Forward orchestrator: Orquestador Forward
-            Requirements: Requirements
-            Clarify: Clarify
-            Quality: Quality
-            Plan: Plan
-            To-Do: To-Do
-            Audit: Audit
-            Coding: Coding
-            Principles: Principles
-            Resume: Resume
-            Ideator: Ideator
-            Researcher: Researcher
-            Drafter: Drafter
-            Spec SDD: Spec SDD
-            Mapper: Mapper
-            Analyst: Analyst
-            Storyteller: Storyteller
-            Publisher: Publisher
-            Reversa Docs: Reversa Docs
-            Reversa New: Reversa New
-            Reversa Forward: Reversa Forward
 
 nav:
   - Home: index.md
-  - Why Reversa: por-que-reversa.md
+  - Why Reversa-Matrix: por-que-reversa.md
   - Installation: instalacao.md
-  - How to use: uso.md
+  - First Scan: uso.md
   - CLI: cli.md
   - GUI Dashboard: gui.md
-  - Enhanced Reversa: enhanced-reversa.md
+  - Platform Scope: platforms.md
+  - Scanner Contract: enhanced-reversa.md
   - Configuration: configuracao.md
-  - Supported engines: engines.md
-  - Analysis pipeline: pipeline.md
-  - Confidence scale: escala-confianca.md
-  - Agents:
-    - Overview: agentes/index.md
-    - Reversa Agents Core:
-      - Reversa (Orchestrator): agentes/reversa.md
-      - Guide with analogies: agentes/agents-help.md
-      - Scout: agentes/scout.md
-      - Soul Extractor: agentes/extract-soul.md
-      - Archaeologist: agentes/arqueologo.md
-      - Detective: agentes/detetive.md
-      - Architect: agentes/arquiteto.md
-      - Writer: agentes/redator.md
-      - Reviewer: agentes/revisor.md
-      - Visor: agentes/visor.md
-      - Data Master: agentes/data-master.md
-      - Design System: agentes/design-system.md
-    - Code New Project Agents:
-      - Overview: newproject/index.md
-      - The greenfield agents: newproject/agentes.md
-    - Code Forward Agents:
-      - Overview: forward/index.md
-      - The Forward agents: forward/agentes.md
-    - Migration Agents:
-      - Overview: migracao/index.md
-      - The 5 agents: migracao/agentes.md
-      - Paradigm shift: migracao/paradigma.md
-      - Strategies: migracao/estrategias.md
-      - Brief schema: migracao/brief.md
-    - Pricing and Size Agents:
-      - Overview: pricing/index.md
-    - Documentation Team:
-      - Overview: documentation/index.md
-      - The 4 visual agents: documentation/agentes.md
-    - Translators N8N->Specs->Python:
-      - N8N Translator: agentes/n8n.md
-  - Generated outputs: saidas/index.md
-  - Developing from specs: desenvolvendo-com-specs.md
+  - Agent And Engine Use: engines.md
+  - Evidence Pipeline: pipeline.md
+  - Confidence Scale: escala-confianca.md
+  - Generated Outputs: saidas/index.md
+  - Working From Evidence: desenvolvendo-com-specs.md
+  - Original Reversa Compatibility: original-reversa-compatibility.md
   - Contributing: contribuindo.md

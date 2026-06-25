@@ -1,71 +1,89 @@
 # Installation
 
+Reversa-Matrix is a Node.js CLI. Today the strongest path is running it from the cloned repository.
+
 ## Requirements
 
-- **Node.js 18+** installed on your machine
+- Node.js 18+
+- Git
+- A source tree to inspect
 
-If you don't have Node.js, install it at [nodejs.org](https://nodejs.org) and come back here.
+For Android/Linux/Windows research, install any platform tools separately. Reversa-Matrix does not bundle ADB, compilers, SDKs, debuggers, or device flashing tools.
 
 ---
 
-## One command, that's all
+## Clone The Project
 
-In the root of the legacy project you want to analyze:
+```bash
+git clone https://github.com/Fractal-Echo/Reversa-Matrix.git
+cd Reversa-Matrix
+npm install
+npm test
+```
+
+Inspect the scanner help:
+
+```bash
+node ./bin/reversa.js scan --help
+```
+
+---
+
+## Run The Fixture Scan
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root ./test/fixtures/android-recovery-current \
+  --profile android_recovery \
+  --known-good examples/known_good_rm11pro_nx809j.json \
+  --out reversa_out
+```
+
+Then generate the GUI:
+
+```bash
+node ./bin/reversa.js gui --out reversa_out
+```
+
+The command prints a `file://` URL to `dashboard.html`.
+
+---
+
+## Installed Package Style
+
+When the package is installed or published in your environment, the same commands are:
+
+```bash
+npx reversa scan --help
+npx reversa gui --out reversa_out
+```
+
+Inside the cloned repository, prefer `node ./bin/reversa.js ...` so you know you are running this checkout.
+
+---
+
+## Optional Agent Installer
+
+The older Reversa agent installer still exists for compatibility:
 
 ```bash
 npx reversa install
 ```
 
-The installer does all of this for you:
+That command creates `.reversa/`, agent skill folders, and engine entry files such as `AGENTS.md` or `CLAUDE.md`. It is not required for scanner/dashboard use.
 
-1. Detects the AI engines present in the environment (Claude Code, Codex, Cursor, Gemini CLI, Windsurf)
-2. Asks which agent **Teams** to install. `Reversa Agents Core` is always included; `Migration Agents`, `Code Forward Agents` and `Pricing and Size Agents` come pre-checked; `Translators N8N->Specs->Python` is unchecked by default. The CLI expands each chosen Team into its agents
-3. Collects project name, language, and preferences
-4. Copies agents to `.agents/skills/` and `.claude/skills/` (for Claude Code)
-5. Creates the engine entry file (`CLAUDE.md`, `AGENTS.md`, etc.)
-6. Creates the `.reversa/` structure with state, configuration, and plan
-7. Generates the SHA-256 manifest for safe future updates
-
-It's like `npm install`, but for your reverse engineering agent team.
+For the new Reversa-Matrix workflow, start with `scan`, `compare`, and `gui`.
 
 ---
 
-## What gets created in the project
+## Safety
 
-```
-legacy-project/
-├── .reversa/               ← analysis state, config, and context
-├── .agents/skills/         ← universal agents (all engines)
-├── .claude/skills/         ← mirror for Claude Code
-├── CLAUDE.md               ← entry point for Claude Code (if detected)
-├── AGENTS.md               ← entry point for Codex (if detected)
-└── _reversa_sdd/           ← where specs will be generated (empty initially)
-```
+Scan and compare read the target tree and write outputs to `--out`. They do not modify the inspected source tree.
 
-!!! success "Your files stay intact"
-    The installer **only creates new files**. It never modifies or deletes any existing file in your project.
+Still use normal research hygiene:
 
----
-
-## Backup before starting
-
-!!! warning "Strong recommendation: make a backup"
-    Although Reversa never modifies your files, AI agents can make mistakes. Before starting the analysis:
-
-    1. Make sure all files are committed in Git
-    2. Have the repository on GitHub, GitLab, or Bitbucket
-    3. Make a local copy of the folder as extra safety: `cp -r my-project my-project-backup`
-
-    If something unexpected happens, `git restore .` fixes it.
-
----
-
-## Adding another engine later
-
-If you want to add support for another engine later (for example, you installed only for Claude Code and now want Codex too):
-
-```bash
-npx reversa add-engine
-```
-
-The installer detects what already exists and adds only what's missing.
+- keep your source tree in Git
+- keep device-specific known-good facts separate
+- do not paste secrets into known-good JSON
+- review command lists before running anything
+- treat destructive commands as manual-only even if they appear in imported artifacts

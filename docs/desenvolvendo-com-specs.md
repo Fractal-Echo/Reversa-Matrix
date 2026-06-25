@@ -1,48 +1,71 @@
-# Developing from specs
+# Working From Evidence
 
-Once Reversa has generated all specs in `_reversa_sdd/`, you can take those files to any machine and start building the system from scratch. Here is the recommended order.
+Reversa-Matrix does not ask you to build from prose specs first. It asks you to work from evidence.
 
 ---
 
-## Before writing a single line of code
+## Read Order
 
-Start by reading these three files:
+For a scan output directory, start here:
 
-| File | Why read first |
+| File | Why |
 |---|---|
-| `_reversa_sdd/confidence-report.md` | Shows what is high-confidence (green) vs. gaps (red). Avoids building on wrong inferences. |
-| `_reversa_sdd/gaps.md` | Lists what Reversa could not determine. Fill these in manually before starting. |
-| `_reversa_sdd/architecture.md` + C4 diagrams | Shows the big picture: layers, modules, system boundaries. |
+| `agent_handoff/summary.md` | Human-readable orientation |
+| `report.json` | Canonical scan report |
+| `evidence.jsonl` | Streamable evidence records |
+| `agent_handoff/contradictions.json` | Conflicting claims and likely winners |
+| `agent_handoff/patch_candidates.json` | Reviewable fix directions |
+| `agent_handoff/risky_assumptions.json` | Weak claims that need more proof |
+| `agent_handoff/commands_to_run.md` | Validation commands, usually read-only |
+
+For compare output, read:
+
+| File | Why |
+|---|---|
+| `compare_report.json` | Canonical compare report |
+| `agent_handoff/compare_findings.json` | Classified differences |
+| `agent_handoff/safe_import_candidates.json` | Lower-risk manual imports |
+| `agent_handoff/risky_import_candidates.json` | Imports needing deeper review |
 
 ---
 
-## Implementation order (bottom-up)
+## Before Changing Code
 
-```
-1. database/  +  erd-complete.md             (data structures, migrations)
-2. domain.md  +  <unit>/ for core entities   (core business rules: read requirements.md, design.md, tasks.md of each)
-3. <unit>/ for services sorted by dependency (use dependencies.md as a guide)
-4. openapi/   +  API contracts               (if present)
-5. ui/                                       (presentation layer last)
-```
+Check:
 
----
+1. Which evidence IDs support the change?
+2. Is the claim confirmed, likely, possible, or weak?
+3. Does known-good data disagree?
+4. Is the target file generated or hand-edited?
+5. Is there a rollback path?
+6. Is the validation command read-only?
 
-## Which unit comes first
-
-Open `_reversa_sdd/traceability/code-spec-matrix.md`. It lists each unit and its dependencies.
-
-Implement the units that depend on nothing else first (leaf nodes in the dependency tree), then work up toward the units that integrate multiple components.
+If the answer is unclear, collect more evidence before editing.
 
 ---
 
-## Keeping traceability alive during development
+## Patch Candidate Discipline
 
-Use `_reversa_sdd/traceability/code-spec-matrix.md` as a reference while developing to know which piece of implemented code corresponds to which spec. This keeps traceability accurate as the codebase grows.
+A patch candidate is a map marker. It is not permission to patch.
+
+Good patch work should:
+
+- cite evidence IDs
+- update only the intended files
+- avoid importing unrelated reference-tree changes
+- keep risky actions separated
+- rerun the scan or relevant validation after edits
 
 ---
 
-## See also
+## Compare Discipline
 
-- [Generated outputs](saidas/index.md): full list of files produced by Reversa
-- [Confidence scale](escala-confianca.md): how to interpret the 🟢🟡🔴 markers in the specs
+Reference trees are evidence, not authority. A reference file can be useful and still wrong for your target.
+
+Before importing anything:
+
+- inspect why the reference differs
+- check target-specific known-good facts
+- classify generated vs hand-authored files
+- prefer minimal source edits over broad copies
+- record what evidence changed after the edit

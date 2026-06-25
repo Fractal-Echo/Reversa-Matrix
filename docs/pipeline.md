@@ -1,123 +1,121 @@
-# Analysis pipeline
+# Evidence Pipeline
 
-Reversa transforms a legacy system into executable specifications in 5 phases. Each phase has specific agents, and the central orchestrator coordinates everything to happen in the right order.
+Reversa-Matrix is built around a scanner pipeline, not a website modernization pipeline.
 
----
-
-## Overview
-
-```
-Phase 1         Phase 2       Phase 3              Phase 4       Phase 5
-Reconnaissance  Excavation    Interpretation       Generation    Review
-   Scout        Archaeologist  Detective            Writer        Reviewer
-                               Architect
+```text
+inventory -> extraction -> normalization -> contradiction pass -> patch candidates -> outputs -> dashboard
 ```
 
-**Independent agents** that run in any phase: **Visor**, **Data Master**, **Design System**
+---
+
+## 1. Inventory
+
+The scanner walks the target tree and records what exists:
+
+- files and directories
+- important profile-specific files
+- skipped paths
+- file sizes
+- source paths used later by findings
+
+This becomes `tree_inventory.json` in the handoff bundle.
 
 ---
 
-## Phase 1: Reconnaissance
+## 2. Extraction
 
-**Agent:** Scout
+Profile modules extract raw facts from files. For Android recovery, this includes areas such as:
 
-The Scout does the first tour of the project. Like a real estate agent visiting a property for the first time: doesn't open drawers, doesn't read all the documents, just maps the territory.
+- build variables
+- fstab entries
+- init rc service paths
+- partition/image rules
+- vendor blob references
+- display and touch assumptions
+- decrypt stack assumptions
+- suspicious old target leftovers
 
-What it produces:
-
-- Complete project inventory (`inventory.md`)
-- Dependency list with versions (`dependencies.md`)
-- Structured JSON data for the next agents (`.reversa/context/surface.json`)
-
-After the Scout finishes, Reversa uses the `surface.json` to personalize Phase 2: instead of a generic "analyze the code" task, the plan becomes one task per identified module.
-
-This is also when Reversa presents the Scout summary and asks for the **documentation level** (`doc_level`): essential, complete, or detailed. The choice defines which artifacts each agent will generate in the following phases — see [How to use](uso.md#documentation-level) for the full table.
-
----
-
-## Phase 2: Excavation
-
-**Agent:** Archaeologist
-
-The Archaeologist digs through the code module by module. With patience and precision, it catalogs every artifact: functions, algorithms, data structures, control flows. No interpretation or judgment. Just a precise description of what's there.
-
-**Important:** the Archaeologist runs one module per session, intentionally. Large projects have many modules, and trying to analyze everything at once burns context and reduces analysis quality.
-
-What it produces:
-
-- Consolidated technical analysis (`code-analysis.md`)
-- Data dictionary (`data-dictionary.md`)
-- Mermaid flowcharts per module (`flowcharts/[module].md`)
-- Structured data per module (`.reversa/context/modules.json`)
+Future Windows/Linux profiles should add equivalent platform facts, not force everything into Android terms.
 
 ---
 
-## Phase 3: Interpretation
+## 3. Normalization
 
-**Agents:** Detective + Architect
+Raw observations are turned into evidence records with stable fields:
 
-Here the analysis stops being descriptive and becomes interpretive. Two agents work in this phase.
+- category
+- severity
+- confidence
+- file and line references
+- extracted text
+- normalized claim
+- related paths, symbols, build vars, or device props
 
-**The Detective** is the team's Sherlock Holmes. Looks at what the Archaeologist cataloged and asks: *"But why is this here? Who made this decision? What does the git history reveal?"* Extracts implicit business rules, retroactive ADRs, state machines, and permission matrices.
-
-**The Architect** is the cartographer. Synthesizes everything into formal architectural documentation: C4 diagrams at all three levels (Context, Containers, Components), full ERD, integration map, and technical debt.
-
-What they produce:
-
-- Domain and business rules (`domain.md`)
-- State machines in Mermaid (`state-machines.md`)
-- Permission matrix (`permissions.md`)
-- Retroactive ADRs (`adrs/`)
-- C4 diagrams (`c4-context.md`, `c4-containers.md`, `c4-components.md`)
-- Full ERD (`erd-complete.md`)
-- Architectural overview (`architecture.md`)
+Normalization is what lets agents compare claims across files and runs.
 
 ---
 
-## Phase 4: Generation
+## 4. Known-Good Comparison
 
-**Agent:** Writer
+Known-good JSON stores trusted facts from real testing or accepted references. The scanner compares source claims against those facts and classifies:
 
-The Writer is the team's notary. Transforms everything discovered in the previous phases into formal contracts: a folder per unit (module, endpoint, use case, feature, etc., depending on the organization chosen earlier in the flow) with the three canonical SDD files inside, plus cross-cutting globals such as OpenAPI specs and user stories.
+- matches
+- mismatches
+- not-observed facts
+- stale assumptions
 
-Every statement is marked with the [confidence scale](escala-confianca.md): 🟢 CONFIRMED, 🟡 INFERRED, or 🔴 GAP.
-
-The Writer doesn't generate everything at once. It builds a plan covering all units, presents it for your approval, then generates one file at a time, waiting for confirmation before continuing. This allows incremental review and prevents context waste.
-
-What it produces:
-
-- One folder per unit with `<unit>/requirements.md`, `<unit>/design.md`, `<unit>/tasks.md` (plus optionals when the doc level calls for them)
-- API specs (`openapi/[api].yaml`)
-- User stories (`user-stories/[flow].md`)
-- Legacy-to-unit traceability matrix (`traceability/code-spec-matrix.md`)
+For Android device work, this catches problems like old board names, wrong SoC values, and partition size mismatches. The same pattern should expand to Windows and Linux facts.
 
 ---
 
-## Phase 5: Review
+## 5. Contradiction Detection
 
-**Agent:** Reviewer
+Contradictions are grouped when claims disagree. A contradiction should explain:
 
-The Reviewer tries to break the specs. Finds internal contradictions, conflicts between different specs, statements marked as 🟢 that are actually inferences, obvious behaviors left unspecified.
+- what claims conflict
+- where they came from
+- which claim appears stronger, if there is enough evidence
+- what a safe next step would be
 
-It also collects the 🔴 gaps that only you can resolve and presents them as validation questions. After you answer, it updates the specs and generates the final confidence report.
-
-Bonus: if the Codex plugin is active in the session, the Reviewer can request an independent cross-review before doing its own analysis.
-
-What it produces:
-
-- Validation questions (`questions.md`)
-- Final confidence report (`confidence-report.md`)
-- Unresolved gaps (`gaps.md`)
-- Specs updated in-place with reclassifications
+Contradictions are not automatically fixed.
 
 ---
 
-## Independent agents
+## 6. Patch Candidates
 
-These agents don't belong to a specific phase and can be triggered at any time:
+Patch candidates are reviewable change ideas. They link back to evidence IDs and include risk, rationale, validation commands, and rollback guidance where available.
 
-| Agent | When to use |
-|-------|-------------|
-| **Visor** | When you have screenshots of the system available |
-| **Data Master** | When DDL, migrations, or ORM models are available |
-| **Design System** | When CSS files, themes, or interface screenshots are available |
+They are not automatic patches.
+
+---
+
+## 7. Outputs
+
+The scanner writes machine-readable outputs first:
+
+- `report.json`
+- `evidence.jsonl`
+- `agent_handoff/*.json`
+
+Readable views come after:
+
+- `summary.md`
+- `report.html`
+- `dashboard.html`
+
+HTML is always a view over structured data.
+
+---
+
+## 8. Agent Handoff
+
+Codex agents should start with the handoff bundle instead of scraping dashboard HTML:
+
+1. `agent_handoff/summary.md`
+2. `agent_handoff/findings.json`
+3. `agent_handoff/contradictions.json`
+4. `agent_handoff/patch_candidates.json`
+5. `agent_handoff/commands_to_run.md`
+6. `agent_handoff/known_good_facts.json`
+7. `agent_handoff/risky_assumptions.json`
+8. `agent_handoff/tree_inventory.json`

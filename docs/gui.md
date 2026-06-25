@@ -1,6 +1,6 @@
 # GUI Dashboard
 
-Reversa-Matrix includes a lightweight offline dashboard for browsing scan and compare outputs.
+Reversa-Matrix includes a lightweight offline dashboard for browsing Windows, Android, Linux, and mixed-tree scan/compare outputs.
 
 It is not an Electron app and it does not require internet access. The command reads existing structured artifacts and writes one local file:
 
@@ -57,6 +57,20 @@ The dashboard includes:
 - category filter
 
 Each major item includes file/line references when available, expandable JSON details, helper text, and a safe next step.
+
+## Platform Role
+
+The GUI is intentionally generic. It should show Android recovery contradictions today and grow into Windows/Linux evidence without becoming a separate app per platform.
+
+Good dashboard data should come from the report contract:
+
+- platform/profile metadata
+- paths
+- symbols
+- build variables
+- known-good facts
+- contradictions
+- patch candidates
 
 ## Commands And Safety
 
