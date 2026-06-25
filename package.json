@@ -7,7 +7,8 @@
   },
   "type": "module",
   "scripts": {
-    "test": "node --test"
+    "check:public-clean": "node scripts/check-public-clean.js",
+    "test": "npm run check:public-clean && node --test"
   },
   "keywords": [
     "reverse-engineering",
@@ -25,6 +26,7 @@
     "agents/",
     "bin/",
     "lib/",
+    "scripts/",
     "templates/",
     "README.md",
     "LICENSE"

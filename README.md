@@ -80,9 +80,17 @@ Inside this cloned repository, `node ./bin/reversa.js ...` is the most explicit 
 
 ---
 
-## Dashboard Preview
+## Reversa-Matrix Console Preview
 
 `reversa gui` writes an offline `dashboard.html` over existing scan or compare outputs.
+
+The console identity uses a dark evidence-lab layout with a subtle source-tree grid, evidence nodes, contradiction paths, and patch candidate routing. The same lightweight SVG/CSS motif appears in generated scan reports and the dashboard, with animation disabled cleanly when reduced motion is requested.
+
+Tagline:
+
+```text
+Reverse-engineering evidence mapper for source trees, contradictions, and analysis.
+```
 
 ```text
 Reversa-Matrix Dashboard
@@ -216,9 +224,9 @@ The dashboard is for browsing. The handoff bundle is for continuation.
 ## Build Docs Locally
 
 ```bash
-sudo apt install python3-venv
-python3 -m venv .venv-docs
-. .venv-docs/bin/activate
+sudo apt install -y python3-venv python3-pip
+python3 -m venv .venv
+source .venv/bin/activate
 python -m pip install -r docs/requirements.txt
 python -m mkdocs build --strict
 ```

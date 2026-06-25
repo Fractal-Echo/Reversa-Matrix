@@ -28,6 +28,30 @@ JSON and JSONL are the source of truth.
 
 ---
 
+## Report Dashboard Preview
+
+The generated report and offline dashboard share the Reversa-Matrix console identity:
+
+<div class="rm-console-preview" aria-label="Reversa-Matrix console preview">
+  <div class="rm-console-copy">
+    <strong>Reversa-Matrix Console</strong>
+    <span>Reverse-engineering evidence mapper for source trees, contradictions, and analysis.</span>
+  </div>
+  <div class="rm-console-graph" aria-hidden="true">
+    <span class="rm-node evidence"></span>
+    <span class="rm-node contradiction"></span>
+    <span class="rm-node known-good"></span>
+    <span class="rm-node patch"></span>
+    <span class="rm-route route-a"></span>
+    <span class="rm-route route-b"></span>
+    <span class="rm-route route-c"></span>
+  </div>
+</div>
+
+The visual model is evidence mapping first: source observations route into contradiction groups, known-good facts provide review context, and patch candidates stay separate until a human or agent validates them.
+
+---
+
 ## Supported Direction
 
 The current scanner already understands Android recovery-style trees and generic source trees. The project direction is broader:

@@ -15,3 +15,84 @@
   --md-footer-bg-color:         #000000;
   --md-footer-bg-color--dark:   #000000;
 }
+
+.rm-console-preview {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 420px);
+  gap: 1rem;
+  align-items: center;
+  margin: 1.25rem 0;
+  padding: 1rem;
+  border: 1px solid rgba(64, 216, 143, .38);
+  border-radius: 8px;
+  background:
+    linear-gradient(rgba(64, 216, 143, .07) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(64, 216, 143, .07) 1px, transparent 1px),
+    #08110f;
+  background-size: 22px 22px;
+  color: #e8f5ef;
+}
+
+.rm-console-copy {
+  display: grid;
+  gap: .45rem;
+}
+
+.rm-console-copy strong {
+  font-size: 1.25rem;
+}
+
+.rm-console-copy span {
+  color: #6ee7b7;
+  font-weight: 700;
+}
+
+.rm-console-graph {
+  position: relative;
+  min-height: 170px;
+  border: 1px solid rgba(64, 216, 143, .2);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.rm-node,
+.rm-route {
+  position: absolute;
+  display: block;
+}
+
+.rm-node {
+  width: 36px;
+  height: 36px;
+  border: 2px solid #40d88f;
+  border-radius: 50%;
+  background: #0d1f18;
+}
+
+.rm-node.evidence { left: 14%; top: 58%; }
+.rm-node.contradiction { left: 45%; top: 38%; width: 44px; height: 44px; }
+.rm-node.known-good { right: 16%; top: 50%; border-color: #fb7185; }
+.rm-node.patch { right: 12%; bottom: 14%; width: 30px; height: 30px; border-color: #7dd3fc; }
+
+.rm-route {
+  height: 3px;
+  border-radius: 999px;
+  transform-origin: left center;
+  background: repeating-linear-gradient(90deg, currentColor 0 12px, transparent 12px 22px);
+  opacity: .85;
+}
+
+.route-a { left: 22%; top: 61%; width: 30%; color: #40d88f; transform: rotate(-19deg); }
+.route-b { left: 54%; top: 49%; width: 24%; color: #fb7185; transform: rotate(9deg); }
+.route-c { left: 52%; top: 58%; width: 33%; color: #7dd3fc; transform: rotate(26deg); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .rm-route { animation: rm-route-flow 5s linear infinite; }
+  .rm-node { animation: rm-node-pulse 4s ease-in-out infinite; }
+  @keyframes rm-route-flow { to { background-position: 68px 0; } }
+  @keyframes rm-node-pulse { 0%, 100% { box-shadow: none; } 50% { box-shadow: 0 0 14px rgba(64, 216, 143, .25); } }
+}
+
+@media (max-width: 760px) {
+  .rm-console-preview { grid-template-columns: 1fr; }
+}

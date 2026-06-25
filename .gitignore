@@ -7,3 +7,12 @@ site/
 .npm-cache/
 .tmp-mkdocs-site/
 specs/
+local/
+private/
+PRIVATE_NOTES.md
+LOCAL_NOTES.md
+*.local.md
+reversa_out/
+reversa_compare_out/
+.venv/
+.venv-docs/

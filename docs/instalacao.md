@@ -62,6 +62,20 @@ Inside the cloned repository, prefer `node ./bin/reversa.js ...` so you know you
 
 ---
 
+## Build The Docs
+
+Documentation uses MkDocs through Python. Use a local virtual environment:
+
+```bash
+sudo apt install -y python3-venv python3-pip
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r docs/requirements.txt
+python -m mkdocs build --strict
+```
+
+---
+
 ## Optional Agent Installer
 
 The older Reversa agent installer still exists for compatibility:

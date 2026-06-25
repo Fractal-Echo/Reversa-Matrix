@@ -16,9 +16,9 @@ npm test
 Optional docs build:
 
 ```bash
-sudo apt install python3-venv
-python3 -m venv .venv-docs
-. .venv-docs/bin/activate
+sudo apt install -y python3-venv python3-pip
+python3 -m venv .venv
+source .venv/bin/activate
 python -m pip install -r docs/requirements.txt
 python -m mkdocs build --strict
 ```
@@ -50,6 +50,20 @@ Reversa-Matrix/
 - Do not add destructive device commands as normal actions.
 - Do not introduce heavy dependencies without a clear reason.
 - Preserve existing install/status/update compatibility unless a change explicitly targets it.
+
+---
+
+## Public Repository Hygiene
+
+Public documentation should stay product-focused and suitable for new contributors. Keep non-public research notes in ignored paths such as `local/`, `private/`, `LOCAL_NOTES.md`, `PRIVATE_NOTES.md`, or `*.local.md`.
+
+Generated scan output should not be committed unless it is intentionally curated as a test fixture or release artifact.
+
+Run this before publishing:
+
+```bash
+npm run check:public-clean
+```
 
 ---
 

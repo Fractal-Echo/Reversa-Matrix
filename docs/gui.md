@@ -10,6 +10,16 @@ dashboard.html
 
 JSON and JSONL remain the source of truth. The GUI is a viewer.
 
+## Reversa-Matrix Console
+
+The dashboard opens on a lightweight Reversa-Matrix console: a dark evidence-lab header with a source-tree grid, evidence nodes, contradiction routes, known-good context, and patch review routing.
+
+```text
+Reverse-engineering evidence mapper for source trees, contradictions, and analysis.
+```
+
+The motif is implemented with local SVG and CSS. It remains readable without animation and does not require network access.
+
 ## Open A Dashboard
 
 After a scan:
