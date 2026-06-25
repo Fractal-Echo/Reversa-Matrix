@@ -1,0 +1,2 @@
+/dev/block/sda17 /metadata ext4 noatime wait,formattable,metadata_encryption
+/dev/block/by-name/recovery /recovery ext4 ro wait,slotselect,avb

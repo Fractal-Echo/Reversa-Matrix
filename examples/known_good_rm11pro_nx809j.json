@@ -1,0 +1,21 @@
+{
+  "product": "canoe",
+  "model": "NX809J",
+  "device": "NX809J",
+  "SoC/platform": "sm8850",
+  "CPU runtime variant": "oryon",
+  "boot header version": 4,
+  "recovery partition size": 104857600,
+  "recovery_a size": "0x6400000",
+  "boot_a size": "0x6000000",
+  "init_boot_a size": "0x800000",
+  "observed slot suffix": "_a",
+  "ro.boot.hardware": "qcom",
+  "recovery_a exists": true,
+  "stock recovery backup exists and should be treated as required before destructive experiments": true,
+  "suspicious leftovers unless explicitly justified": [
+    "RM10Pro",
+    "sm8750",
+    "non-canoe"
+  ]
+}

@@ -6,6 +6,9 @@
     "reversa": "bin/reversa.js"
   },
   "type": "module",
+  "scripts": {
+    "test": "node --test"
+  },
   "keywords": [
     "legacy",
     "reverse-engineering",

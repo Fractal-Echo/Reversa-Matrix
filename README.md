@@ -1,13 +1,15 @@
 # Reversa 
 <small>by sandeco</small>
 
-**Turn legacy systems into executable specifications for AI agents.**
+**Turn legacy systems into executable specifications and evidence datasets for AI agents.**
 
 [![English Docs](https://img.shields.io/badge/DOCS-English-009c3b?style=for-the-badge&logo=material-for-mkdocs&logoColor=white&labelColor=2d2d2d)](https://sandeco.github.io/reversa/)<br>
 [![Português Docs](https://img.shields.io/badge/DOCS-Portugu%C3%AAs-ffcc00?style=for-the-badge&logo=material-for-mkdocs&logoColor=black&labelColor=2d2d2d)](https://sandeco.github.io/reversa/pt/)<br>
 [![Español Docs](https://img.shields.io/badge/DOCS-Espa%C3%B1ol-c60b1e?style=for-the-badge&logo=material-for-mkdocs&logoColor=white&labelColor=2d2d2d)](https://sandeco.github.io/reversa/es/)
 
-Reversa is a specification reverse-engineering framework. Install it inside a legacy project and it coordinates a team of specialized AI agents to analyze the existing code and generate complete, traceable specifications ready for use by any coding agent.
+Reversa is a reverse-engineering framework for agent-assisted software work. It can install a coordinated team of specialized AI agents inside a legacy project, and it can also scan a source tree into structured, machine-readable evidence that another Codex/Claude/Cursor-style agent can consume without scraping HTML.
+
+Enhanced Reversa is built around one rule: **HTML is a view, JSON/JSONL is the source of truth.** The scanner emits normalized findings, contradictions, known-good comparisons, patch candidates, validation commands, and an `agent_handoff/` bundle designed for the next agent to continue from evidence instead of vibes.
 
 ---
 
@@ -26,6 +28,47 @@ AI agents are transformative for creating and evolving software, but they depend
 It analyzes the existing code, extracts accumulated knowledge (business rules, flows, module contracts, retroactive architectural decisions) and transforms everything into executable, traceable specifications ready for any coding agent.
 
 The result is not documentation for humans to read. These are **operational contracts** that allow an agent to evolve the system with fidelity to what already exists.
+
+---
+
+## Enhanced Reversa
+
+Enhanced Reversa adds a professional evidence layer for complex source-tree research, including Android recovery/device bring-up work.
+
+It can:
+
+- scan Android recovery trees, kernels, userspace graphics stacks, containers, and generic source trees
+- produce `report.json`, `evidence.jsonl`, `summary.md`, `report.html`, and `agent_handoff/`
+- compare a current tree against a reference tree without importing anything
+- validate generated evidence against stable schema fields
+- compare source declarations against known-good device facts
+- classify contradictions and patch candidates by risk
+- keep validation commands read-only by default
+
+For RM11Pro / NX809J recovery work, the repository includes `examples/known_good_rm11pro_nx809j.json`.
+
+Example scan:
+
+```bash
+npx reversa scan \
+  --project-root /path/to/device/nubia/canoe \
+  --profile android_recovery \
+  --known-good examples/known_good_rm11pro_nx809j.json \
+  --out reversa_out
+```
+
+Example compare:
+
+```bash
+npx reversa compare \
+  --left /path/to/current/tree \
+  --right /path/to/reference/tree \
+  --profile android_recovery \
+  --known-good examples/known_good_rm11pro_nx809j.json \
+  --out reversa_compare_out
+```
+
+Compare mode only classifies differences and manual import candidates. It does not copy, patch, flash, or modify either tree.
 
 ---
 
@@ -95,6 +138,8 @@ For other workflows, use the matching entry command:
 | Goal | Command |
 |------|---------|
 | Analyze an existing legacy and produce specs | `/reversa` |
+| Scan a source tree into machine-readable evidence | `npx reversa scan` |
+| Compare current/reference trees without importing | `npx reversa compare` |
 | Start a brand new project from a one-line idea | `/reversa-new` |
 | Evolve the system one feature at a time, from spec to code | `/reversa-forward` |
 | Rebuild the legacy on a modern stack | `/reversa-migrate` |
@@ -335,6 +380,8 @@ Every statement in the specs is marked with:
 
 ```bash
 npx reversa install      # Install Reversa in the project
+npx reversa scan         # Generate evidence, contradictions, reports, and handoff artifacts
+npx reversa compare      # Compare two source trees and classify import candidates
 npx reversa status       # Show current analysis state
 npx reversa update       # Update agents to the latest version
 npx reversa add-agent    # Add an agent to the project
@@ -344,6 +391,23 @@ npx reversa uninstall    # Remove Reversa from the project
 
 The `update` command detects files you modified via SHA-256 and never overwrites customizations.
 The `uninstall` command removes only files created by Reversa — nothing from the legacy project is touched.
+
+### Evidence scan
+
+```bash
+npx reversa scan \
+  --project-root /path/to/tree \
+  --profile android_recovery \
+  --known-good known_good_rm11pro.json \
+  --out reversa_out \
+  --html \
+  --json \
+  --jsonl \
+  --markdown \
+  --agent-handoff
+```
+
+The scan command is read-only against the target tree. It writes structured artifacts to the output directory: `report.json`, `evidence.jsonl`, `summary.md`, `report.html`, and an optional `agent_handoff/` bundle with findings, contradictions, patch candidates, validation commands, known-good comparison, risky assumptions, and tree inventory.
 
 ---
 

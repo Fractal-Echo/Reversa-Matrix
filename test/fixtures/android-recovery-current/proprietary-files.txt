@@ -1,0 +1,2 @@
+vendor/lib64/libmissing_keymint.so
+vendor/bin/hw/android.hardware.gatekeeper-service-qti

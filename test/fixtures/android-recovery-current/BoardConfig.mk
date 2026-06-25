@@ -1,0 +1,13 @@
+# Old RM10Pro note should not drive active config.
+TARGET_BOARD_PLATFORM := sm8750
+PRODUCT_PLATFORM := sm8850
+PRODUCT_DEVICE := RM10Pro
+TARGET_BOOTLOADER_BOARD_NAME := RM10Pro
+TARGET_RECOVERY_PIXEL_FORMAT := RGBX_8888
+TW_THEME := portrait_hdpi
+BOARD_BOOT_HEADER_VERSION := 3
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 67108864
+BOARD_EXCLUDE_KERNEL_FROM_RECOVERY_IMAGE := true
+TARGET_RECOVERY_FSTAB := recovery/root/etc/fstab.qcom
+PRODUCT_COPY_FILES += vendor/nubia/canoe/proprietary/lib64/libkeymaster.so:$(TARGET_COPY_OUT_VENDOR)/lib64/libkeymaster.so
+# TODO replace copied placeholder

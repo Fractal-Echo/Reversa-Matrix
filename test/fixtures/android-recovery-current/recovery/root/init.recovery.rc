@@ -1,0 +1,5 @@
+service vendor.qseecomd /vendor/bin/missingqsee
+    class main
+
+service vendor.gatekeeper /vendor/bin/hw/android.hardware.gatekeeper-service-qti
+    class main

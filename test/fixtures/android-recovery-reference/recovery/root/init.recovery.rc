@@ -1,0 +1,2 @@
+service vendor.qseecomd /vendor/bin/qseecomd
+    class main

@@ -194,6 +194,7 @@ nav:
   - Installation: instalacao.md
   - How to use: uso.md
   - CLI: cli.md
+  - Enhanced Reversa: enhanced-reversa.md
   - Configuration: configuracao.md
   - Supported engines: engines.md
   - Analysis pipeline: pipeline.md
