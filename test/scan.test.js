@@ -17,6 +17,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..');
 const currentFixture = join(repoRoot, 'test/fixtures/android-recovery-current');
 const referenceFixture = join(repoRoot, 'test/fixtures/android-recovery-reference');
+const bo3Fixture = join(repoRoot, 'test/fixtures/bo3-runtime-diagnostics');
 const knownGoodPath = join(repoRoot, 'examples/known_good_rm11pro_nx809j.json');
 
 async function loadKnownGood() {
@@ -63,6 +64,63 @@ test('scanner generates known-good mismatches, contradictions, and patch candida
 
   assert(report.patch_candidates.length > 0);
   assert(report.patch_candidates.some(item => item.evidence_ids.length > 0));
+});
+
+test('game runtime profile detects BO3 diagnostics and safety boundaries', async () => {
+  const report = await scanProject({
+    projectRoot: bo3Fixture,
+    profile: 'bo3_zombies_diagnostics',
+  });
+
+  assert.equal(report.scan.profile, 'bo3_zombies_diagnostics');
+  assertEvidence(report, 'bo3_config', 'MaxFPS=144');
+  assertEvidence(report, 'game_runtime_identity', 'BlackOps3.exe');
+  assertEvidence(report, 'graphics_wrapper_chain', 'WINEDLLOVERRIDES=dinput8,winmm,version=n,b');
+  assertEvidence(report, 'vulkan_loader', 'ERROR_INCOMPATIBLE_DRIVER');
+  assertEvidence(report, 'runtime_security_surface', 'remote code execution');
+  assertEvidence(report, 'performance_symptoms', 'frame pacing');
+
+  const safety = report.evidence.find(item => item.category === 'safety_boundaries');
+  assert(safety, 'expected safety boundary evidence');
+  assert.match(safety.extracted_text, /anti-cheat bypass/);
+  assert.match(safety.suggested_action, /do not implement bypass/);
+
+  assert(report.commands_to_run.some(command => command.includes('BlackOps3')));
+  assert(report.commands_to_run.some(command => command.includes('VK_ICD_FILENAMES')));
+  assert(report.commands_to_run.every(command => /^(grep|find|test|sha256sum|node)\b/.test(command)));
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('render enhancement profiles detect plugin and RM11Pro runtime surfaces', async () => {
+  const renderReport = await scanProject({
+    projectRoot: bo3Fixture,
+    profile: 'render_enhancement_plugin',
+  });
+
+  assertEvidence(renderReport, 'render_hook_surface', 'PresentHook=IDXGISwapChain::Present');
+  assertEvidence(renderReport, 'frame_timing_control', 'TargetFrameTimeMs=6.944');
+  assertEvidence(renderReport, 'texture_injection_pipeline', 'TextureInjection=enabled');
+  assertEvidence(renderReport, 'hdr_pipeline', 'HDRMode=HDR10');
+  assertEvidence(renderReport, 'api_translation_layer', 'APITranslation=DXVK');
+  assert(renderReport.commands_to_run.some(command => command.includes('IDXGISwapChain')));
+
+  const renderValidation = validateScanReport(renderReport);
+  assert.equal(renderValidation.valid, true, renderValidation.errors.join('\n'));
+
+  const mobileReport = await scanProject({
+    projectRoot: bo3Fixture,
+    profile: 'rm11pro_gaming_runtime',
+  });
+
+  assertEvidence(mobileReport, 'mobile_linux_runtime', 'DEVICE=RM11Pro');
+  assertEvidence(mobileReport, 'mobile_linux_runtime', 'GPU_STACK=Adreno Turnip Mesa');
+  assertEvidence(mobileReport, 'vulkan_loader', 'VK_DRIVER_FILES');
+  assert(mobileReport.commands_to_run.some(command => command.includes('RM11Pro')));
+
+  const mobileValidation = validateScanReport(mobileReport);
+  assert.equal(mobileValidation.valid, true, mobileValidation.errors.join('\n'));
 });
 
 test('scan report schema is complete and agent handoff files are written', async () => {

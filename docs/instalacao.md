@@ -1,14 +1,15 @@
 # Installation
 
-Reversa-Matrix is a Node.js CLI. Today the strongest path is running it from the cloned repository.
+Reversa-Matrix is a Node.js CLI. The strongest path for testers is running it from the cloned repository.
 
 ## Requirements
 
-- Node.js 18+
+- Node.js 18.20.2 or newer
+- npm
 - Git
-- A source tree to inspect
+- A source tree, config folder, log bundle, or extracted project to inspect
 
-For Android/Linux/Windows research, install any platform tools separately. Reversa-Matrix does not bundle ADB, compilers, SDKs, debuggers, or device flashing tools.
+For Android/Linux/Windows/game-runtime research, install any platform tools separately. Reversa-Matrix does not bundle ADB, compilers, SDKs, debuggers, drivers, game files, or device flashing tools.
 
 ---
 
@@ -25,6 +26,7 @@ Inspect the scanner help:
 
 ```bash
 node ./bin/reversa.js scan --help
+node ./bin/reversa.js scan --profiles
 ```
 
 ---
@@ -49,6 +51,25 @@ The command prints a `file://` URL to `dashboard.html`.
 
 ---
 
+## Run The Game Runtime Fixture
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root ./test/fixtures/bo3-runtime-diagnostics \
+  --profile rm11pro_gaming_runtime \
+  --out reversa_game_out
+```
+
+Then generate the GUI:
+
+```bash
+node ./bin/reversa.js gui --out reversa_game_out
+```
+
+This fixture exercises game runtime, render enhancement, Vulkan loader, frame timing, texture injection, HDR, API translation, and mobile Linux runtime evidence categories.
+
+---
+
 ## Installed Package Style
 
 When the package is installed or published in your environment, the same commands are:
@@ -64,15 +85,14 @@ Inside the cloned repository, prefer `node ./bin/reversa.js ...` so you know you
 
 ## Build The Docs
 
-Documentation uses MkDocs through Python. Use a local virtual environment:
+Documentation uses MkDocs through Python. Install the docs requirements into the user Python site, then build:
 
 ```bash
-sudo apt install -y python3-venv python3-pip
-python3 -m venv .venv
-source .venv/bin/activate
-python -m pip install -r docs/requirements.txt
-python -m mkdocs build --strict
+python3 -m pip install --user --break-system-packages -r docs/requirements.txt
+python3 -m mkdocs build --strict
 ```
+
+The build writes the site to `site/`, which is ignored by Git.
 
 ---
 

@@ -61,6 +61,7 @@ The current scanner already understands Android recovery-style trees and generic
 | Android | recovery trees, kernels, vendor blobs, fstab, init rc, BoardConfig, device facts |
 | Linux | containers, distro roots, desktop graphics stacks, systemd, kernel/userland boundaries |
 | Windows | source projects, drivers, services, registry assumptions, PE metadata, build scripts |
+| Games | modding runtimes, graphics wrappers, Vulkan loader state, render enhancement manifests |
 | Cross-platform | C/C++/Rust/Java/Kotlin/Python/JS projects, generated artifacts, copied constants, risky assumptions |
 
 Reversa-Matrix is a platform-aware evidence mapper, not a website modernization wrapper.
@@ -68,6 +69,13 @@ Reversa-Matrix is a platform-aware evidence mapper, not a website modernization 
 ---
 
 ## Quick Start
+
+Requirements:
+
+- Node.js 18.20.2 or newer
+- npm
+- Git
+- A source tree, config folder, log bundle, or extracted project to inspect
 
 Clone and run the local CLI:
 
@@ -93,6 +101,16 @@ Open the local dashboard:
 
 ```bash
 node ./bin/reversa.js gui --out reversa_out
+```
+
+Try the game/runtime fixture:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root ./test/fixtures/bo3-runtime-diagnostics \
+  --profile rm11pro_gaming_runtime \
+  --out reversa_game_out
+node ./bin/reversa.js gui --out reversa_game_out
 ```
 
 ---
@@ -145,3 +163,12 @@ That safety boundary matters because Reversa-Matrix is meant for kernel, recover
 - [Evidence pipeline](pipeline.md)
 - [Generated outputs](saidas/index.md)
 - [Original Reversa compatibility](original-reversa-compatibility.md)
+
+---
+
+## Future Goals
+
+- Runtime compatibility matrix across desktop and mobile Linux gaming profiles
+- More render enhancement evidence for frame timing, texture replacement, HDR, and API translation
+- Broader Windows services, drivers, PE metadata, and registry-profile support
+- Stronger Linux graphics and container diagnostics

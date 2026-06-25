@@ -22,6 +22,7 @@ node ./bin/reversa.js scan --profiles
 
 Current practical profiles include:
 
+- `generic_source_tree`
 - `android_recovery`
 - `orangefox`
 - `twrp`
@@ -30,7 +31,12 @@ Current practical profiles include:
 - `userspace_graphics`
 - `linux_container`
 - `gamescope`
-- `generic_source_tree`
+- `game_modding`
+- `graphics_wrapper`
+- `vulkan_loader`
+- `bo3_zombies_diagnostics`
+- `render_enhancement_plugin`
+- `rm11pro_gaming_runtime`
 
 Use `generic_source_tree` when no specialized profile exists yet.
 
@@ -59,7 +65,22 @@ The scanner is read-only against `/path/to/source/tree`.
 
 ---
 
-## 3. Open The Dashboard
+## 3. Try A Game Runtime Scan
+
+The repository includes a small fixture for game/runtime bring-up:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root ./test/fixtures/bo3-runtime-diagnostics \
+  --profile rm11pro_gaming_runtime \
+  --out reversa_game_out
+```
+
+Use this to verify that render hook, frame timing, texture injection, HDR, API translation, Vulkan loader, and mobile Linux runtime categories are working before scanning your own configs or logs.
+
+---
+
+## 4. Open The Dashboard
 
 ```bash
 node ./bin/reversa.js gui --out reversa_out
@@ -69,7 +90,7 @@ Open the printed `file://` URL. The dashboard lets you browse findings, contradi
 
 ---
 
-## 4. Compare Trees
+## 5. Compare Trees
 
 Use compare mode when you have a current tree and a reference tree:
 
@@ -86,7 +107,7 @@ Compare mode classifies differences and import candidates. It does not copy file
 
 ---
 
-## 5. Hand Off To Codex
+## 6. Hand Off To Codex
 
 Give the next agent these files first:
 

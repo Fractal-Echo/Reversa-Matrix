@@ -75,6 +75,31 @@ Windows profile work should preserve the same safety model: inspect files, class
 
 ---
 
+## Game Runtime
+
+Current related profiles:
+
+- `game_modding`
+- `graphics_wrapper`
+- `vulkan_loader`
+- `bo3_zombies_diagnostics`
+- `render_enhancement_plugin`
+- `rm11pro_gaming_runtime`
+
+Useful targets:
+
+- old-game modding and private co-op launch profiles
+- graphics wrapper chains such as DXVK, VKD3D, ReShade, SpecialK, 3DMigoto, SUWSF, and upscalers
+- Vulkan loader variables, ICD JSON references, and driver negotiation logs
+- render hook, frame timing, texture injection, and HDR pipeline manifests
+- mobile Linux gaming profiles for phone, container, translation, and Vulkan driver layers
+- performance notes tied to frame pacing, shader cache, texture streaming, and VRAM pressure
+- security notes about crash exploits, network passwords, friends-only sessions, and patch validation
+
+Game runtime support is diagnostic. It classifies runtime identity, wrapper inventory, loader state, performance symptoms, and safety-boundary terms. It does not implement anti-cheat bypasses, DRM removal, public-match automation, competitive advantage features, or ownership-evasion behavior.
+
+---
+
 ## Cross-Platform
 
 Many real trees are mixed. Reversa-Matrix should handle:

@@ -1,0 +1,12 @@
+{
+  "pipeline": "TextureInjection",
+  "format": "DDS BC7 sRGB",
+  "mipmaps": true,
+  "entries": [
+    {
+      "hash": "bo3-zombies-test-texture",
+      "replacement": "textures/zombies/wall_diffuse.dds"
+    }
+  ]
+}
+

@@ -118,7 +118,25 @@ List the profiles supported by the current build:
 node ./bin/reversa.js scan --profiles
 ```
 
-Current practical profiles include Android recovery and generic source-tree work. The project roadmap expands this toward first-class Windows and Linux profiles.
+Current practical profiles include:
+
+- `generic_source_tree`
+- `android_recovery`
+- `orangefox`
+- `twrp`
+- `android_kernel`
+- `gki_kernel`
+- `userspace_graphics`
+- `linux_container`
+- `gamescope`
+- `game_modding`
+- `graphics_wrapper`
+- `vulkan_loader`
+- `bo3_zombies_diagnostics`
+- `render_enhancement_plugin`
+- `rm11pro_gaming_runtime`
+
+Game and graphics-runtime profiles classify evidence for wrappers, frame timing, render hook surfaces, texture injection, HDR, API translation, Vulkan loader state, and mobile Linux runtime assumptions.
 
 ---
 

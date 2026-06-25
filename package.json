@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "check:public-clean": "node scripts/check-public-clean.js",
-    "test": "npm run check:public-clean && node --test"
+    "test": "npm run check:public-clean && node --test test/scan.test.js"
   },
   "keywords": [
     "reverse-engineering",
