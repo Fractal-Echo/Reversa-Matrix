@@ -16,3 +16,11 @@ reversa_out/
 reversa_compare_out/
 .venv/
 .venv-docs/
+
+# Root-level scan artifacts from accidental or intentional `--out .` runs.
+/agent_handoff/
+/dashboard.html
+/evidence.jsonl
+/report.html
+/report.json
+/summary.md
