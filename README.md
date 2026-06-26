@@ -8,6 +8,12 @@ Reversa-Matrix is an evidence-first research assistant for real code trees: Andr
 
 It is not a patch bot. It is not a flashing tool. It maps evidence so humans and Codex agents can make better decisions.
 
+Reversa-Matrix may name upstream ecosystems such as Android, OrangeFox, TWRP,
+Gamescope, Xwayland, Mesa, Wine, Proton, DXVK, Special K, ReShade, 3DMigoto,
+WayLandIE, DroidSpaces, or Anland in profiles and reports. Those names describe
+classifier targets and evidence domains; they do not mean those projects are
+bundled, owned, or endorsed by Reversa-Matrix.
+
 New direction: Reversa can also run a local agent scaffold. The model is not the
 agent; Reversa owns memory, typed tools, policy, evidence, and patch gates.
 
