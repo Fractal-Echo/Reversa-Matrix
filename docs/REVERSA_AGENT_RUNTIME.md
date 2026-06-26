@@ -20,7 +20,8 @@ node ./bin/reversa.js agent models --base-url http://127.0.0.1:8000/v1
 node ./bin/reversa.js agent run \
   --mode phone-safe \
   --goal "Inspect supplied Nebula evidence for Vulkan loader contradictions. Do not patch." \
-  --evidence-file /path/to/PHONE_REVERSA_CONFLICT_SCAN.md
+  --evidence-file /path/to/PHONE_REVERSA_CONFLICT_SCAN.md \
+  --evidence-dir /path/to/raw-snapshot
 ```
 
 This first scaffold does not need a model endpoint for `run`. It reads supplied
@@ -42,11 +43,17 @@ Each run writes:
 +-- stdout/
 +-- stderr/
 +-- artifacts/
+    +-- evidence_files.sha256
+    +-- evidence_manifest.json
     +-- policy.json
 ```
 
 The run folder is the audit record. A later daemon can replay it without
 depending on chat history.
+
+`agent run` records SHA-256 hashes for every included evidence file. Directory
+inputs are bounded by `--max-evidence-files` and `--max-evidence-bytes`, and
+only text-like evidence extensions are collected.
 
 ## Modes
 

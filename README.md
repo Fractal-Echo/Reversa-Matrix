@@ -167,12 +167,14 @@ Create an auditable scan/report run from existing evidence:
 node ./bin/reversa.js agent run \
   --mode phone-safe \
   --goal "Inspect supplied Nebula evidence for Vulkan loader contradictions. Do not patch." \
-  --evidence-file /path/to/PHONE_REVERSA_CONFLICT_SCAN.md
+  --evidence-file /path/to/PHONE_REVERSA_CONFLICT_SCAN.md \
+  --evidence-dir /path/to/raw-snapshot
 ```
 
 The first scaffold writes `.reversa/runs/<run-id>/` with `prompt.md`,
 `plan.md`, `tool_calls.jsonl`, `evidence.jsonl`, `contradictions.yaml`,
-`PHONE_REVERSA_AGENT_REPORT.md`, and `artifacts/policy.json`.
+`PHONE_REVERSA_AGENT_REPORT.md`, `artifacts/evidence_files.sha256`,
+`artifacts/evidence_manifest.json`, and `artifacts/policy.json`.
 
 See:
 

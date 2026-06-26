@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'child_process';
-import { mkdtemp, readFile, stat } from 'fs/promises';
+import { mkdir, mkdtemp, readFile, stat, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { dirname, join, resolve } from 'path';
@@ -254,17 +254,21 @@ test('local agent scaffold writes an auditable contradiction run without a model
   const memoryRoot = join(root, 'memory');
   const runDir = join(root, 'run');
   const evidenceFile = join(root, 'PHONE_REVERSA_CONFLICT_SCAN.md');
-  await import('fs/promises').then(({ writeFile }) => writeFile(evidenceFile, [
+  const evidenceDir = join(root, 'raw-evidence');
+  await mkdir(evidenceDir);
+  await writeFile(evidenceFile, [
     'VK_ICD_FILENAMES=/usr/local/etc/vulkan/icd.d/freedreno_icd.json',
     'VK_DRIVER_FILES=/usr/local/etc/vulkan/icd.d/freedreno_icd.json',
     '/usr/share/vulkan/icd.d/freedreno_icd.json',
     '/usr/local/lib/libvulkan_freedreno.so',
+  ].join('\n'), 'utf8');
+  await writeFile(join(evidenceDir, 'runtime.txt'), [
     'Qualcomm Adreno UMD candidate belongs to B0',
     'CONFIG_ARM64_VA_BITS=39',
     'glxinfo -B',
     'vulkaninfo --summary returned 0',
     'CHILD_LIBPATH GAMESCOPE_LIBPATH BRIDGE_LIBPATH LD_LIBRARY_PATH',
-  ].join('\n'), 'utf8'));
+  ].join('\n'), 'utf8');
 
   const init = spawnSync(process.execPath, [
     join(repoRoot, 'bin/reversa.js'),
@@ -290,6 +294,8 @@ test('local agent scaffold writes an auditable contradiction run without a model
     memoryRoot,
     '--evidence-file',
     evidenceFile,
+    '--evidence-dir',
+    evidenceDir,
     '--out',
     runDir,
   ], {
@@ -306,6 +312,8 @@ test('local agent scaffold writes an auditable contradiction run without a model
     'contradictions.yaml',
     'PHONE_REVERSA_AGENT_REPORT.md',
     'artifacts/policy.json',
+    'artifacts/evidence_files.sha256',
+    'artifacts/evidence_manifest.json',
   ]) {
     assert(existsSync(join(runDir, relPath)), `${relPath} should exist`);
   }
@@ -314,6 +322,10 @@ test('local agent scaffold writes an auditable contradiction run without a model
   assert.match(report, /dual_freedreno_icd_candidates/);
   assert.match(report, /a1_b0_lane_mixing/);
   assert.match(report, /Raw shell tool: disabled/);
+
+  const hashes = await readFile(join(runDir, 'artifacts/evidence_files.sha256'), 'utf8');
+  assert.match(hashes, /PHONE_REVERSA_CONFLICT_SCAN\.md/);
+  assert.match(hashes, /runtime\.txt/);
 });
 
 function assertEvidence(report, category, claimIncludes) {

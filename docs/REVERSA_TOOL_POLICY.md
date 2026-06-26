@@ -56,6 +56,7 @@ patch_gate:
   evidence_files:
     - path_exists
     - hashes_recorded
+    - evidence_manifest_written
     - scan_profile_attached
   contradiction_check:
     - no_conflict_with_known_good_frontier
@@ -86,3 +87,13 @@ Patch proposal format:
 
 This matches the project rule: patch only when evidence shows it is required or
 recommended.
+
+Every `agent run` writes:
+
+```text
+artifacts/evidence_files.sha256
+artifacts/evidence_manifest.json
+```
+
+Those files are the proof that the report can be tied back to exact local
+inputs.

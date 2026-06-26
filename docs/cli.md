@@ -208,12 +208,25 @@ llama.cpp.
 node ./bin/reversa.js agent run \
   --mode phone-safe \
   --goal "Inspect supplied evidence for Vulkan loader contradictions. Do not patch." \
-  --evidence-file /path/to/report.md
+  --evidence-file /path/to/report.md \
+  --evidence-dir /path/to/raw-snapshot
 ```
 
 Writes an auditable run folder under `.reversa/runs/`. The scaffold supports
 `scan-only`, `phone-safe`, and `patch-propose`. It refuses `patch-apply` and
 `recovery-danger`.
+
+Useful run flags:
+
+| Flag | Meaning |
+| --- | --- |
+| `--evidence-file <path>` | Add one specific evidence file; repeatable |
+| `--evidence-dir <path>` | Add a bounded text evidence directory; repeatable |
+| `--max-evidence-files <n>` | Cap collected files from directories; default `200` |
+| `--max-evidence-bytes <n|nK|nM>` | Per-file read cap; default `1M` |
+
+Every run writes `artifacts/evidence_files.sha256` and
+`artifacts/evidence_manifest.json`.
 
 ---
 
