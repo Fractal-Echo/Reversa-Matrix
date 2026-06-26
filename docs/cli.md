@@ -228,6 +228,22 @@ Useful run flags:
 Every run writes `artifacts/evidence_files.sha256` and
 `artifacts/evidence_manifest.json`.
 
+### `agent snapshot`
+
+```bash
+node ./bin/reversa.js agent snapshot \
+  --serial <adb-serial> \
+  --package io.droidspaces.nebula.waylandie \
+  --out .reversa/snapshots/rm11-latest
+```
+
+Captures a read-only, typed ADB evidence snapshot. It writes host, device,
+process, and optional app-context files plus `manifest.json`, `manifest.txt`,
+and `evidence_files.sha256`.
+
+Use `--no-package` to skip app-context `run-as` probes. Use the snapshot as an
+agent input with `--evidence-dir`.
+
 ---
 
 ## Compatibility Commands

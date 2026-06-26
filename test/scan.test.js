@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import { spawnSync } from 'child_process';
-import { mkdir, mkdtemp, readFile, stat, writeFile } from 'fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, stat, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { tmpdir } from 'os';
 import { dirname, join, resolve } from 'path';
@@ -326,6 +326,72 @@ test('local agent scaffold writes an auditable contradiction run without a model
   const hashes = await readFile(join(runDir, 'artifacts/evidence_files.sha256'), 'utf8');
   assert.match(hashes, /PHONE_REVERSA_CONFLICT_SCAN\.md/);
   assert.match(hashes, /runtime\.txt/);
+});
+
+test('local agent snapshot writes phone-safe adb evidence and hash manifest', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-snapshot-test-'));
+  const outDir = join(root, 'snapshot');
+  const fakeAdb = join(root, 'adb');
+  await writeFile(fakeAdb, `#!/usr/bin/env bash
+set -e
+case "$*" in
+  "version") echo "Android Debug Bridge version 1.0.41" ;;
+  "devices -l") echo "List of devices attached"; echo "fake-device device product:rm11 model:RM11" ;;
+  "mdns services") echo "fake-device._adb-tls-connect._tcp." ;;
+  "shell getprop") echo "[ro.product.device]: [canoe]"; echo "[ro.hardware.vulkan]: [adreno]" ;;
+  "shell settings get global adb_enabled") echo "1" ;;
+  "shell settings get global adb_wifi_enabled") echo "1" ;;
+  "shell pm path io.droidspaces.nebula.waylandie") echo "package:/data/app/nebula/base.apk" ;;
+  "shell pm list packages") echo "package:io.droidspaces.nebula.waylandie" ;;
+  "shell ls -l /dev/kgsl-3d0 /dev/dri /dev/dma_heap") echo "crw-rw---- /dev/kgsl-3d0"; echo "drwxr-xr-x /dev/dri" ;;
+  "shell ps -A") echo "USER PID NAME"; echo "u0_a518 123 io.droidspaces.nebula.waylandie" ;;
+  "shell cat /proc/net/unix") echo "Num RefCount Protocol Flags Type St Inode Path"; echo "000 socket wayland" ;;
+  "shell run-as io.droidspaces.nebula.waylandie id") echo "uid=10518(u0_a518)" ;;
+  "shell run-as io.droidspaces.nebula.waylandie find . -maxdepth 4 -type d") echo "./files"; echo "./files/imagefs" ;;
+  "shell run-as io.droidspaces.nebula.waylandie find ./files -maxdepth 9 -type f") echo "./files/imagefs/usr/share/vulkan/icd.d/freedreno_icd.json"; echo "./files/imagefs/usr/local/etc/vulkan/icd.d/freedreno_icd.json"; echo "./files/imagefs/usr/local/lib/libvulkan_freedreno.so" ;;
+  "shell run-as io.droidspaces.nebula.waylandie find ./files -maxdepth 9 -type f -name freedreno_icd.json") echo "./files/imagefs/usr/share/vulkan/icd.d/freedreno_icd.json"; echo "./files/imagefs/usr/local/etc/vulkan/icd.d/freedreno_icd.json" ;;
+  "shell run-as io.droidspaces.nebula.waylandie find ./files -maxdepth 9 -type f -name *freedreno*") echo "./files/imagefs/usr/share/vulkan/icd.d/freedreno_icd.json"; echo "./files/imagefs/usr/local/etc/vulkan/icd.d/freedreno_icd.json"; echo "./files/imagefs/usr/local/lib/libvulkan_freedreno.so" ;;
+  "shell run-as io.droidspaces.nebula.waylandie find ./files -maxdepth 9 -type f -name *vulkan*") echo "./files/imagefs/usr/local/lib/libvulkan_freedreno.so" ;;
+  "shell run-as io.droidspaces.nebula.waylandie find ./files -maxdepth 9 -type f -name *freedreno* -exec sha256sum {} +") echo "abc123  ./files/imagefs/usr/local/lib/libvulkan_freedreno.so" ;;
+  *) echo "unexpected: $*" >&2; exit 7 ;;
+esac
+`, 'utf8');
+  await chmod(fakeAdb, 0o755);
+
+  const snapshot = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'agent',
+    'snapshot',
+    '--adb-binary',
+    fakeAdb,
+    '--out',
+    outDir,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(snapshot.status, 0, snapshot.stderr || snapshot.stdout);
+
+  for (const relPath of [
+    'manifest.json',
+    'manifest.txt',
+    'evidence_files.sha256',
+    'host/adb-version.txt',
+    'device/getprop.txt',
+    'app/graphics-file-inventory.txt',
+    'app/icd-file-inventory.txt',
+    'app/freedreno-file-hashes.txt',
+  ]) {
+    assert(existsSync(join(outDir, relPath)), `${relPath} should exist`);
+  }
+
+  const inventory = await readFile(join(outDir, 'app/graphics-file-inventory.txt'), 'utf8');
+  assert.match(inventory, /usr\/share\/vulkan\/icd\.d\/freedreno_icd\.json/);
+  assert.match(inventory, /usr\/local\/etc\/vulkan\/icd\.d\/freedreno_icd\.json/);
+
+  const hashes = await readFile(join(outDir, 'evidence_files.sha256'), 'utf8');
+  assert.match(hashes, /manifest\.json/);
+  assert.match(hashes, /graphics-file-inventory\.txt/);
 });
 
 function assertEvidence(report, category, claimIncludes) {

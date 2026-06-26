@@ -161,6 +161,14 @@ List models from a local OpenAI-compatible endpoint:
 node ./bin/reversa.js agent models --base-url http://127.0.0.1:8000/v1
 ```
 
+Capture a read-only phone-safe snapshot:
+
+```bash
+node ./bin/reversa.js agent snapshot \
+  --serial <adb-serial> \
+  --out .reversa/snapshots/rm11-latest
+```
+
 Create an auditable scan/report run from existing evidence:
 
 ```bash

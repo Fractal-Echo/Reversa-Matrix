@@ -17,6 +17,9 @@ typed tools, run records, contradiction reports, and patch gates.
 node ./bin/reversa.js agent doctor --no-network
 node ./bin/reversa.js agent init-memory
 node ./bin/reversa.js agent models --base-url http://127.0.0.1:8000/v1
+node ./bin/reversa.js agent snapshot \
+  --serial <adb-serial> \
+  --out .reversa/snapshots/rm11-latest
 node ./bin/reversa.js agent run \
   --mode phone-safe \
   --goal "Inspect supplied Nebula evidence for Vulkan loader contradictions. Do not patch." \
@@ -27,6 +30,35 @@ node ./bin/reversa.js agent run \
 This first scaffold does not need a model endpoint for `run`. It reads supplied
 evidence files, writes an auditable run folder, detects the first bounded
 Nebula/Vulkan contradictions, and refuses patch-apply modes.
+
+`agent snapshot` is read-only and typed. It captures host ADB state, device
+properties, package lists, process/socket summaries, device node listings, and
+optional app-context `run-as` inventories without exposing arbitrary shell
+commands to a model.
+
+## Snapshot Folder
+
+Each phone-safe snapshot writes:
+
+```text
+.reversa/snapshots/<snapshot-id>/
++-- manifest.json
++-- manifest.txt
++-- evidence_files.sha256
++-- host/
++-- device/
++-- app/
++-- process/
+```
+
+Feed a snapshot into the local agent with:
+
+```bash
+node ./bin/reversa.js agent run \
+  --mode phone-safe \
+  --goal "Inspect this phone-safe snapshot. Do not patch." \
+  --evidence-dir .reversa/snapshots/<snapshot-id>
+```
 
 ## Run Folder
 
