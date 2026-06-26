@@ -265,6 +265,12 @@ test('local agent scaffold writes an auditable contradiction run without a model
     '/usr/local/lib/libvulkan_freedreno.so',
   ].join('\n'), 'utf8');
   await writeFile(join(evidenceDir, 'runtime.txt'), [
+    '# Reversa Scan Summary',
+    '- Profile: `linux_container`',
+    '- Findings: 42',
+    '- Contradictions: 3',
+    '- Patch candidates: 2',
+    '- Highest severity: HIGH',
     'Qualcomm Adreno UMD candidate belongs to B0',
     'CONFIG_ARM64_VA_BITS=39',
     'glxinfo -B',
@@ -324,6 +330,9 @@ test('local agent scaffold writes an auditable contradiction run without a model
   assert.match(report, /dual_freedreno_icd_candidates/);
   assert.match(report, /a1_b0_lane_mixing/);
   assert.match(report, /Raw shell tool: disabled/);
+  assert.match(report, /scan_profile:linux_container/);
+  assert.match(report, /scan_contradictions:3/);
+  assert.match(report, /scan_patch_candidates:2/);
 
   const hashes = await readFile(join(runDir, 'artifacts/evidence_files.sha256'), 'utf8');
   assert.match(hashes, /PHONE_REVERSA_CONFLICT_SCAN\.md/);
