@@ -301,6 +301,16 @@ test('local agent scaffold writes an auditable contradiction run without a model
   assert.match(phoneTargets, /Do not reuse PHONE=<ip:old-port>/);
   assert.match(phoneTargets, /Do not run reboot tests unless the human explicitly requests a reboot/);
 
+  const workspaceFacts = await readFile(join(memoryRoot, 'workspace_facts.yaml'), 'utf8');
+  assert.match(workspaceFacts, /\/home\/richtofen\/\.android\/repositories/);
+  assert.match(workspaceFacts, /\/mnt\/e/);
+  assert.match(workspaceFacts, /E:\\\\Windows-side storage/);
+  assert.match(workspaceFacts, /\/home\/richtofen\/\.android\/sdk\/ndk\/29\.0\.13113456/);
+  assert.match(workspaceFacts, /rm11pro-canoe-dock/);
+  assert.match(workspaceFacts, /Rm11Pro-canoe-dock/);
+  assert.match(workspaceFacts, /Do not run broad git clean -xdf/);
+  assert.match(workspaceFacts, /8260a521b2072a835875bd942e99866246a11a9fae0490b268aa4d5a64c28aa0/);
+
   const run = spawnSync(process.execPath, [
     join(repoRoot, 'bin/reversa.js'),
     'agent',

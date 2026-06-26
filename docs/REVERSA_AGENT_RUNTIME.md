@@ -48,6 +48,11 @@ that stale `PHONE=<ip:old-port>` values must be refreshed before wireless tests.
 See [RM11Pro Fast-Test Facts](RM11PRO_FAST_TEST_FACTS.md) for the human-readable
 version of the same memory.
 
+`agent init-memory` also seeds `workspace_facts.yaml` with source roots,
+E-drive/WSL split facts, Android SDK/NDK locations, missing PATH tools, and
+clean-tree rules. See
+[Workspace Troubleshooting Facts](WORKSPACE_TROUBLESHOOTING_FACTS.md).
+
 ## Snapshot Folder
 
 Each phone-safe snapshot writes:
