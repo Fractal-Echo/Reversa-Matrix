@@ -38,8 +38,10 @@ test('scanner detects placeholders, suspicious paths, missing paths, and Android
 
   assertEvidence(report, 'todo_fixme_stub_markers', 'placeholder_marker:TODO');
   assertEvidence(report, 'suspicious_hardcoded_paths', 'path_reference:/vendor/bin/missingqsee');
+  assertEvidence(report, 'suspicious_hardcoded_paths', 'path_reference:/system/bin/su');
   assertEvidence(report, 'missing_files', 'referenced_path_missing:/vendor/bin/missingqsee');
   assertEvidence(report, 'invalid_paths', 'referenced_path_missing:vendor/lib64/libmissing_keymint.so');
+  assertNoEvidence(report, ['missing_files', 'invalid_paths'], 'referenced_path_missing:/system/bin/su');
   assertEvidence(report, 'soc_platform_identity', 'TARGET_BOARD_PLATFORM=sm8750');
   assertEvidence(report, 'device_identity', 'TARGET_BOOTLOADER_BOARD_NAME=RM10Pro');
   assertEvidence(report, 'display_touch_framebuffer_config', 'TARGET_RECOVERY_PIXEL_FORMAT=RGBX_8888');
@@ -453,5 +455,12 @@ function assertEvidence(report, category, claimIncludes) {
   assert(
     report.evidence.some(item => item.category === category && item.normalized_claim.includes(claimIncludes)),
     `expected ${category} evidence including ${claimIncludes}`
+  );
+}
+
+function assertNoEvidence(report, categories, claimIncludes) {
+  assert(
+    !report.evidence.some(item => categories.includes(item.category) && item.normalized_claim.includes(claimIncludes)),
+    `expected no ${categories.join('/')} evidence including ${claimIncludes}`
   );
 }
