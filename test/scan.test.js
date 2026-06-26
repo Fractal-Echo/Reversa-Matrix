@@ -304,10 +304,16 @@ test('local agent scaffold writes an auditable contradiction run without a model
   const workspaceFacts = await readFile(join(memoryRoot, 'workspace_facts.yaml'), 'utf8');
   assert.match(workspaceFacts, /\/home\/richtofen\/\.android\/repositories/);
   assert.match(workspaceFacts, /\/mnt\/e/);
+  assert.match(workspaceFacts, /\/mnt\/e\/Android\/RM-11-Pro/);
+  assert.match(workspaceFacts, /\/mnt\/e\/WSL\/Ubuntu\/ext4\.vhdx/);
   assert.match(workspaceFacts, /E:\\\\Windows-side storage/);
   assert.match(workspaceFacts, /\/home\/richtofen\/\.android\/sdk\/ndk\/29\.0\.13113456/);
+  assert.match(workspaceFacts, /\/home\/richtofen\/\.local\/bin\/sdkmanager/);
+  assert.match(workspaceFacts, /shellcheck 0\.11\.0/);
+  assert.match(workspaceFacts, /Windows PowerShell 7\.6\.3/);
   assert.match(workspaceFacts, /rm11pro-canoe-dock/);
   assert.match(workspaceFacts, /Rm11Pro-canoe-dock/);
+  assert.match(workspaceFacts, /WayLandIE-main/);
   assert.match(workspaceFacts, /Do not run broad git clean -xdf/);
   assert.match(workspaceFacts, /8260a521b2072a835875bd942e99866246a11a9fae0490b268aa4d5a64c28aa0/);
 
