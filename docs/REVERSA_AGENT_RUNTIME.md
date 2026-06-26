@@ -38,6 +38,16 @@ properties, package lists, process/socket summaries, device node listings, and
 optional app-context `run-as` inventories without exposing arbitrary shell
 commands to a model.
 
+## RM11Pro Fast-Test Memory
+
+`agent init-memory` seeds `phone_targets.yaml` with the current RM11Pro fast-test
+rules: model `NX809J`, observed USB serial `912607710184`, Windows ADB at
+`/mnt/c/platform-tools/adb.exe`, `_adb-tls-connect._tcp` discovery, and the rule
+that stale `PHONE=<ip:old-port>` values must be refreshed before wireless tests.
+
+See [RM11Pro Fast-Test Facts](RM11PRO_FAST_TEST_FACTS.md) for the human-readable
+version of the same memory.
+
 ## Snapshot Folder
 
 Each phone-safe snapshot writes:

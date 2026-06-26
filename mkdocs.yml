@@ -63,6 +63,7 @@ nav:
   - Configuration: configuracao.md
   - Agent And Engine Use: engines.md
   - Reversa Agent Runtime: REVERSA_AGENT_RUNTIME.md
+  - RM11Pro Fast-Test Facts: RM11PRO_FAST_TEST_FACTS.md
   - Reversa Local 5090 Plan: REVERSA_LOCAL_5090_PLAN.md
   - Reversa Tool Policy: REVERSA_TOOL_POLICY.md
   - Evidence Pipeline: pipeline.md

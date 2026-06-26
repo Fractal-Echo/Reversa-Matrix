@@ -164,6 +164,7 @@ That safety boundary matters because Reversa-Matrix is meant for kernel, recover
 - [CLI](cli.md)
 - [GUI Dashboard](gui.md)
 - [Platform scope](platforms.md)
+- [RM11Pro Fast-Test Facts](RM11PRO_FAST_TEST_FACTS.md)
 - [Evidence pipeline](pipeline.md)
 - [Generated outputs](saidas/index.md)
 - [Original Reversa compatibility](original-reversa-compatibility.md)

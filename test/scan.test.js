@@ -290,6 +290,17 @@ test('local agent scaffold writes an auditable contradiction run without a model
   });
   assert.equal(init.status, 0, init.stderr || init.stdout);
 
+  const phoneTargets = await readFile(join(memoryRoot, 'phone_targets.yaml'), 'utf8');
+  assert.match(phoneTargets, /rm11pro_nx809j/);
+  assert.match(phoneTargets, /NX809J/);
+  assert.match(phoneTargets, /912607710184/);
+  assert.match(phoneTargets, /\/mnt\/c\/platform-tools\/adb\.exe/);
+  assert.match(phoneTargets, /_adb-tls-connect\._tcp/);
+  assert.match(phoneTargets, /192\.168\.7\.230:37223/);
+  assert.match(phoneTargets, /192\.168\.7\.230:33899/);
+  assert.match(phoneTargets, /Do not reuse PHONE=<ip:old-port>/);
+  assert.match(phoneTargets, /Do not run reboot tests unless the human explicitly requests a reboot/);
+
   const run = spawnSync(process.execPath, [
     join(repoRoot, 'bin/reversa.js'),
     'agent',
@@ -450,6 +461,9 @@ esac
   ]) {
     assert(existsSync(join(outDir, relPath)), `${relPath} should exist`);
   }
+
+  const mdns = await readFile(join(outDir, 'host/adb-mdns-services.txt'), 'utf8');
+  assert.match(mdns, /_adb-tls-connect\._tcp/);
 
   const inventory = await readFile(join(outDir, 'app/graphics-file-inventory.txt'), 'utf8');
   assert.match(inventory, /usr\/share\/vulkan\/icd\.d\/freedreno_icd\.json/);
