@@ -326,6 +326,61 @@ test('local agent scaffold writes an auditable contradiction run without a model
   const hashes = await readFile(join(runDir, 'artifacts/evidence_files.sha256'), 'utf8');
   assert.match(hashes, /PHONE_REVERSA_CONFLICT_SCAN\.md/);
   assert.match(hashes, /runtime\.txt/);
+
+  const replayDir = join(root, 'replay');
+  const replay = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'agent',
+    'replay',
+    '--run',
+    runDir,
+    '--memory-root',
+    memoryRoot,
+    '--out',
+    replayDir,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(replay.status, 0, replay.stderr || replay.stdout);
+
+  for (const relPath of [
+    'prompt.md',
+    'PHONE_REVERSA_AGENT_REPORT.md',
+    'artifacts/evidence_manifest.json',
+    'artifacts/evidence_files.sha256',
+    'artifacts/replay_source.json',
+  ]) {
+    assert(existsSync(join(replayDir, relPath)), `${relPath} should exist in replay`);
+  }
+
+  const replayReport = await readFile(join(replayDir, 'PHONE_REVERSA_AGENT_REPORT.md'), 'utf8');
+  assert.match(replayReport, /dual_freedreno_icd_candidates/);
+  assert.match(replayReport, /a1_b0_lane_mixing/);
+
+  const replaySource = JSON.parse(await readFile(join(replayDir, 'artifacts/replay_source.json'), 'utf8'));
+  assert.equal(replaySource.source_run, runDir);
+  assert.equal(replaySource.evidence_paths_loaded, 2);
+  assert.equal(replaySource.verification.mismatch_count, 0);
+  assert.equal(replaySource.verification.checked_count, 2);
+
+  await writeFile(evidenceFile, 'changed after source run\n', 'utf8');
+  const staleReplay = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'agent',
+    'replay',
+    '--run',
+    runDir,
+    '--memory-root',
+    memoryRoot,
+    '--out',
+    join(root, 'stale-replay'),
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.notEqual(staleReplay.status, 0);
+  assert.match(staleReplay.stderr, /Replay evidence verification failed/);
 });
 
 test('local agent snapshot writes phone-safe adb evidence and hash manifest', async () => {

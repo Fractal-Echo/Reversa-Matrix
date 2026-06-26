@@ -228,6 +228,19 @@ Useful run flags:
 Every run writes `artifacts/evidence_files.sha256` and
 `artifacts/evidence_manifest.json`.
 
+### `agent replay`
+
+```bash
+node ./bin/reversa.js agent replay \
+  --run .reversa/runs/<run-id> \
+  --out .reversa/runs/<run-id>-replay
+```
+
+Rebuilds a run from its saved `prompt.md` and
+`artifacts/evidence_manifest.json`. Replay verifies saved SHA-256 hashes before
+reuse, keeps the original goal, mode, project root, and evidence paths, then
+writes a fresh run folder plus `artifacts/replay_source.json`.
+
 ### `agent snapshot`
 
 ```bash

@@ -25,6 +25,8 @@ node ./bin/reversa.js agent run \
   --goal "Inspect supplied Nebula evidence for Vulkan loader contradictions. Do not patch." \
   --evidence-file /path/to/PHONE_REVERSA_CONFLICT_SCAN.md \
   --evidence-dir /path/to/raw-snapshot
+node ./bin/reversa.js agent replay \
+  --run .reversa/runs/<run-id>
 ```
 
 This first scaffold does not need a model endpoint for `run`. It reads supplied
@@ -86,6 +88,21 @@ depending on chat history.
 `agent run` records SHA-256 hashes for every included evidence file. Directory
 inputs are bounded by `--max-evidence-files` and `--max-evidence-bytes`, and
 only text-like evidence extensions are collected.
+
+Replay an existing run from its own artifacts:
+
+```bash
+node ./bin/reversa.js agent replay \
+  --run .reversa/runs/<run-id> \
+  --out .reversa/runs/<run-id>-replay
+```
+
+`agent replay` reads `prompt.md` and `artifacts/evidence_manifest.json`,
+verifies saved SHA-256 hashes before reuse, preserves unverifiable skipped
+inputs as explicit replay metadata, reuses the recorded goal, mode, project
+root, and evidence paths, then writes a fresh run folder with
+`artifacts/replay_source.json`. This proves whether a finding can be reproduced
+from saved evidence instead of chat history.
 
 ## Modes
 

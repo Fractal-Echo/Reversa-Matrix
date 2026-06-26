@@ -179,10 +179,21 @@ node ./bin/reversa.js agent run \
   --evidence-dir /path/to/raw-snapshot
 ```
 
+Replay a saved run without relying on chat history:
+
+```bash
+node ./bin/reversa.js agent replay \
+  --run .reversa/runs/<run-id> \
+  --out .reversa/runs/<run-id>-replay
+```
+
 The first scaffold writes `.reversa/runs/<run-id>/` with `prompt.md`,
 `plan.md`, `tool_calls.jsonl`, `evidence.jsonl`, `contradictions.yaml`,
 `PHONE_REVERSA_AGENT_REPORT.md`, `artifacts/evidence_files.sha256`,
-`artifacts/evidence_manifest.json`, and `artifacts/policy.json`.
+`artifacts/evidence_manifest.json`, and `artifacts/policy.json`. Replay writes
+`artifacts/replay_source.json` so the reproduced run points back to the source
+run and manifest. If a saved SHA-256 no longer matches the evidence file,
+replay stops instead of producing a stale report.
 
 See:
 
