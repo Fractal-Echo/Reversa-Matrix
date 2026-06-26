@@ -1,0 +1,16 @@
+profile_id: nebula_vulkan_loader
+purpose: "Classify Vulkan loader, ICD, and driver library ownership."
+watch:
+  env:
+    - VK_ICD_FILENAMES
+    - VK_DRIVER_FILES
+    - LD_LIBRARY_PATH
+  paths:
+    - freedreno_icd.json
+    - libvulkan_freedreno.so
+    - libvulkan_adreno.so
+contradictions:
+  - id: dual_freedreno_icd_candidates
+    rule: "A bounded run must prove exactly which Freedreno ICD was selected."
+  - id: a1_b0_lane_mixing
+    rule: "A1 Turnip/Freedreno evidence must not silently mix Qualcomm Adreno UMD evidence."

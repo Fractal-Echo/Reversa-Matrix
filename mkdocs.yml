@@ -62,6 +62,9 @@ nav:
   - Scanner Contract: enhanced-reversa.md
   - Configuration: configuracao.md
   - Agent And Engine Use: engines.md
+  - Reversa Agent Runtime: REVERSA_AGENT_RUNTIME.md
+  - Reversa Local 5090 Plan: REVERSA_LOCAL_5090_PLAN.md
+  - Reversa Tool Policy: REVERSA_TOOL_POLICY.md
   - Evidence Pipeline: pipeline.md
   - Confidence Scale: escala-confianca.md
   - Generated Outputs: saidas/index.md

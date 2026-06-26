@@ -1,0 +1,20 @@
+profile_id: nebula_rm11_phone_safe
+purpose: "Read-only phone snapshot policy for RM11-class Android testing."
+adb:
+  binary: "${REVERSA_ADB_BINARY}"
+  serial: "${REVERSA_PHONE_SERIAL}"
+mode_defaults:
+  - phone-safe
+disabled_tools:
+  - raw_shell
+  - adb_dd_write
+  - fastboot_flash
+  - partition_write
+  - rm_recursive
+  - package_uninstall
+memory:
+  preserve:
+    - current_classification
+    - active_blockers
+    - 39-bit runtime limitation
+    - A1/B0 lane split

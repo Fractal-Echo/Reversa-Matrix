@@ -168,6 +168,55 @@ Agents should treat `report.json`, `evidence.jsonl`, and `agent_handoff/` as the
 
 ---
 
+## Local Agent Commands
+
+### `agent doctor`
+
+```bash
+node ./bin/reversa.js agent doctor --no-network
+```
+
+Checks Node, Git, ADB path, memory folder, and optionally an
+OpenAI-compatible model endpoint.
+
+### `agent init-memory`
+
+```bash
+node ./bin/reversa.js agent init-memory
+```
+
+Creates `.reversa/memory/` templates:
+
+- `known_good_frontier.yaml`
+- `active_blockers.yaml`
+- `contradictions.yaml`
+- `phone_targets.yaml`
+- `project_constraints.yaml`
+
+### `agent models`
+
+```bash
+node ./bin/reversa.js agent models --base-url http://127.0.0.1:8000/v1
+```
+
+Lists models from a local OpenAI-compatible endpoint such as vLLM, Ollama, or
+llama.cpp.
+
+### `agent run`
+
+```bash
+node ./bin/reversa.js agent run \
+  --mode phone-safe \
+  --goal "Inspect supplied evidence for Vulkan loader contradictions. Do not patch." \
+  --evidence-file /path/to/report.md
+```
+
+Writes an auditable run folder under `.reversa/runs/`. The scaffold supports
+`scan-only`, `phone-safe`, and `patch-propose`. It refuses `patch-apply` and
+`recovery-danger`.
+
+---
+
 ## Compatibility Commands
 
 These commands remain from the original Reversa agent installer:

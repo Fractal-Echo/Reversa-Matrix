@@ -1,0 +1,27 @@
+providers:
+  vllm:
+    base_url: "http://127.0.0.1:8000/v1"
+    served_model: "reversa-coder"
+    role: "primary"
+  ollama:
+    base_url: "http://127.0.0.1:11434/v1"
+    served_model: "qwen3-coder:30b"
+    role: "fallback"
+  llama_cpp:
+    base_url: "http://127.0.0.1:8080/v1"
+    served_model: "reversa-coder"
+    role: "emergency_fallback"
+
+model_ladder:
+  primary:
+    family: "Qwen3-Coder 30B-class instruct"
+    purpose: "repo-scale coding and agent reasoning"
+  fallback:
+    family: "Qwen2.5-Coder 32B-class instruct"
+    purpose: "stable older coding fallback"
+  second_opinion:
+    family: "Devstral or Mistral coding model"
+    purpose: "disagreement checks"
+  classifier:
+    family: "7B to 14B coder"
+    purpose: "fast log labeling and triage"

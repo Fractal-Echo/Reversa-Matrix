@@ -18,6 +18,7 @@ const commands = {
   scan:               () => import('../lib/commands/scan.js'),
   compare:            () => import('../lib/commands/compare.js'),
   gui:                () => import('../lib/commands/gui.js'),
+  agent:              () => import('../lib/commands/agent.js'),
   uninstall:          () => import('../lib/commands/uninstall.js'),
   'add-agent':        () => import('../lib/commands/add-agent.js'),
   'add-engine':       () => import('../lib/commands/add-engine.js'),
@@ -36,6 +37,7 @@ if (!command || command === '--help' || command === '-h') {
     scan               Scan a source tree and generate structured evidence
     compare            Compare two trees and classify differences
     gui                Generate a local dashboard for scan/compare results
+    agent              Run local agent doctor/models/memory/report scaffolding
     install            Install compatibility agent workflow files
     update             Update installed compatibility agents
     status             Show current compatibility analysis state

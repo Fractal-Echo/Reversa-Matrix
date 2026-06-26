@@ -249,6 +249,73 @@ test('README beginner command examples remain smoke-testable', async () => {
   assert.match(readme, /node \.\/bin\/reversa\.js gui --out reversa_out/);
 });
 
+test('local agent scaffold writes an auditable contradiction run without a model server', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-agent-test-'));
+  const memoryRoot = join(root, 'memory');
+  const runDir = join(root, 'run');
+  const evidenceFile = join(root, 'PHONE_REVERSA_CONFLICT_SCAN.md');
+  await import('fs/promises').then(({ writeFile }) => writeFile(evidenceFile, [
+    'VK_ICD_FILENAMES=/usr/local/etc/vulkan/icd.d/freedreno_icd.json',
+    'VK_DRIVER_FILES=/usr/local/etc/vulkan/icd.d/freedreno_icd.json',
+    '/usr/share/vulkan/icd.d/freedreno_icd.json',
+    '/usr/local/lib/libvulkan_freedreno.so',
+    'Qualcomm Adreno UMD candidate belongs to B0',
+    'CONFIG_ARM64_VA_BITS=39',
+    'glxinfo -B',
+    'vulkaninfo --summary returned 0',
+    'CHILD_LIBPATH GAMESCOPE_LIBPATH BRIDGE_LIBPATH LD_LIBRARY_PATH',
+  ].join('\n'), 'utf8'));
+
+  const init = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'agent',
+    'init-memory',
+    '--memory-root',
+    memoryRoot,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(init.status, 0, init.stderr || init.stdout);
+
+  const run = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'agent',
+    'run',
+    '--mode',
+    'phone-safe',
+    '--goal',
+    'A1 inspect supplied Nebula evidence for Vulkan loader contradictions. Do not patch.',
+    '--memory-root',
+    memoryRoot,
+    '--evidence-file',
+    evidenceFile,
+    '--out',
+    runDir,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+
+  for (const relPath of [
+    'prompt.md',
+    'plan.md',
+    'tool_calls.jsonl',
+    'evidence.jsonl',
+    'contradictions.yaml',
+    'PHONE_REVERSA_AGENT_REPORT.md',
+    'artifacts/policy.json',
+  ]) {
+    assert(existsSync(join(runDir, relPath)), `${relPath} should exist`);
+  }
+
+  const report = await readFile(join(runDir, 'PHONE_REVERSA_AGENT_REPORT.md'), 'utf8');
+  assert.match(report, /dual_freedreno_icd_candidates/);
+  assert.match(report, /a1_b0_lane_mixing/);
+  assert.match(report, /Raw shell tool: disabled/);
+});
+
 function assertEvidence(report, category, claimIncludes) {
   assert(
     report.evidence.some(item => item.category === category && item.normalized_claim.includes(claimIncludes)),

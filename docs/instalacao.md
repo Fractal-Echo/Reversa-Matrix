@@ -83,6 +83,31 @@ Inside the cloned repository, prefer `node ./bin/reversa.js ...` so you know you
 
 ---
 
+## Local Agent Runtime
+
+The local agent scaffold uses the same Node.js CLI and does not require a model
+server for its first scan/report run:
+
+```bash
+node ./bin/reversa.js agent init-memory
+node ./bin/reversa.js agent doctor --no-network
+```
+
+When a local OpenAI-compatible model server is available:
+
+```bash
+node ./bin/reversa.js agent models --base-url http://127.0.0.1:8000/v1
+```
+
+Runtime templates live in:
+
+```text
+reversa-runtime/
+profiles/nebula/
+```
+
+---
+
 ## Build The Docs
 
 Documentation uses MkDocs through Python. Install the docs requirements into the user Python site, then build:

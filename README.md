@@ -8,6 +8,9 @@ Reversa-Matrix is an evidence-first research assistant for real code trees: Andr
 
 It is not a patch bot. It is not a flashing tool. It maps evidence so humans and Codex agents can make better decisions.
 
+New direction: Reversa can also run a local agent scaffold. The model is not the
+agent; Reversa owns memory, typed tools, policy, evidence, and patch gates.
+
 ---
 
 ## Requirements
@@ -135,6 +138,47 @@ node ./bin/reversa.js compare \
 ```
 
 The scanner reads the target tree and writes reports to `--out`. It does not edit the inspected tree.
+
+---
+
+## Local Agent Runtime
+
+Initialize local evidence memory:
+
+```bash
+node ./bin/reversa.js agent init-memory
+```
+
+Check local prerequisites without requiring a model server:
+
+```bash
+node ./bin/reversa.js agent doctor --no-network
+```
+
+List models from a local OpenAI-compatible endpoint:
+
+```bash
+node ./bin/reversa.js agent models --base-url http://127.0.0.1:8000/v1
+```
+
+Create an auditable scan/report run from existing evidence:
+
+```bash
+node ./bin/reversa.js agent run \
+  --mode phone-safe \
+  --goal "Inspect supplied Nebula evidence for Vulkan loader contradictions. Do not patch." \
+  --evidence-file /path/to/PHONE_REVERSA_CONFLICT_SCAN.md
+```
+
+The first scaffold writes `.reversa/runs/<run-id>/` with `prompt.md`,
+`plan.md`, `tool_calls.jsonl`, `evidence.jsonl`, `contradictions.yaml`,
+`PHONE_REVERSA_AGENT_REPORT.md`, and `artifacts/policy.json`.
+
+See:
+
+- [Reversa Agent Runtime](docs/REVERSA_AGENT_RUNTIME.md)
+- [Reversa Local 5090 Plan](docs/REVERSA_LOCAL_5090_PLAN.md)
+- [Reversa Tool Policy](docs/REVERSA_TOOL_POLICY.md)
 
 ---
 

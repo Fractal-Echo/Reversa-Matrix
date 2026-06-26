@@ -18,6 +18,7 @@ Reversa-Matrix scans a source tree and emits structured evidence:
 - compare reports between current and reference trees
 - offline dashboards for humans
 - JSON/JSONL handoff bundles for Codex and other agents
+- a local agent scaffold that owns memory, typed tools, policy, and reports
 
 The core rule is simple:
 
@@ -136,6 +137,9 @@ reversa_out/
 ```
 
 Use `dashboard.html` to browse. Use `report.json`, `evidence.jsonl`, and `agent_handoff/` for automation.
+
+Local agent runs write `.reversa/runs/<run-id>/` with a prompt, plan, tool call
+log, evidence JSONL, contradiction YAML, and a Markdown report.
 
 ---
 

@@ -1,0 +1,13 @@
+profile_id: nebula_gamescope
+purpose: "Track Gamescope/Xwayland readiness without broadening runtime scope."
+watch:
+  commands:
+    - glxinfo -B
+  evidence:
+    - gamescope readiness
+    - xwayland readiness
+    - real-buffer commits
+    - vkGetMemoryFdKHR failures
+constraints:
+  - "Do not run broad GL inventories unless explicitly requested."
+  - "Do not treat display proof as game-client runtime proof."

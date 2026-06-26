@@ -25,7 +25,10 @@
   "files": [
     "agents/",
     "bin/",
+    "docs/",
     "lib/",
+    "profiles/",
+    "reversa-runtime/",
     "scripts/",
     "templates/",
     "README.md",

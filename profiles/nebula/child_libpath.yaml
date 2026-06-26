@@ -1,0 +1,13 @@
+profile_id: nebula_child_libpath
+purpose: "Keep child, bridge, Gamescope, and loader paths separated."
+watch:
+  env:
+    - CHILD_LIBPATH
+    - GAMESCOPE_LIBPATH
+    - BRIDGE_LIBPATH
+    - LD_LIBRARY_PATH
+checks:
+  - id: child_gamescope_mixed
+    rule: "Child software GL paths must not leak into Gamescope hardware paths."
+  - id: bridge_loader_mixed
+    rule: "Bridge libraries must not override Vulkan loader or ICD ownership."

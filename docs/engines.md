@@ -1,17 +1,49 @@
 # Agent And Engine Use
 
-Reversa-Matrix can be used without installing any agent skills. The scanner produces JSON, JSONL, Markdown, HTML, and dashboard files that any agent can read.
+Reversa-Matrix can be used without installing cloud agent skills. The scanner
+produces JSON, JSONL, Markdown, HTML, and dashboard files that any agent or local
+runtime can read.
 
 ---
 
-## Best Current Agent Flow
+## Local Reversa-Agent Flow
+
+The preferred durable direction is:
+
+```text
+local model endpoint -> Reversa typed tools -> evidence memory -> run report
+```
+
+The model is only the reasoning engine. Reversa owns tool permission, memory,
+evidence, contradiction detection, and patch gates.
+
+Start with:
+
+```bash
+node ./bin/reversa.js agent init-memory
+node ./bin/reversa.js agent doctor --no-network
+node ./bin/reversa.js agent run \
+  --mode scan-only \
+  --goal "Inspect supplied evidence and write a contradiction report. Do not patch." \
+  --evidence-file /path/to/evidence.md
+```
+
+See:
+
+- [Reversa Agent Runtime](REVERSA_AGENT_RUNTIME.md)
+- [Reversa Local 5090 Plan](REVERSA_LOCAL_5090_PLAN.md)
+- [Reversa Tool Policy](REVERSA_TOOL_POLICY.md)
+
+---
+
+## Handoff Flow
 
 1. Run `scan` or `compare`.
 2. Generate the GUI with `gui`.
-3. Give Codex the `agent_handoff/` bundle.
+3. Give a local or external agent the `agent_handoff/` bundle.
 4. Ask it to reason from evidence IDs, file paths, and line references.
 
-Start Codex with:
+Start an external agent with:
 
 ```text
 Read agent_handoff/summary.md first.
@@ -22,10 +54,14 @@ Do not run destructive commands.
 
 ---
 
-## Compatible Agents
+## Compatible Runtimes
 
 The output format is plain files, so it works with:
 
+- Reversa local agent runs
+- vLLM through an OpenAI-compatible endpoint
+- Ollama through its OpenAI-compatible endpoint
+- llama.cpp or llama-cpp-python servers
 - Codex
 - Claude Code
 - Cursor
@@ -34,7 +70,7 @@ The output format is plain files, so it works with:
 - Aider
 - other agents that can read local files
 
-No engine-specific API key is required by Reversa-Matrix itself.
+No cloud API key is required by Reversa-Matrix itself.
 
 ---
 
@@ -54,7 +90,8 @@ It can create files such as:
 - `.claude/skills/`
 - `.reversa/`
 
-That is compatibility support. The new product center is scanner output plus agent handoff.
+That is compatibility support. The new product center is scanner output, local
+agent runs, and structured handoff.
 
 ---
 

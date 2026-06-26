@@ -79,3 +79,28 @@ Recommended local habits:
 - ignore local config such as `.reversa/config.user.toml`
 - keep known-good files free of secrets
 - do not put destructive commands in shared handoff files unless clearly quarantined
+
+---
+
+## Local Agent Memory
+
+Create starter memory files:
+
+```bash
+node ./bin/reversa.js agent init-memory
+```
+
+The memory folder is:
+
+```text
+.reversa/memory/
++-- known_good_frontier.yaml
++-- active_blockers.yaml
++-- contradictions.yaml
++-- phone_targets.yaml
++-- project_constraints.yaml
+```
+
+These files preserve the current frontier, active blockers, policy constraints,
+and phone target references between runs. They are read before `agent run`
+writes a report.
