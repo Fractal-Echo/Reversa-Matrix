@@ -181,9 +181,9 @@ Responses adapters, Claude/Codex launcher env hygiene, admin config surfaces,
 smoke coverage, messaging bridges, and secret redaction.
 
 The `semantic_policy` profile extends the agentic lane with meaning-level
-policy checks. It normalizes claims such as `read_only`, `approval_required`,
-`approval_bypass`, `device_action_forbidden`, `network_allowed`,
-`commit_forbidden`, `push_allowed`, `proprietary_reference_only`,
+policy checks. It normalizes claims such as `read_only`, `write_forbidden`,
+`approval_required`, `approval_bypass`, `device_action_forbidden`,
+`network_allowed`, `commit_forbidden`, `push_allowed`, `proprietary_reference_only`,
 `attribution_missing`, `stale_agent`, and `active_agent`, then reports HIGH or
 MEDIUM contradictions when the claims collide. Markdown fenced examples,
 generated scan outputs, and local code string assignments are guarded so they

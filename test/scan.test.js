@@ -461,6 +461,7 @@ test('semantic policy profile emits normalized claims and contradictions', async
   assert.equal(report.scan.profile, 'semantic_policy');
   assertEvidence(report, 'read_only', 'semantic_policy.read_only.workspace=read_only');
   assertEvidence(report, 'write_allowed', 'semantic_policy.write_allowed.workspace=writes_allowed');
+  assertEvidence(report, 'write_forbidden', 'semantic_policy.write_forbidden.workspace=writes_forbidden');
   assertEvidence(report, 'approval_required', 'semantic_policy.approval_required.approval=required');
   assertEvidence(report, 'approval_bypass', 'semantic_policy.approval_bypass.approval=bypassed');
   assertEvidence(report, 'device_action_forbidden', 'semantic_policy.device_action_forbidden.device=device_actions_forbidden');
@@ -488,7 +489,7 @@ test('semantic policy profile emits normalized claims and contradictions', async
   assert(report.contradictions.every(item => item.category !== 'semantic_policy_contradiction' || ['HIGH', 'MEDIUM'].includes(item.severity)));
 
   assert(
-    report.evidence.some(item => item.category === 'read_only' && item.evidence_kind === 'instruction'),
+    report.evidence.some(item => item.category === 'read_only' && item.evidence_kind === 'fixture'),
     'semantic evidence should carry evidence_kind metadata'
   );
   assertNoExtractedText(report, 'fenced-example.git');

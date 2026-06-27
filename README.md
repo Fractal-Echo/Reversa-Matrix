@@ -279,8 +279,8 @@ messaging bridges, or secret-redaction code. Pair both with
 
 Use `semantic_policy` when a repo has AGENTS/CLAUDE/SKILL files, memories,
 handoffs, hooks, or project docs that may disagree about approvals, destructive
-commands, device access, network access, source patching, commits, pushes,
-sandboxing, attribution, proprietary-source handling, or stale agents. It
+commands, device access, network access, write-forbidden rules, source patching,
+commits, pushes, sandboxing, attribution, proprietary-source handling, or stale agents. It
 normalizes policy claims before comparing them, so "ask before destructive" and
 "skip approvals" become a clear contradiction instead of two loose keywords.
 `windows_compat` is an alias for `windows_system`; `kernel` is an alias for

@@ -17,7 +17,7 @@ subject, predicate, profile, confidence, and evidence kind. The main claim
 families are:
 
 - `approval_required` and `approval_bypass`
-- `read_only`, `write_allowed`, `source_patch_allowed`, and `source_patch_forbidden`
+- `read_only`, `write_allowed`, `write_forbidden`, `source_patch_allowed`, and `source_patch_forbidden`
 - `commit_allowed`, `commit_forbidden`, `push_allowed`, and `push_forbidden`
 - `device_action_forbidden` and `device_action_allowed`
 - `network_forbidden` and `network_allowed`
@@ -38,8 +38,8 @@ needs cleanup before automation, such as stale-agent cleanup notes alongside
 retained active-agent notes.
 
 The scanner guards common false positives. Markdown fenced examples, generated
-Reversa outputs, MkDocs `site/` output, and code string assignments are not
-treated as durable policy claims.
+Reversa outputs, MkDocs `site/` output, test fixtures, and code string
+assignments are not treated as durable project policy claims.
 
 ## Safe Next Step
 
