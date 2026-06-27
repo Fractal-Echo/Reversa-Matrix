@@ -241,6 +241,9 @@ rm11pro_gaming_runtime
 
 Use `generic_source_tree` when you are not sure which profile fits yet.
 
+For Claude/Codex-style projects, pair `agentic_toolchain` scans with
+`templates/engines/CLAUDE_CODEX_REVERSA_PATTERNS.md`.
+
 ---
 
 ## Reversa-Matrix Console Preview

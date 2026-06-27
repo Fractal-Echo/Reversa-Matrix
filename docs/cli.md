@@ -156,6 +156,9 @@ The pack is metadata/evidence only. It records source URL, commit, import
 stance, license evidence, scan counts, evidence-category weights, and GPU proof
 when `nvidia-smi` is available. It does not copy third-party source text.
 
+For a reusable Claude/Codex/Reversa checklist, see
+`templates/engines/CLAUDE_CODEX_REVERSA_PATTERNS.md`.
+
 ---
 
 ## Evidence Fields
