@@ -217,9 +217,11 @@ Do not call Reversa "trained" until one of these is true:
 3. A fine-tune job is launched with a license-clean dataset, held-out eval split,
    exact base model, exact command, output artifact hash, and rollback path.
 
-Preferred next step: build the held-out eval harness first. It is cheaper,
-reversible, and tells us whether the GPU model actually improves Reversa instead
-of just generating confident noise.
+Preferred next step: keep two lanes separate:
+
+1. `agent eval` for local LLM advisory reasoning against held-out JSON cases.
+2. `train-agentic-policy-classifier.py` for actual supervised training against
+   metadata/evidence-only import-policy examples.
 
 Implemented first lane:
 
@@ -261,3 +263,44 @@ When the operator supplies exact `--find-text` and `--replace-text` values,
 patch-wizard can also write a review-only `patch.diff`. It records the target
 hash first and does not edit source files, so literal fixes are inspectable
 before any human-approved apply step.
+
+Implemented first real training lane:
+
+```bash
+python3 -m venv /home/richtofen/.local/share/reversa/venvs/policy-train-py314
+/home/richtofen/.local/share/reversa/venvs/policy-train-py314/bin/python \
+  -m pip install --upgrade pip setuptools wheel
+/home/richtofen/.local/share/reversa/venvs/policy-train-py314/bin/python \
+  -m pip install torch scikit-learn numpy joblib
+
+/home/richtofen/.local/share/reversa/venvs/policy-train-py314/bin/python \
+  scripts/train-agentic-policy-classifier.py \
+  --pack /home/richtofen/.android/repositories/nebula-assets/logs/2026-06-27-reversa-nebula-seal-pass-01/claude-code-matrix-refresh/training-pack/agentic-training-pack.jsonl \
+  --target-scan-root /home/richtofen/.android/repositories/nebula-assets/logs/2026-06-27-reversa-nebula-seal-pass-01/claude-code-matrix-refresh/target-scans \
+  --out /home/richtofen/.android/repositories/nebula-assets/logs/2026-06-27-reversa-nebula-seal-pass-01/claude-code-matrix-refresh/policy-classifier-01 \
+  --epochs 350 \
+  --device cuda
+```
+
+Result:
+
+```text
+checkpoint: policy-classifier.pt
+device: cuda:0 NVIDIA GeForce RTX 5090
+samples: 117
+train/test: 91/26
+labels: allowlist, blocked, notice_required, permissive
+test accuracy: 1.0000
+test macro F1: 1.0000
+```
+
+This is real training, but it is still first-pass classifier training on a small
+metadata dataset. It can advise import-policy ranking and source-boundary
+detection. It does not replace deterministic scanner truth, and it must not be
+treated as a general LLM fine-tune.
+
+Model artifact hashes are stored in the local run directory:
+
+```text
+/home/richtofen/.android/repositories/nebula-assets/logs/2026-06-27-reversa-nebula-seal-pass-01/claude-code-matrix-refresh/policy-classifier-01/sha256sums.txt
+```
