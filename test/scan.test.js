@@ -380,6 +380,50 @@ test('scanner downgrades lowercase code assignments even when keys look like pro
   assertNoEvidence(report, ['mcp_plugin_surface'], 'plugin=gif-maker');
 });
 
+test('scanner treats code constants and object fields as local implementation state', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-code-constants-'));
+  await mkdir(join(root, 'config'));
+  await writeFile(join(root, 'config', 'launchers.py'), [
+    '_DISPLAY_NAME = "Claude Code"',
+    '_DEFAULT_BINARY = "claude"',
+    '__all__ = ["Settings"]',
+    'self._local.active = True',
+    'provider_id="nvidia_nim",',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'config', 'other.py'), [
+    '_DISPLAY_NAME = "Codex CLI"',
+    '_DEFAULT_BINARY = "codex"',
+    '__all__ = ("SUPPORTED_PROVIDER_IDS",)',
+    'self._local.active = False',
+    'provider_id="open_router",',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'config.env'), [
+    '_DEFAULT_BINARY=claude',
+    '_DEFAULT_BINARY=codex',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'agentic_toolchain',
+  });
+
+  assertEvidence(report, 'local_code_assignments', '_DISPLAY_NAME=Claude Code');
+  assertEvidence(report, 'local_code_assignments', 'provider_id=nvidia_nim');
+  assert(report.contradictions.some(item => item.title.includes('Conflicting definitions for _DEFAULT_BINARY')));
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for _DISPLAY_NAME')),
+    'code constants should not create durable definition contradictions'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for provider_id')),
+    'object fields in code catalogs should not create durable definition contradictions'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for self._local.active')),
+    'object instance fields should not create durable definition contradictions'
+  );
+});
+
 test('scanner scopes sectioned config assignments before contradiction grouping', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-sectioned-config-'));
   await writeFile(join(root, 'config.toml'), [
