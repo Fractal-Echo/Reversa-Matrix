@@ -58,7 +58,9 @@ Linux support should focus on claims that can be checked from files: paths, pack
 
 ## Windows
 
-Windows support is a product direction, not a completed profile.
+Current profile:
+
+- `windows_system`
 
 Useful targets:
 
@@ -71,7 +73,7 @@ Useful targets:
 - installer layouts
 - cross-compiled Windows targets
 
-Windows profile work should preserve the same safety model: inspect files, classify evidence, produce handoff artifacts, and avoid destructive host changes.
+Windows profile work preserves the same safety model: inspect files, classify evidence, produce handoff artifacts, and avoid destructive host changes.
 
 ---
 
@@ -80,6 +82,9 @@ Windows profile work should preserve the same safety model: inspect files, class
 Current related profiles:
 
 - `game_modding`
+- `pcgamingwiki_runtime`
+- `widescreen_framegen_runtime`
+- `game_exe_patch_runtime`
 - `graphics_wrapper`
 - `vulkan_loader`
 - `bo3_zombies_diagnostics`
@@ -89,7 +94,10 @@ Current related profiles:
 Useful targets:
 
 - old-game modding and private co-op launch profiles
+- PCGamingWiki-style game data, store/version, video, input, audio, network, API, middleware, Wine, Proton, and Linux fix notes
 - graphics wrapper chains such as DXVK, VKD3D, ReShade, SpecialK, 3DMigoto, SUWSF, and upscalers
+- Flawless Widescreen, ultrawide/FOV/HUD, frame generation, Windows DLL proxy, and Linux Vulkan layer evidence
+- offline/private executable patch manifests with exact version/hash guards, RVA/signature mapping, backup/rollback, and Linux/Proton validation
 - Vulkan loader variables, ICD JSON references, and driver negotiation logs
 - render hook, frame timing, texture injection, and HDR pipeline manifests
 - mobile Linux gaming profiles for phone, container, translation, and Vulkan driver layers

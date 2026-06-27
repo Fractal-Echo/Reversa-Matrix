@@ -44,6 +44,8 @@ commands to a model.
 rules: model `NX809J`, observed USB serial `912607710184`, Windows ADB at
 `/mnt/c/platform-tools/adb.exe`, `_adb-tls-connect._tcp` discovery, and the rule
 that stale `PHONE=<ip:old-port>` values must be refreshed before wireless tests.
+Refreshing means live mDNS discovery, live connect, and fresh `PHONE` /
+`ADB_SERIAL` evidence in the current run.
 
 See [RM11Pro Fast-Test Facts](RM11PRO_FAST_TEST_FACTS.md) for the human-readable
 version of the same memory.

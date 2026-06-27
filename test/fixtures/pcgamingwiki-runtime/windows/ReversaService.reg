@@ -1,0 +1,7 @@
+Windows Registry Editor Version 5.00
+
+[HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\ReversaFix]
+"DisplayName"="Reversa Fix Service"
+"ImagePath"="C:\\Program Files\\Reversa\\ReversaFix.exe"
+"Start"=dword:00000003
+"Type"=dword:00000010

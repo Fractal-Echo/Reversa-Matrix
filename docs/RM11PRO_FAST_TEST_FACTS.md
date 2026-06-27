@@ -29,6 +29,16 @@ as unproven unless it independently sees the same live endpoint.
 Wireless ADB ports change. A saved `PHONE=<ip:port>` is only a snapshot, not a
 stable identity.
 
+Critical rule:
+
+```text
+Refreshing is refreshing.
+```
+
+For this workflow, refresh is not a status label. It means all three happened in
+the current run: live mDNS discovery, connect to the live endpoint, and captured
+`PHONE` / `ADB_SERIAL` evidence.
+
 - Stale endpoint observed on 2026-06-26: `192.168.7.230:37223`
 - Refreshed live endpoint observed on 2026-06-26: `192.168.7.230:33899`
 

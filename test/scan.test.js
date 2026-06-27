@@ -20,6 +20,7 @@ const repoRoot = resolve(__dirname, '..');
 const currentFixture = join(repoRoot, 'test/fixtures/android-recovery-current');
 const referenceFixture = join(repoRoot, 'test/fixtures/android-recovery-reference');
 const bo3Fixture = join(repoRoot, 'test/fixtures/bo3-runtime-diagnostics');
+const pcgwFixture = join(repoRoot, 'test/fixtures/pcgamingwiki-runtime');
 const agenticFixture = join(repoRoot, 'test/fixtures/agentic-toolchain');
 const agenticGatewayFixture = join(repoRoot, 'test/fixtures/agentic-gateway');
 const knownGoodPath = join(repoRoot, 'examples/known_good_rm11pro_nx809j.json');
@@ -309,6 +310,87 @@ test('render enhancement profiles detect plugin and RM11Pro runtime surfaces', a
 
   const mobileValidation = validateScanReport(mobileReport);
   assert.equal(mobileValidation.valid, true, mobileValidation.errors.join('\n'));
+});
+
+test('pcgamingwiki runtime profile detects cross-platform game fix taxonomy', async () => {
+  const report = await scanProject({
+    projectRoot: pcgwFixture,
+    profile: 'pcgamingwiki_runtime',
+  });
+
+  assert.equal(report.scan.profile, 'pcgamingwiki_runtime');
+  assertEvidence(report, 'pcgw_game_data_paths', 'ConfigPath=%USERPROFILE%');
+  assertEvidence(report, 'pcgw_availability_drm', 'SteamAppId=311210');
+  assertEvidence(report, 'pcgw_video_display_fixes', 'ultrawide');
+  assertEvidence(report, 'pcgw_input_audio_network', 'ControllerSupport=XInput');
+  assertEvidence(report, 'pcgw_api_middleware', 'Middleware=Steamworks');
+  assertEvidence(report, 'pcgw_linux_wine_proton', 'ProtonVersion=GE-Proton');
+  assertEvidence(report, 'pcgw_issue_fix_notes', 'Issues fixed');
+  assert(report.commands_to_run.some(command => command.includes('Configuration file')));
+  assert(report.commands_to_run.some(command => command.includes('Wine')));
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('windows system profile detects services, drivers, registry, PE, and MSBuild evidence', async () => {
+  const report = await scanProject({
+    projectRoot: pcgwFixture,
+    profile: 'windows_system',
+  });
+
+  assert.equal(report.scan.profile, 'windows_system');
+  assertEvidence(report, 'windows_service_surface', 'CurrentControlSet\\Services');
+  assertEvidence(report, 'windows_driver_surface', 'AddService=ReversaDriver');
+  assertEvidence(report, 'windows_registry_assumptions', 'HKEY_LOCAL_MACHINE');
+  assertEvidence(report, 'windows_msbuild_visualstudio', 'PlatformToolset');
+  assertEvidence(report, 'windows_pe_metadata', 'requestedExecutionLevel');
+  assertEvidence(report, 'windows_installer_layout', 'Program Files');
+  assert(report.commands_to_run.some(command => command.includes('PlatformToolset')));
+  assert(report.commands_to_run.some(command => command.includes('CurrentControlSet')));
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('widescreen framegen profile separates ultrawide and Windows/Linux frame generation evidence', async () => {
+  const report = await scanProject({
+    projectRoot: pcgwFixture,
+    profile: 'widescreen_framegen_runtime',
+  });
+
+  assert.equal(report.scan.profile, 'widescreen_framegen_runtime');
+  assertEvidence(report, 'widescreen_fix_surface', 'FlawlessWidescreen=enabled');
+  assertEvidence(report, 'frame_generation_pipeline', 'FrameGeneration=OptiScaler');
+  assertEvidence(report, 'framegen_windows_runtime', 'WindowsFramegen=nvngx_dlssg.dll');
+  assertEvidence(report, 'framegen_linux_runtime', 'LinuxFramegen=lsfg-vk');
+  assert(report.commands_to_run.some(command => command.includes('Flawless Widescreen')));
+  assert(report.commands_to_run.some(command => command.includes('lsfg-vk')));
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('game exe patch profile detects Linux-focused executable patch evidence and safety boundaries', async () => {
+  const report = await scanProject({
+    projectRoot: pcgwFixture,
+    profile: 'game_exe_patch_runtime',
+  });
+
+  assert.equal(report.scan.profile, 'game_exe_patch_runtime');
+  assertEvidence(report, 'exe_patch_surface', 'TargetExe=BlackOps3.exe');
+  assertEvidence(report, 'exe_version_hash_guard', 'SHA256Before=aaaaaaaa');
+  assertEvidence(report, 'exe_rva_signature_mapping', 'OriginalBytes=75 0A');
+  assertEvidence(report, 'exe_disassembly_symbol_notes', 'Disassembler=Ghidra');
+  assertEvidence(report, 'exe_patch_backup_rollback', 'RollbackPlan=verify original bytes');
+  assertEvidence(report, 'exe_patch_linux_compat', 'ProtonPatchTarget=compatdata/311210');
+  assertEvidence(report, 'exe_patch_safety_boundary', 'no DRM bypass');
+  assert(report.commands_to_run.some(command => command.includes('SHA256Before')));
+  assert(report.commands_to_run.some(command => command.includes('LinuxPatchTarget')));
+  assert(report.commands_to_run.some(command => command.includes('DRM')));
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
 });
 
 test('agentic toolchain profile detects skills, hooks, memory, providers, and import risk', async () => {
@@ -779,6 +861,10 @@ test('gui dashboard is generated from valid scan output', async () => {
   assert.match(html, /RM11Pro first/);
   assert.match(html, /Triage/);
   assert.match(html, /Scan Lanes/);
+  assert.match(html, /windows_system/);
+  assert.match(html, /pcgamingwiki_runtime/);
+  assert.match(html, /widescreen_framegen_runtime/);
+  assert.match(html, /game_exe_patch_runtime/);
   assert.match(html, /agentic_gateway/);
   assert.match(html, /Findings Browser/);
   assert.match(html, /DESTRUCTIVE \/ HUMAN REVIEW REQUIRED \/ BACKUP REQUIRED/);
@@ -840,6 +926,8 @@ test('local agent scaffold writes an auditable contradiction run without a model
   assert.match(phoneTargets, /_adb-tls-connect\._tcp/);
   assert.match(phoneTargets, /192\.168\.7\.230:37223/);
   assert.match(phoneTargets, /192\.168\.7\.230:33899/);
+  assert.match(phoneTargets, /Refreshing is refreshing/);
+  assert.match(phoneTargets, /live mDNS discovery, live connect, and fresh PHONE\/ADB_SERIAL evidence/);
   assert.match(phoneTargets, /Do not reuse PHONE=<ip:old-port>/);
   assert.match(phoneTargets, /Do not run reboot tests unless the human explicitly requests a reboot/);
 

@@ -146,6 +146,7 @@ Current practical profiles include:
 - `generic_source_tree`
 - `agentic_toolchain`
 - `agentic_gateway`
+- `windows_system`
 - `android_recovery`
 - `orangefox`
 - `twrp`
@@ -155,13 +156,16 @@ Current practical profiles include:
 - `linux_container`
 - `gamescope`
 - `game_modding`
+- `pcgamingwiki_runtime`
+- `widescreen_framegen_runtime`
+- `game_exe_patch_runtime`
 - `graphics_wrapper`
 - `vulkan_loader`
 - `bo3_zombies_diagnostics`
 - `render_enhancement_plugin`
 - `rm11pro_gaming_runtime`
 
-Game and graphics-runtime profiles classify evidence for wrappers, frame timing, render hook surfaces, texture injection, HDR, API translation, Vulkan loader state, and mobile Linux runtime assumptions.
+Game and graphics-runtime profiles classify evidence for PCGamingWiki-style fixes, wrappers, frame timing, render hook surfaces, texture injection, HDR, API translation, Vulkan loader state, widescreen/framegen layers, offline/private patch manifests, and mobile Linux runtime assumptions.
 
 The `agentic_toolchain` profile classifies Claude/Codex-style instruction
 files, skills, hooks, permissions, provider routing, memory/context injection,

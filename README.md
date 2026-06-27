@@ -57,10 +57,10 @@ JSON and JSONL are the source of truth.
 | Android | recovery trees, kernels, BoardConfig, fstab, init rc, vendor blobs, device facts |
 | Linux | containers, systemd, userspace graphics, compositor stacks, kernel/userland boundaries |
 | Windows | services, drivers, PE metadata, registry assumptions, MSBuild/Visual Studio trees |
-| Games | modding runtimes, graphics wrappers, Vulkan loader state, private co-op stability evidence |
+| Games | PCGamingWiki-style fixes, modding runtimes, graphics wrappers, widescreen/framegen evidence, Vulkan loader state, private co-op stability evidence |
 | Cross-platform | C/C++/Rust/Java/Kotlin/Python/JS projects, generated artifacts, build scripts, copied constants |
 
-Current strongest lanes: Android recovery evidence mapping with known-good comparison and tree compare mode; Claude/Codex-style agent tooling and provider-gateway audits; and early game-runtime profiles that classify modding, wrapper, Vulkan loader, and private co-op diagnostic evidence without performing patching or bypass workflows.
+Current strongest lanes: Android recovery evidence mapping with known-good comparison and tree compare mode; Claude/Codex-style agent tooling and provider-gateway audits; Windows service/driver/registry/MSBuild evidence; and PC gaming runtime profiles that classify PCGamingWiki-style fixes, wrappers, widescreen/framegen state, Vulkan loader facts, Linux/Proton paths, and offline/private patch evidence without performing patching or bypass workflows.
 
 ---
 
@@ -237,6 +237,7 @@ See:
 generic_source_tree
 agentic_toolchain
 agentic_gateway
+windows_system
 android_recovery
 orangefox
 twrp
@@ -246,6 +247,9 @@ userspace_graphics
 linux_container
 gamescope
 game_modding
+pcgamingwiki_runtime
+widescreen_framegen_runtime
+game_exe_patch_runtime
 graphics_wrapper
 vulkan_loader
 bo3_zombies_diagnostics
@@ -260,6 +264,13 @@ For Claude/Codex-style projects, start with `agentic_toolchain`. Use
 launchers, Anthropic Messages/OpenAI Responses adapters, smoke matrices,
 messaging bridges, or secret-redaction code. Pair both with
 `templates/engines/CLAUDE_CODEX_REVERSA_PATTERNS.md`.
+
+For PC game compatibility work, start with `pcgamingwiki_runtime` for game data,
+store/version, video, input, audio, network, API, middleware, Wine, Proton, and
+Linux notes. Use `widescreen_framegen_runtime` for Flawless Widescreen,
+ultrawide/FOV/HUD, DLSSG/FSR FG/XeFG/LSFG, and Windows-vs-Linux framegen
+separation. Use `game_exe_patch_runtime` only for hash-guarded offline/private
+patch manifests with rollback and Linux/Proton validation evidence.
 
 Print or write that reusable checklist from the CLI:
 

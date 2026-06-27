@@ -62,7 +62,7 @@ The current scanner already understands Android recovery-style trees and generic
 | Android | recovery trees, kernels, vendor blobs, fstab, init rc, BoardConfig, device facts |
 | Linux | containers, distro roots, desktop graphics stacks, systemd, kernel/userland boundaries |
 | Windows | source projects, drivers, services, registry assumptions, PE metadata, build scripts |
-| Games | modding runtimes, graphics wrappers, Vulkan loader state, render enhancement manifests |
+| Games | PCGamingWiki-style fixes, modding runtimes, graphics wrappers, widescreen/framegen evidence, Vulkan loader state, render enhancement manifests |
 | Cross-platform | C/C++/Rust/Java/Kotlin/Python/JS projects, generated artifacts, copied constants, risky assumptions |
 
 Reversa-Matrix is a platform-aware evidence mapper, not a website modernization wrapper.

@@ -84,8 +84,9 @@ The dashboard is designed as the control surface for RM11Pro and Nebula work:
 - touch-readable cards, buttons, and filters
 - status chips for RM11Pro, Wayland, touch readability, and offline evidence
 - triage actions that tell a new user where to click first
-- scan lanes for Android recovery, Linux/Wayland containers, game runtime,
-  agent toolchains, and provider gateways
+- scan lanes for Android recovery, Windows systems, Linux/Wayland containers,
+  game runtime, PCGamingWiki compatibility, widescreen/framegen, game EXE patch
+  evidence, agent toolchains, and provider gateways
 - command separation so validation stays away from destructive work
 
 This same visual language is the starting point for a future Reversa/Nebula

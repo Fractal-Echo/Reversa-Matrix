@@ -25,6 +25,7 @@ Current practical profiles include:
 - `generic_source_tree`
 - `agentic_toolchain`
 - `agentic_gateway`
+- `windows_system`
 - `android_recovery`
 - `orangefox`
 - `twrp`
@@ -34,6 +35,9 @@ Current practical profiles include:
 - `linux_container`
 - `gamescope`
 - `game_modding`
+- `pcgamingwiki_runtime`
+- `widescreen_framegen_runtime`
+- `game_exe_patch_runtime`
 - `graphics_wrapper`
 - `vulkan_loader`
 - `bo3_zombies_diagnostics`
