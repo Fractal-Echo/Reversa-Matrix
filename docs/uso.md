@@ -24,6 +24,7 @@ Current practical profiles include:
 
 - `generic_source_tree`
 - `agentic_toolchain`
+- `agentic_gateway`
 - `android_recovery`
 - `orangefox`
 - `twrp`
@@ -83,7 +84,24 @@ sourcemap source, custom commercial terms, and missing attribution lanes.
 
 ---
 
-## 4. Try A Game Runtime Scan
+## 4. Try An Agentic Gateway Scan
+
+Use this profile for Claude/Codex provider gateways, launchers, protocol
+adapters, admin config, smoke matrices, messaging bridges, and redaction code:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root ./test/fixtures/agentic-gateway \
+  --profile agentic_gateway \
+  --out reversa_gateway_out
+```
+
+This profile is stricter about auth-token evidence while keeping token
+accounting and provider-catalog fields out of false contradiction groups.
+
+---
+
+## 5. Try A Game Runtime Scan
 
 The repository includes a small fixture for game/runtime bring-up:
 
@@ -98,7 +116,7 @@ Use this to verify that render hook, frame timing, texture injection, HDR, API t
 
 ---
 
-## 5. Open The Dashboard
+## 6. Open The Dashboard
 
 ```bash
 node ./bin/reversa.js gui --out reversa_out
@@ -108,7 +126,7 @@ Open the printed `file://` URL. The dashboard lets you browse findings, contradi
 
 ---
 
-## 6. Compare Trees
+## 7. Compare Trees
 
 Use compare mode when you have a current tree and a reference tree:
 

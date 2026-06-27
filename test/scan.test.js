@@ -21,6 +21,7 @@ const currentFixture = join(repoRoot, 'test/fixtures/android-recovery-current');
 const referenceFixture = join(repoRoot, 'test/fixtures/android-recovery-reference');
 const bo3Fixture = join(repoRoot, 'test/fixtures/bo3-runtime-diagnostics');
 const agenticFixture = join(repoRoot, 'test/fixtures/agentic-toolchain');
+const agenticGatewayFixture = join(repoRoot, 'test/fixtures/agentic-gateway');
 const knownGoodPath = join(repoRoot, 'examples/known_good_rm11pro_nx809j.json');
 
 async function loadKnownGood() {
@@ -200,6 +201,9 @@ test('scanner keeps output filenames and prose compounds out of missing-path che
     "commandResults.push(await runCapture(options, 'device/getprop.txt', ['adb']));",
     'The kernel/userland boundary matters.',
     'A proprietary/commercial-term source is reference-only.',
+    'Keep risky root/module work out of the first app cut.',
+    'RedMagic hardware/status references remain future hook/control lanes.',
+    'Recovery and device-tree context lives in recovery/device-tree notes.',
     'vendor/lib64/libmissing_keymint.so',
   ].join('\n'), 'utf8');
 
@@ -211,6 +215,9 @@ test('scanner keeps output filenames and prose compounds out of missing-path che
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:device/getprop.txt');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:kernel/userland');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:proprietary/commercial-term');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:root/module');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/status');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:recovery/device-tree');
   assertEvidence(report, 'invalid_paths', 'referenced_path_missing:vendor/lib64/libmissing_keymint.so');
 });
 
@@ -325,6 +332,38 @@ test('agentic toolchain profile detects skills, hooks, memory, providers, and im
 
   assert(report.commands_to_run.some(command => command.includes('SKILL.md')));
   assert(report.commands_to_run.some(command => command.includes('sourcemap')));
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('agentic gateway profile detects provider, launcher, protocol, smoke, and secret surfaces', async () => {
+  const report = await scanProject({
+    projectRoot: agenticGatewayFixture,
+    profile: 'agentic_gateway',
+  });
+
+  assert.equal(report.scan.profile, 'agentic_gateway');
+  assertEvidence(report, 'provider_catalog_surface', 'ProviderDescriptor');
+  assertEvidence(report, 'model_routing_surface', 'ModelRouter');
+  assertEvidence(report, 'protocol_adapter_surface', '/v1/responses');
+  assertEvidence(report, 'client_launcher_surface', 'FCC_CODEX_API_KEY');
+  assertEvidence(report, 'admin_config_surface', 'Admin UI');
+  assertEvidence(report, 'smoke_coverage_surface', 'FEATURE_INVENTORY');
+  assertEvidence(report, 'messaging_bridge_surface', 'MESSAGING_PLATFORM = "discord"');
+  assertEvidence(report, 'secret_redaction_surface', 'TELEGRAM_BOT_TOKEN=example-redacted');
+  assertEvidence(report, 'local_code_assignments', 'input_tokens=100');
+  assertEvidence(report, 'local_code_assignments', 'token_counter=count only');
+  assertNoEvidence(report, ['secret_redaction_surface'], 'input_tokens=100');
+  assertNoEvidence(report, ['secret_redaction_surface'], 'token_counter=count only');
+  assert(
+    !report.contradictions.some(item => item.title.includes('credential_env')),
+    'provider catalog credential_env entries should be per-provider fields, not global conflicts'
+  );
+  assert(
+    report.commands_to_run.some(command => command.includes('ProviderDescriptor')),
+    'gateway profile should include provider catalog validation commands'
+  );
 
   const validation = validateScanReport(report);
   assert.equal(validation.valid, true, validation.errors.join('\n'));
@@ -447,6 +486,110 @@ test('scanner scopes sectioned config assignments before contradiction grouping'
     !report.contradictions.some(item => item.title.includes('Conflicting definitions for installed')),
     'same lowercase key in separate config sections should not conflict globally'
   );
+});
+
+test('scanner keeps append assignments out of contradiction grouping', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-append-assignments-'));
+  await writeFile(join(root, 'BoardConfig.mk'), [
+    'BOARD_MKBOOTIMG_ARGS += --header_version $(BOARD_BOOT_HEADER_VERSION)',
+    'BOARD_MKBOOTIMG_ARGS += --pagesize $(BOARD_KERNEL_PAGESIZE)',
+    'TARGET_RECOVERY_DEVICE_MODULES += debuggerd',
+    'TARGET_RECOVERY_DEVICE_MODULES += strace',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'android_recovery',
+  });
+
+  assertEvidence(report, 'kernel_header_assumptions', 'BOARD_MKBOOTIMG_ARGS=--header_version $(BOARD_BOOT_HEADER_VERSION)');
+  assertEvidence(report, 'build_variables', 'TARGET_RECOVERY_DEVICE_MODULES=debuggerd');
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for BOARD_MKBOOTIMG_ARGS')),
+    'append-only build lists should not create mutually-exclusive definition contradictions'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for TARGET_RECOVERY_DEVICE_MODULES')),
+    'append-only recovery module lists should not create mutually-exclusive definition contradictions'
+  );
+});
+
+test('scanner keeps display sockets and Qt platform out of soc identity grouping', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-display-platform-'));
+  await writeFile(join(root, 'README.md'), [
+    'ANLAND_SOCKET=/run/display.sock',
+    'QT_QPA_PLATFORM=wayland',
+    'PLATFORM_VERSION := 14',
+    'TARGET_BOARD_PLATFORM := sm8850',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'linux_container',
+  });
+
+  assertEvidence(report, 'display_touch_framebuffer_config', 'ANLAND_SOCKET=/run/display.sock');
+  assertEvidence(report, 'display_touch_framebuffer_config', 'QT_QPA_PLATFORM=wayland');
+  assertNoEvidence(report, ['soc_platform_identity'], 'PLATFORM_VERSION=14');
+  assert(
+    !report.contradictions.some(item => item.title.includes('soc_platform')
+      && item.conflicting_claims.some(claim => /SOCKET|QT_QPA_PLATFORM|PLATFORM_VERSION/.test(claim.claim))),
+    'display sockets, Qt UI backend, and Android platform version should not be canonical SoC claims'
+  );
+});
+
+test('scanner treats lowercase assignments in extensionless bin scripts as local state', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-bin-script-'));
+  await mkdir(join(root, 'bin'));
+  await writeFile(join(root, 'bin', 'nebula-core'), [
+    '#!/system/bin/sh',
+    'proton=$1',
+    'proton=$2',
+    'wl_display_ready=1',
+    'wl_display_ready=0',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'linux_container',
+  });
+
+  assertEvidence(report, 'local_code_assignments', 'proton=$1');
+  assertEvidence(report, 'local_code_assignments', 'wl_display_ready=1');
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for proton')),
+    'function parameters in extensionless scripts should not create repo-level conflicts'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for wl_display_ready')),
+    'branch-local readiness state in extensionless scripts should not create repo-level conflicts'
+  );
+});
+
+test('orangefox sync tool profile treats patch targets as external checkout paths', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-orangefox-sync-'));
+  await mkdir(join(root, 'patches'));
+  await writeFile(join(root, 'orangefox_sync.sh'), [
+    '#!/usr/bin/env bash',
+    'TWRP_BRANCH=fox_14.1',
+    'echo "-- Patching vendor/twrp ..."',
+    'mkfile="vendor/twrp/config/BoardConfigSoong.mk"',
+    'echo "-- Patching system/vold ..."',
+    'depends="external/guava external/gflags hardware/google/interfaces hardware/google/pixel"',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'patches', 'patch-vold-fox_14.1.diff'), 'diff --git a/system/vold/Foo.cpp b/system/vold/Foo.cpp\n', 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'orangefox_sync_tool',
+  });
+
+  assert.equal(report.scan.profile, 'orangefox_sync_tool');
+  assertNoEvidence(report, ['missing_files'], 'missing_expected_pattern:/(^|\\/)BoardConfig.*\\.mk$/i');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:vendor/twrp');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:vendor/twrp/config/BoardConfigSoong.mk');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/vold');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/google/interfaces');
 });
 
 test('scan report schema is complete and agent handoff files are written', async () => {
@@ -632,6 +775,11 @@ test('gui dashboard is generated from valid scan output', async () => {
 
   const html = await readFile(result.dashboardPath, 'utf8');
   assert.match(html, /Reversa-Matrix Dashboard/);
+  assert.match(html, /Reversa-Matrix Mission Control/);
+  assert.match(html, /RM11Pro first/);
+  assert.match(html, /Triage/);
+  assert.match(html, /Scan Lanes/);
+  assert.match(html, /agentic_gateway/);
   assert.match(html, /Findings Browser/);
   assert.match(html, /DESTRUCTIVE \/ HUMAN REVIEW REQUIRED \/ BACKUP REQUIRED/);
 });

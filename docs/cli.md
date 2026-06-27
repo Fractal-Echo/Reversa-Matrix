@@ -145,6 +145,7 @@ Current practical profiles include:
 
 - `generic_source_tree`
 - `agentic_toolchain`
+- `agentic_gateway`
 - `android_recovery`
 - `orangefox`
 - `twrp`
@@ -166,6 +167,11 @@ The `agentic_toolchain` profile classifies Claude/Codex-style instruction
 files, skills, hooks, permissions, provider routing, memory/context injection,
 subagent orchestration, worktree isolation, MCP/plugin surfaces, attribution
 requirements, and proprietary-source import risk.
+
+The `agentic_gateway` profile extends that lane for provider-gateway repos. It
+classifies provider catalogs, model routing, Anthropic Messages/OpenAI
+Responses adapters, Claude/Codex launcher env hygiene, admin config surfaces,
+smoke coverage, messaging bridges, and secret redaction.
 
 To distill scanned upstreams into a license-clean training/review pack:
 
@@ -320,6 +326,6 @@ These commands remain from the original Reversa agent installer:
 - `uninstall`
 - `add-agent`
 - `add-engine`
-- `diagram`
+- `export-diagrams`
 
 They are kept for compatibility with `.reversa/`, agent teams, and `_reversa_sdd/` workflows. They are not required for the Reversa-Matrix scanner/dashboard loop.

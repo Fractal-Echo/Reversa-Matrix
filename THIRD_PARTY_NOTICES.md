@@ -27,14 +27,19 @@ artifacts, not as ownership claims over the inspected project.
 
 ## Claude/Codex Tooling Research Sources
 
-The `agentic_toolchain` profile and related docs were informed by a local
-source-ingestion pass over public Claude/Codex tooling repositories. Reversa
-does not vendor restored Claude Code source or proprietary/commercial-term
-material. The detailed pinned source manifest lives at
+The `agentic_toolchain` and `agentic_gateway` profiles and related docs were
+informed by local source-ingestion passes over public Claude/Codex tooling
+repositories. Reversa does not vendor restored Claude Code source,
+proprietary/commercial-term material, or the Python provider-gateway
+implementation from `claude-code-matrix`. The detailed pinned source manifest lives at
 `docs/upstreams/claude-code-matrix/source-sync.json`.
 
 High-level attribution lanes:
 
+- `Fractal-Echo/claude-code-matrix` - MIT fork of
+  `Alishahryar1/free-claude-code`; mechanism-level adaptation for provider
+  catalogs, model routing, launcher hygiene, protocol-adapter scan surfaces,
+  smoke coverage, messaging bridge checks, and redaction evidence.
 - `shanraisshan/claude-code-best-practice` - MIT, selective pattern adaptation.
 - `luongnv89/claude-howto` - MIT, selective beginner workflow adaptation.
 - `anthropics/claude-cookbooks` - MIT, selective audit/workflow adaptation.

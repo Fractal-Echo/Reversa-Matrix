@@ -10,6 +10,10 @@ commercial-terms source.
 
 ## Selective Adaptation Allowed
 
+- `Fractal-Echo/claude-code-matrix` - MIT fork of
+  `Alishahryar1/free-claude-code`; used as a local target and mechanism source
+  for provider-gateway scan categories. Reversa-Matrix does not vendor its
+  Python proxy implementation.
 - `shanraisshan/claude-code-best-practice` - MIT.
 - `luongnv89/claude-howto` - MIT.
 - `anthropics/claude-cookbooks` - MIT.
@@ -29,4 +33,3 @@ commercial-terms source.
   reverse-engineered/decompiled risk.
 - `anthropics/claude-code` - official compatibility target under custom
   commercial terms, not an OSS vendoring source.
-

@@ -60,7 +60,7 @@ JSON and JSONL are the source of truth.
 | Games | modding runtimes, graphics wrappers, Vulkan loader state, private co-op stability evidence |
 | Cross-platform | C/C++/Rust/Java/Kotlin/Python/JS projects, generated artifacts, build scripts, copied constants |
 
-Current strongest lane: Android recovery evidence mapping with known-good comparison and tree compare mode. Early game-runtime profiles now classify modding, wrapper, Vulkan loader, and private co-op diagnostic evidence without performing patching or bypass workflows.
+Current strongest lanes: Android recovery evidence mapping with known-good comparison and tree compare mode; Claude/Codex-style agent tooling and provider-gateway audits; and early game-runtime profiles that classify modding, wrapper, Vulkan loader, and private co-op diagnostic evidence without performing patching or bypass workflows.
 
 ---
 
@@ -138,6 +138,15 @@ node ./bin/reversa.js scan \
   --project-root ./test/fixtures/agentic-toolchain \
   --profile agentic_toolchain \
   --out reversa_agentic_out
+```
+
+Scan a Claude/Codex provider-gateway or launcher tree:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root ./test/fixtures/agentic-gateway \
+  --profile agentic_gateway \
+  --out reversa_gateway_out
 ```
 
 Open a dashboard for any scan output:
@@ -227,6 +236,7 @@ See:
 ```text
 generic_source_tree
 agentic_toolchain
+agentic_gateway
 android_recovery
 orangefox
 twrp
@@ -245,7 +255,10 @@ rm11pro_gaming_runtime
 
 Use `generic_source_tree` when you are not sure which profile fits yet.
 
-For Claude/Codex-style projects, pair `agentic_toolchain` scans with
+For Claude/Codex-style projects, start with `agentic_toolchain`. Use
+`agentic_gateway` when the repo contains provider catalogs, Claude/Codex
+launchers, Anthropic Messages/OpenAI Responses adapters, smoke matrices,
+messaging bridges, or secret-redaction code. Pair both with
 `templates/engines/CLAUDE_CODEX_REVERSA_PATTERNS.md`.
 
 Print or write that reusable checklist from the CLI:

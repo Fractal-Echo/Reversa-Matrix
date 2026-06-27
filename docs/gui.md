@@ -10,15 +10,20 @@ dashboard.html
 
 JSON and JSONL remain the source of truth. The GUI is a viewer.
 
-## Reversa-Matrix Console
+## Reversa-Matrix Mission Control
 
-The dashboard opens on a lightweight Reversa-Matrix console: a dark evidence-lab header with a source-tree grid, evidence nodes, contradiction routes, known-good context, and patch review routing.
+The dashboard opens on a lightweight Reversa-Matrix mission-control console: a
+dark RM11Pro-first evidence surface with noir/cyberpunk-inspired paneling,
+source-tree grid lines, evidence nodes, contradiction routes, known-good
+context, patch review routing, and touch-readable status chips.
 
 ```text
-Reverse-engineering evidence mapper for source trees, contradictions, and analysis.
+Evidence first. Patch second. Repeatable proof always.
 ```
 
-The motif is implemented with local SVG and CSS. It remains readable without animation and does not require network access.
+The motif is implemented with local SVG and CSS. It remains readable without
+animation, does not require network access, and is sized for both desktop and
+phone screens.
 
 ## Open A Dashboard
 
@@ -45,7 +50,9 @@ npx reversa gui --out reversa_out
 ## What The Dashboard Shows
 
 - Home / overview
+- Triage
 - Setup checklist
+- Scan lanes
 - Scan metadata
 - Findings browser
 - Contradictions browser
@@ -67,6 +74,22 @@ The dashboard includes:
 - category filter
 
 Each major item includes file/line references when available, expandable JSON details, helper text, and a safe next step.
+
+## RM11Pro-First UX
+
+The dashboard is designed as the control surface for RM11Pro and Nebula work:
+
+- high contrast dark UI for phone use
+- original sci-fi noir styling without copied film, OEM, game, or upstream marks
+- touch-readable cards, buttons, and filters
+- status chips for RM11Pro, Wayland, touch readability, and offline evidence
+- triage actions that tell a new user where to click first
+- scan lanes for Android recovery, Linux/Wayland containers, game runtime,
+  agent toolchains, and provider gateways
+- command separation so validation stays away from destructive work
+
+This same visual language is the starting point for a future Reversa/Nebula
+icon pack.
 
 ## Platform Role
 

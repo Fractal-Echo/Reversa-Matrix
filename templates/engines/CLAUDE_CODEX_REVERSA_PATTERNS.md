@@ -85,6 +85,29 @@ For Claude/Codex proxy repos, document:
 
 Never log raw API keys or bearer tokens.
 
+## Provider Gateway Audits
+
+Use the gateway profile when a repo implements a provider gateway, local
+launcher, protocol adapter, admin config UI, smoke matrix, or messaging bridge:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root /path/to/provider/gateway/repo \
+  --profile agentic_gateway \
+  --out reversa_gateway_out
+```
+
+Check these surfaces as separate concerns:
+
+- provider catalog: IDs, credential env vars, capabilities, static credentials
+- model routing: default model, direct provider/model syntax, thinking support
+- protocol adapters: Anthropic Messages, OpenAI Responses, streaming, tools
+- client launchers: env stripping, auth-token source, generated model catalog
+- admin/config: bind scope, validation, dotenv precedence, masked diagnostics
+- smoke coverage: feature inventory, prereqs, product E2E, skip/fail classes
+- messaging bridge: session ownership, bot tokens, transcript/outbox behavior
+- redaction: logs, errors, smoke artifacts, and safe diagnostics
+
 ## Subagents And Worktrees
 
 Parallel agents need ownership:
@@ -110,7 +133,7 @@ all-rights-reserved material is classifier/reference input only.
 
 ## Reversa Validation
 
-Use the agentic profile:
+Use the broad agentic profile:
 
 ```bash
 node ./bin/reversa.js scan \
@@ -118,6 +141,8 @@ node ./bin/reversa.js scan \
   --profile agentic_toolchain \
   --out reversa_agentic_out
 ```
+
+Use `agentic_gateway` for provider gateways and launchers.
 
 Then inspect:
 
@@ -129,4 +154,3 @@ agent_handoff/patch_candidates.json
 agent_handoff/commands_to_run.md
 agent_handoff/risky_assumptions.json
 ```
-
