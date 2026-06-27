@@ -8,6 +8,7 @@
   "type": "module",
   "scripts": {
     "check:public-clean": "node scripts/check-public-clean.js",
+    "clean:generated": "node scripts/prune-generated-artifacts.js",
     "test": "npm run check:public-clean && node --test test/scan.test.js"
   },
   "keywords": [

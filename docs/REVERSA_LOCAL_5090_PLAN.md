@@ -113,3 +113,93 @@ Reversa reads existing RM11/Nebula evidence, detects dual Freedreno ICD risk,
 preserves the A1/B0 lane split, refuses forbidden work, and writes a clean
 contradiction report without cloud delegation.
 ```
+
+## 2026-06-27 Local 5090 Proof
+
+Host probe from WSL:
+
+```text
+GPU: NVIDIA GeForce RTX 5090
+Driver: 595.97
+NVIDIA-SMI: 595.58.02
+CUDA reported by nvidia-smi: 13.2
+VRAM: 32607 MiB total, 28675 MiB free during probe
+Temperature: 34 C
+Power draw: 62.50 W during probe
+Python: /usr/bin/python3, 3.14.4
+pip: /home/richtofen/.local/bin/pip3, 26.1.1
+nvcc: not detected in WSL PATH during this pass
+```
+
+Current local training/eval artifact:
+
+```text
+local/agentic-training-pack-2026-06-27-5090/
+```
+
+Generated files:
+
+```text
+agentic-training-pack.jsonl
+agentic-training-summary.md
+agentic-training-labels.json
+gpu-proof.txt
+sha256sums.txt
+```
+
+Hashes:
+
+```text
+36b0936cc73002e603ae88c6717ad79edf1ed4e06ffc93210d3f56981f98c6bf  agentic-training-pack.jsonl
+22a6ddf49864f26a6acf9b9d404cbafec6e64b40ab6e85bd68edd5e38038ba55  agentic-training-summary.md
+3a9f2e243f42e1c556c514202c85481ce02c3c41df2bfe81fc38ba77505fbf1b  agentic-training-labels.json
+406c31bf7af06500c59c9761048c1ec4b4eae80c591a7af677418008909494c9  gpu-proof.txt
+```
+
+Rebuild command:
+
+```bash
+node scripts/build-agentic-training-pack.js \
+  --manifest docs/upstreams/claude-code-matrix/source-sync.json \
+  --out local/agentic-training-pack-2026-06-27-5090
+```
+
+This pack is metadata/evidence only. It does not copy third-party source text.
+Reference-only and commercial-license lanes can train classifiers and policy
+recognition, but they must not feed copied implementation text into Reversa.
+
+## 2026-06-27 Core Rebuild Result
+
+The deterministic scanner rebuild is the current source of truth:
+
+```text
+npm test: 40/40 passing
+self-scan profile: agentic_toolchain
+self-scan findings: 2210
+self-scan contradictions: 0
+self-scan patch candidates: 0
+self-scan output: /tmp/reversa-self-scan-20260627c
+```
+
+Fixed in this pass:
+
+- Generated Reversa scan outputs are skipped unless explicitly scanned.
+- Root generated artifacts can be archived with `npm run clean:generated -- --execute`.
+- Nebula runtime layer assignments are scoped before contradiction grouping.
+- Scanner/profile placeholder vocabulary no longer becomes fake patch work.
+- Live source TODO/FIXME/STUB markers still produce patch candidates.
+
+## Next GPU Job
+
+Do not call Reversa "trained" until one of these is true:
+
+1. A local model endpoint is running on the 5090 and passes deterministic Reversa
+   eval prompts against held-out evidence.
+2. A classifier/embedding job consumes `agentic-training-pack.jsonl`, writes a
+   versioned model artifact, and records reproducible metrics.
+3. A fine-tune job is launched with a license-clean dataset, held-out eval split,
+   exact base model, exact command, output artifact hash, and rollback path.
+
+Preferred next step: build the held-out eval harness first. It is cheaper,
+reversible, and tells us whether the GPU model actually improves Reversa instead
+of just generating confident noise.

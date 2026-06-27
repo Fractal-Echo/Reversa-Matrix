@@ -76,6 +76,46 @@ test('scanner keeps real task markers but ignores template placeholder examples'
   assertNoEvidence(report, ['placeholders', 'todo_fixme_stub_markers'], 'placeholder_marker:TODO Requisito');
 });
 
+test('scanner keeps live placeholder work but ignores scanner vocabulary and reference examples', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-placeholder-scope-'));
+  await mkdir(join(root, 'src'), { recursive: true });
+  await mkdir(join(root, 'lib', 'scan'), { recursive: true });
+  await mkdir(join(root, 'test'), { recursive: true });
+  await mkdir(join(root, 'docs', 'upstreams', 'tool'), { recursive: true });
+  await mkdir(join(root, 'agents', 'reviewer', 'references'), { recursive: true });
+  await writeFile(join(root, 'src', 'live.js'), '// TODO: replace copied device assumption with verified evidence\n', 'utf8');
+  await writeFile(join(root, 'src', 'scanner-work.js'), '// TODO: add scanner profile support for live projects\n', 'utf8');
+  await writeFile(join(root, 'lib', 'scan', 'profiles.js'), [
+    "riskyLeftovers: ['TODO', 'FIXME', 'PLACEHOLDER', 'STUB'],",
+    "'grep -RIn \"TODO\\\\|FIXME\\\\|PLACEHOLDER\\\\|STUB\" {{projectRoot}}',",
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'test', 'scan.test.js'), [
+    "assertEvidence(report, 'todo_fixme_stub_markers', 'placeholder_marker:TODO');",
+    "'- TODO: fixture marker embedded in a scanner regression',",
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'docs', 'upstreams', 'tool', 'ABSORPTION.md'), '- `entrypoint.py` unresolved TODO marker\n', 'utf8');
+  await writeFile(join(root, 'docs', 'summary.md'), 'TODO: replace copied summary assumption\n', 'utf8');
+  await writeFile(join(root, 'docs', 'facts.md'), '- Nebula assets and nested WIP repos:\n', 'utf8');
+  await writeFile(join(root, 'agents', 'reviewer', 'references', 'confidence.md'), '- Old comment or TODO that may not reflect current state\n', 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'agentic_toolchain',
+  });
+
+  assertEvidence(report, 'todo_fixme_stub_markers', 'placeholder_marker:TODO');
+  assert(report.patch_candidates.some(item => item.target_file === 'src/live.js'));
+  assert(report.patch_candidates.some(item => item.target_file === 'src/scanner-work.js'));
+  assert(report.patch_candidates.some(item => item.target_file === 'docs/summary.md'));
+  assert(!report.patch_candidates.some(item => item.target_file === 'lib/scan/profiles.js'));
+  assert(!report.patch_candidates.some(item => item.target_file.startsWith('test/')));
+  assert(!report.patch_candidates.some(item => item.target_file.startsWith('docs/upstreams/')));
+  assert(!report.patch_candidates.some(item => item.target_file.startsWith('agents/reviewer/references/')));
+  assertNoExtractedText(report, "riskyLeftovers: ['TODO'");
+  assertNoExtractedText(report, 'unresolved TODO marker');
+  assertNoExtractedText(report, 'nested WIP repos');
+});
+
 test('scanner avoids comment and profile false positives for fstab-like code lines', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-fstab-comments-'));
   await writeFile(join(root, 'script.js'), [
@@ -123,6 +163,31 @@ test('scanner skips root-level generated scan artifacts', async () => {
   assertEvidence(report, 'provider_routing_surface', 'MODEL=kept');
   assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=old');
   assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=new');
+});
+
+test('scanner skips generated Reversa scan collections without skipping runtime source', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-generated-collections-'));
+  await mkdir(join(root, 'reversa_matrix_old', 'agent_handoff'), { recursive: true });
+  await mkdir(join(root, 'reversa_scan_adapter', 'reversa_scan_core'), { recursive: true });
+  await mkdir(join(root, 'reversa-runtime'), { recursive: true });
+  await writeFile(join(root, 'reversa_matrix_old', 'report.json'), '{"tool":"reversa"}\n', 'utf8');
+  await writeFile(join(root, 'reversa_matrix_old', 'agent_handoff', 'evidence.jsonl'), 'MODEL=stale\n', 'utf8');
+  await writeFile(join(root, 'reversa_scan_adapter', 'reversa_scan_core', 'live.env'), 'MODEL=adapter\n', 'utf8');
+  await writeFile(join(root, 'reversa-runtime', 'runtime.env'), 'MODEL=runtime\n', 'utf8');
+  await writeFile(join(root, 'live.env'), 'MODEL=live\n', 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'agentic_toolchain',
+    includeIgnored: true,
+  });
+
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'reversa_matrix_old' && item.reason === 'generated_scan_output_directory'));
+  assert(!report.tree_inventory.skipped_files.some(item => item.path === 'reversa_scan_adapter' && item.reason === 'generated_scan_output_directory'));
+  assertEvidence(report, 'provider_routing_surface', 'MODEL=live');
+  assertEvidence(report, 'provider_routing_surface', 'MODEL=adapter');
+  assertEvidence(report, 'provider_routing_surface', 'MODEL=runtime');
+  assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=stale');
 });
 
 test('scanner honors git ignored paths unless includeIgnored is set', async () => {
@@ -311,6 +376,168 @@ test('render enhancement profiles detect plugin and RM11Pro runtime surfaces', a
 
   const mobileValidation = validateScanReport(mobileReport);
   assert.equal(mobileValidation.valid, true, mobileValidation.errors.join('\n'));
+});
+
+test('child libpath profile catches Nebula A1 multi-variable early exit', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-nebula-a1-regression-'));
+  await mkdir(join(root, 'extract'), { recursive: true });
+  await writeFile(join(root, 'extract', 'result.txt'), [
+    'GAMESCOPE_LIBPATH=/data/user/0/io.droidspaces.nebula.waylandie/files/imagefs/usr/local/lib:/data/user/0/io.droidspaces.nebula.waylandie/files/imagefs/usr/lib:/data/user/0/io.droidspaces.nebula.waylandie/files/sidecars/xwayland-gamescope-13-promoted-argb-export-nofd-r6-39773bc9/usr/local/lib:/system/lib64',
+    'MESA_LOADER_DRIVER_OVERRIDE=kgsl',
+    'GALLIUM_DRIVER=kgsl',
+    'FD_FORCE_KGSL=1',
+    'LIBGL_ALWAYS_SOFTWARE=UNSET',
+    'FINAL_XWAYLAND_RUNNER_INVOKED=0',
+    'SELECTED_VULKAN_DEVICE=NOT_FOUND',
+    'VKGETMEMORYFD_FIRST_LINE=NOT_FOUND',
+    'GAMESCOPE_EXIT=135',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'child_libpath',
+  });
+
+  assert.equal(report.scan.profile, 'child_libpath');
+  assertEvidence(report, 'ld_library_path_linker_namespace_issues', 'GAMESCOPE_LIBPATH=');
+  assertEvidence(report, 'nebula_runtime_regression', 'nebula_a1_multi_variable_regression');
+  assert(report.contradictions.some(item => item.category === 'nebula_runtime_regression'
+    && item.title === 'A1 changed Gamescope libpath and KGSL env before early exit'
+    && item.likely_winner === 'A1B_KGSL_ENV_ONLY_R6_LIBPATH_RESTORED'));
+  assert(
+    !report.patch_candidates.some(item => item.title === 'A1 changed Gamescope libpath and KGSL env before early exit'),
+    'runtime gate contradictions should not become source patch candidates'
+  );
+  assert(report.commands_to_run.some(command => command.includes('GAMESCOPE_LIBPATH')));
+
+  const aliasReport = await scanProject({
+    projectRoot: root,
+    profile: 'nebula_child_libpath',
+  });
+  assert.equal(aliasReport.scan.profile, 'nebula_child_libpath');
+  assert(aliasReport.contradictions.some(item => item.category === 'nebula_runtime_regression'));
+
+  const restored = await mkdtemp(join(tmpdir(), 'reversa-nebula-a1b-clean-'));
+  await mkdir(join(restored, 'extract'), { recursive: true });
+  await writeFile(join(restored, 'extract', 'result.txt'), [
+    'GAMESCOPE_LIBPATH=/data/user/0/io.droidspaces.nebula.waylandie/files/sidecars/xwayland-gamescope-13-promoted-argb-export-nofd-r6-39773bc9/usr/local/lib:/data/user/0/io.droidspaces.nebula.waylandie/files/imagefs/usr/local/lib:/system/lib64',
+    'MESA_LOADER_DRIVER_OVERRIDE=kgsl',
+    'GALLIUM_DRIVER=kgsl',
+    'FD_FORCE_KGSL=1',
+    'LIBGL_ALWAYS_SOFTWARE=UNSET',
+    'FINAL_XWAYLAND_RUNNER_INVOKED=0',
+    'SELECTED_VULKAN_DEVICE=NOT_FOUND',
+    'VKGETMEMORYFD_FIRST_LINE=NOT_FOUND',
+    'GAMESCOPE_EXIT=135',
+  ].join('\n'), 'utf8');
+
+  const restoredReport = await scanProject({
+    projectRoot: restored,
+    profile: 'child_libpath',
+  });
+  assert(
+    !restoredReport.contradictions.some(item => item.category === 'nebula_runtime_regression'),
+    'sidecar-first Gamescope libpath should not trip the A1 multi-variable regression detector'
+  );
+});
+
+test('child libpath profile does not mix Nebula runtime evidence across lanes', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-nebula-split-lanes-'));
+  await mkdir(join(root, 'a0'), { recursive: true });
+  await mkdir(join(root, 'b0'), { recursive: true });
+  await writeFile(join(root, 'a0', 'result.txt'), [
+    'GAMESCOPE_LIBPATH=/data/user/0/io.droidspaces.nebula.waylandie/files/imagefs/usr/local/lib:/data/user/0/io.droidspaces.nebula.waylandie/files/imagefs/usr/lib:/data/user/0/io.droidspaces.nebula.waylandie/files/sidecars/xwayland-gamescope-13-promoted-argb-export-nofd-r6-39773bc9/usr/local/lib:/system/lib64',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'b0', 'result.txt'), [
+    'MESA_LOADER_DRIVER_OVERRIDE=kgsl',
+    'GALLIUM_DRIVER=kgsl',
+    'FD_FORCE_KGSL=1',
+    'LIBGL_ALWAYS_SOFTWARE=UNSET',
+    'FINAL_XWAYLAND_RUNNER_INVOKED=0',
+    'SELECTED_VULKAN_DEVICE=NOT_FOUND',
+    'VKGETMEMORYFD_FIRST_LINE=NOT_FOUND',
+    'GAMESCOPE_EXIT=135',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'child_libpath',
+  });
+
+  assertNoEvidence(report, ['nebula_runtime_regression'], 'nebula_a1_multi_variable_regression');
+  assert(!report.contradictions.some(item => item.category === 'nebula_runtime_regression'));
+});
+
+test('child libpath profile scopes Nebula runtime layers before contradiction grouping', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-nebula-runtime-scope-'));
+  await mkdir(join(root, 'extract'), { recursive: true });
+  await writeFile(join(root, 'extract', 'result.txt'), [
+    'MESA_LOADER_DRIVER_OVERRIDE=kgsl',
+    'LIBGL_ALWAYS_SOFTWARE=UNSET',
+    'ENVIRONMENT_BEGIN',
+    'MESA_LOADER_DRIVER_OVERRIDE=kgsl',
+    'LIBGL_ALWAYS_SOFTWARE=UNSET',
+    'VK_ICD_FILENAMES=/data/user/0/io.droidspaces.nebula.waylandie/files/imagefs/usr/local/etc/vulkan/icd.d/freedreno_icd.json',
+    'ENVIRONMENT_END',
+    'CHILD_ENV_BEGIN',
+    'MESA_LOADER_DRIVER_OVERRIDE=swrast',
+    'LIBGL_ALWAYS_SOFTWARE=1',
+    'CHILD_ENV_END',
+    'SNAP_snapshots_glxinfo_B_environ_txt_BEGIN',
+    'MESA_LOADER_DRIVER_OVERRIDE=swrast',
+    'LIBGL_ALWAYS_SOFTWARE=1',
+    'SNAP_snapshots_glxinfo_B_environ_txt_END',
+    'XWAYLAND_RUNNER_LOG_BEGIN',
+    'DATE=20260627-085235',
+    'ARGV_1=-listen',
+    'WAYLAND_SOCKET=21',
+    'XWAYLAND_RUNNER_LOG_END',
+    'XWAYLAND_RUNNER_LOG_BEGIN',
+    'DATE=20260627-085236',
+    'ARGV_1=-wm',
+    'WAYLAND_SOCKET=24',
+    'XWAYLAND_RUNNER_LOG_END',
+    'SNAP_child_high-address.txt_BEGIN',
+    'HIGHEST_MAP_END=0x7fe1831000',
+    'MAPPING_EXCEEDS_39BIT_ASSUMPTION=no',
+    'SNAP_child_high-address.txt_END',
+    'SNAP_xwayland_high-address.txt_BEGIN',
+    'HIGHEST_MAP_END=0x7fc0010000',
+    'MAPPING_EXCEEDS_39BIT_ASSUMPTION=unknown',
+    'SNAP_xwayland_high-address.txt_END',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'extract', 'environment.txt'), [
+    'MESA_LOADER_DRIVER_OVERRIDE=kgsl',
+    'LIBGL_ALWAYS_SOFTWARE=UNSET',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'extract', 'child-env.txt'), [
+    'MESA_LOADER_DRIVER_OVERRIDE=swrast',
+    'LIBGL_ALWAYS_SOFTWARE=1',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'child_libpath',
+  });
+
+  assertEvidence(report, 'mobile_linux_runtime', 'nebula.gamescope.MESA_LOADER_DRIVER_OVERRIDE=kgsl');
+  assertEvidence(report, 'mobile_linux_runtime', 'nebula.child.MESA_LOADER_DRIVER_OVERRIDE=swrast');
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for MESA_LOADER_DRIVER_OVERRIDE')),
+    'Gamescope KGSL and child swrast are different runtime layers, not conflicting definitions'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for LIBGL_ALWAYS_SOFTWARE')),
+    'Gamescope LIBGL setting and child software GL setting should stay layer-scoped'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for DATE')
+      || item.title.includes('Conflicting definitions for ARGV_1')
+      || item.title.includes('Conflicting definitions for WAYLAND_SOCKET')
+      || item.title.includes('Conflicting definitions for HIGHEST_MAP_END')
+      || item.title.includes('Conflicting definitions for MAPPING_EXCEEDS_39BIT_ASSUMPTION')),
+    'volatile runtime capture fields should not create patch candidates'
+  );
 });
 
 test('pcgamingwiki runtime profile detects cross-platform game fix taxonomy', async () => {
