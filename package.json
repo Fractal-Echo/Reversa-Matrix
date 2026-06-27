@@ -33,6 +33,7 @@
     "docs/",
     "lib/",
     "profiles/",
+    "reversa-studio/",
     "reversa-runtime/",
     "scripts/",
     "templates/",

@@ -1,0 +1,297 @@
+{
+  "schema_version": 1,
+  "generated_fixture": true,
+  "source_authority": false,
+  "status": "blocked",
+  "banner": "Proposal only. Reversa Studio does not patch, inject, launch, or mutate runtime state.",
+  "checklist": [
+    {
+      "item": "original hash",
+      "status": "required"
+    },
+    {
+      "item": "patched hash",
+      "status": "required"
+    },
+    {
+      "item": "backup path",
+      "status": "missing"
+    },
+    {
+      "item": "game version",
+      "status": "missing"
+    },
+    {
+      "item": "offset/signature",
+      "status": "missing"
+    },
+    {
+      "item": "patch origin",
+      "status": "missing"
+    },
+    {
+      "item": "rollback plan",
+      "status": "missing"
+    },
+    {
+      "item": "offline/private scope",
+      "status": "missing"
+    }
+  ],
+  "dossiers": [
+    {
+      "id": "gpuadvisory_2958b6c688da0716",
+      "status": "blocked",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [
+        "backup",
+        "offset_or_signature",
+        "original_hash",
+        "patched_hash",
+        "rollback",
+        "version"
+      ],
+      "recommendedAction": "Do not call this patch safe until original/patched hashes, reversible patch, backup, game version, offset/signature, patch provenance, and legal note exist.",
+      "labels": [
+        "GAME_PATCH_UNSAFE",
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY"
+      ]
+    },
+    {
+      "id": "gpuadvisory_3250622ed014ad71",
+      "status": "review",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [],
+      "recommendedAction": "Add reversible patch, backup path, and rollback notes before patch review.",
+      "labels": [
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
+        "REVERSIBLE_PATCH_REQUIRED"
+      ]
+    },
+    {
+      "id": "gpuadvisory_513908a6149bcb94",
+      "status": "review",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [],
+      "recommendedAction": "Add reversible patch, backup path, and rollback notes before patch review.",
+      "labels": [
+        "REVERSIBLE_PATCH_REQUIRED"
+      ]
+    },
+    {
+      "id": "gpuadvisory_69dddad0a82c417c",
+      "status": "blocked",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [
+        "backup",
+        "offset_or_signature",
+        "original_hash",
+        "patched_hash",
+        "rollback",
+        "version"
+      ],
+      "recommendedAction": "Keep as review-only until hash, backup, rollback, version, and signature proof exists.",
+      "labels": [
+        "EXE_PATCH_HASH_REQUIRED",
+        "GAME_PATCH_UNSAFE",
+        "REVERSIBLE_PATCH_REQUIRED"
+      ]
+    },
+    {
+      "id": "gpuadvisory_726ca82ea270146c",
+      "status": "review",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [],
+      "recommendedAction": "Add reversible patch, backup path, and rollback notes before patch review.",
+      "labels": [
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
+        "REVERSIBLE_PATCH_REQUIRED"
+      ]
+    },
+    {
+      "id": "gpuadvisory_99d37b0cfe740e53",
+      "status": "review",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [],
+      "recommendedAction": "Add original and patched executable hashes before treating this as a patch candidate.",
+      "labels": [
+        "EXE_PATCH_HASH_REQUIRED",
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY"
+      ]
+    },
+    {
+      "id": "gpuadvisory_9b18084c46d38382",
+      "status": "blocked",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [
+        "backup",
+        "offset_or_signature",
+        "original_hash",
+        "patched_hash",
+        "rollback",
+        "version"
+      ],
+      "recommendedAction": "Keep as review-only until hash, backup, rollback, version, and signature proof exists.",
+      "labels": [
+        "EXE_PATCH_HASH_REQUIRED",
+        "GAME_PATCH_UNSAFE",
+        "REVERSIBLE_PATCH_REQUIRED"
+      ]
+    },
+    {
+      "id": "gpuadvisory_9d69fab7f181348f",
+      "status": "review",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [],
+      "recommendedAction": "Add reversible patch, backup path, and rollback notes before patch review.",
+      "labels": [
+        "REVERSIBLE_PATCH_REQUIRED"
+      ]
+    },
+    {
+      "id": "gpuadvisory_a05d22dc7ee51a19",
+      "status": "review",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [],
+      "recommendedAction": "Add original and patched executable hashes before treating this as a patch candidate.",
+      "labels": [
+        "EXE_PATCH_HASH_REQUIRED",
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY"
+      ]
+    },
+    {
+      "id": "gpuadvisory_ba0c983cb88a404d",
+      "status": "review",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [],
+      "recommendedAction": "Add original and patched executable hashes before treating this as a patch candidate.",
+      "labels": [
+        "EXE_PATCH_HASH_REQUIRED"
+      ]
+    },
+    {
+      "id": "gpuadvisory_d39a945a2d8ece15",
+      "status": "review",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [],
+      "recommendedAction": "Add original and patched executable hashes before treating this as a patch candidate.",
+      "labels": [
+        "EXE_PATCH_HASH_REQUIRED"
+      ]
+    },
+    {
+      "id": "gpuadvisory_ef5c8fa9933db8af",
+      "status": "blocked",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [
+        "backup",
+        "offset_or_signature",
+        "original_hash",
+        "patched_hash",
+        "rollback",
+        "version"
+      ],
+      "recommendedAction": "Do not call this patch safe until original/patched hashes, reversible patch, backup, game version, offset/signature, patch provenance, and legal note exist.",
+      "labels": [
+        "GAME_PATCH_UNSAFE"
+      ]
+    },
+    {
+      "id": "gpuadvisory_f8aa715717a7ec1c",
+      "status": "blocked",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [
+        "backup",
+        "offset_or_signature",
+        "original_hash",
+        "patched_hash",
+        "rollback",
+        "version"
+      ],
+      "recommendedAction": "Do not call this patch safe until original/patched hashes, reversible patch, backup, game version, offset/signature, patch provenance, and legal note exist.",
+      "labels": [
+        "GAME_PATCH_UNSAFE",
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY"
+      ]
+    },
+    {
+      "id": "gpuadvisory_fbcd5a9f62ea79aa",
+      "status": "blocked",
+      "method": "incomplete dossier",
+      "proofLevel": "blocked",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [
+        "backup",
+        "offset_or_signature",
+        "original_hash",
+        "patched_hash",
+        "rollback",
+        "version"
+      ],
+      "recommendedAction": "Do not call this patch safe until original/patched hashes, reversible patch, backup, game version, offset/signature, patch provenance, and legal note exist.",
+      "labels": [
+        "GAME_PATCH_UNSAFE"
+      ]
+    },
+    {
+      "id": "gpuadvisory_fc06a90cc82803e6",
+      "status": "review",
+      "method": "review-safe dossier",
+      "proofLevel": "review",
+      "source_authority": false,
+      "generated_artifact": true,
+      "missingEvidence": [
+        "backup",
+        "offset_or_signature",
+        "original_hash",
+        "patched_hash",
+        "rollback",
+        "version"
+      ],
+      "recommendedAction": "Use as advisory classification evidence only.",
+      "labels": [
+        "GAME_PATCH_REVIEW_SAFE"
+      ]
+    }
+  ]
+}

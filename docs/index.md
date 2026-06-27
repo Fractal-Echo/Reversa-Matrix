@@ -37,6 +37,8 @@ Reversa-Matrix scans a source tree and emits structured evidence:
 - offline dashboards for humans
 - JSON/JSONL handoff bundles for Codex and other agents
 - a local agent scaffold that owns memory, typed tools, policy, and reports
+- an early local Reversa Studio dashboard prototype for evidence, model
+  metadata, and guarded workflow planning
 
 The core rule is simple:
 
@@ -183,6 +185,8 @@ That safety boundary matters because Reversa-Matrix is meant for kernel, recover
 - [First scan](uso.md)
 - [CLI](cli.md)
 - [GUI Dashboard](gui.md)
+- [Reversa Studio](REVERSA_STUDIO.md)
+- [Reversa Studio UI Blueprint](REVERSA_STUDIO_UI_BLUEPRINT.md)
 - [Platform scope](platforms.md)
 - [RM11Pro Fast-Test Facts](RM11PRO_FAST_TEST_FACTS.md)
 - [Workspace Troubleshooting Facts](WORKSPACE_TROUBLESHOOTING_FACTS.md)

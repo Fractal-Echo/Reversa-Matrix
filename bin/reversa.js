@@ -20,6 +20,7 @@ const commands = {
   gui:                () => import('../lib/commands/gui.js'),
   agent:              () => import('../lib/commands/agent.js'),
   dataset:            () => import('../lib/commands/dataset.js'),
+  studio:             () => import('../lib/commands/studio.js'),
   nebula:             () => import('../lib/commands/nebula.js'),
   uninstall:          () => import('../lib/commands/uninstall.js'),
   'add-agent':        () => import('../lib/commands/add-agent.js'),
@@ -44,6 +45,7 @@ if (!command || command === '--help' || command === '-h') {
     gui                Generate a local dashboard for scan/compare results
     agent              Run local agent doctor/models/eval/memory/patch scaffolding
     dataset            Build local advisory datasets from bounded evidence
+    studio             Export local Reversa Studio prototype fixtures
     nebula             Read-only Nebula phone companion status bridge
     install            Install compatibility agent workflow files
     update             Update installed compatibility agents

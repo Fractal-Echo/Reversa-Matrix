@@ -208,6 +208,19 @@ node ./bin/reversa.js dataset gpu-upscale-framegen \
 The dataset builder writes JSONL splits and summaries. It does not download
 model weights, launch runtimes, patch binaries, or mutate scanned projects.
 
+Export local fixtures for the first Reversa Studio prototype:
+
+```bash
+node ./bin/reversa.js studio export-fixtures \
+  --dataset /path/to/gpu-advisory-dataset \
+  --out ./reversa-studio/fixtures
+```
+
+Reversa Studio is an early local dashboard prototype for evidence, model
+metadata, and guarded workflow planning. It reads committed fixture JSON only
+and does not acquire models, launch runtimes, patch binaries, or mutate scanned
+projects.
+
 Compare two trees:
 
 ```bash
@@ -512,6 +525,7 @@ The dashboard is for browsing. The handoff bundle is for continuation.
 - [First scan](docs/uso.md)
 - [CLI](docs/cli.md)
 - [GUI Dashboard](docs/gui.md)
+- [Reversa Studio](docs/REVERSA_STUDIO.md)
 - [Platform scope](docs/platforms.md)
 - [Evidence pipeline](docs/pipeline.md)
 - [Generated outputs](docs/saidas/index.md)

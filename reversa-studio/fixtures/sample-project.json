@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "generated_fixture": true,
+  "source_authority": false,
+  "activeProject": {
+    "name": "GPU Upscale / Framegen Advisory Sample",
+    "mode": "planning_only",
+    "nextSafeAction": "Review model license and backend proof before preparing any package."
+  },
+  "cards": [
+    {
+      "title": "Active Project",
+      "status": "Review",
+      "description": "Planning fixture loaded from advisory dataset.",
+      "count": 774
+    },
+    {
+      "title": "Evidence Health",
+      "status": "Review",
+      "description": "329 source-backed rows, 436 generated evidence rows.",
+      "count": 774
+    },
+    {
+      "title": "Known-Good Frontier",
+      "status": "Safe",
+      "description": "Generated artifacts stay separated from authoritative evidence.",
+      "count": 436
+    },
+    {
+      "title": "Unsafe Actions Blocked",
+      "status": "Blocked",
+      "description": "Patch plans stay proposal-only until proof exists.",
+      "count": 6
+    },
+    {
+      "title": "GPU Readiness",
+      "status": "Review",
+      "description": "CUDA/5090 claims require host runtime proof.",
+      "count": 49
+    },
+    {
+      "title": "Model License Risk",
+      "status": "Review",
+      "description": "Unknown-license models remain deferred.",
+      "count": 32
+    },
+    {
+      "title": "Next Safe Action",
+      "status": "Review",
+      "description": "Open Safety Gate and resolve missing proof.",
+      "count": 1
+    }
+  ],
+  "evidenceBoard": {
+    "totalRecords": 774,
+    "generatedEvidenceRows": 436,
+    "sourceAuthorityRows": 329,
+    "topLabels": [
+      {
+        "label": "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
+        "count": 438
+      },
+      {
+        "label": "VIDEO_INTERPOLATION_CANDIDATE",
+        "count": 354
+      },
+      {
+        "label": "CANDIDATE_VULKAN_NCNN",
+        "count": 252
+      },
+      {
+        "label": "VULKAN_NCNN_BACKEND_PRESENT",
+        "count": 252
+      },
+      {
+        "label": "UPSCALE_RUNTIME_CANDIDATE",
+        "count": 192
+      },
+      {
+        "label": "FRAMEGEN_RUNTIME_CANDIDATE",
+        "count": 176
+      },
+      {
+        "label": "CUDA_BACKEND_PRESENT",
+        "count": 122
+      },
+      {
+        "label": "CUDA_CLAIM_UNVERIFIED",
+        "count": 49
+      },
+      {
+        "label": "MODEL_METADATA_ONLY",
+        "count": 48
+      },
+      {
+        "label": "MODEL_LICENSE_UNKNOWN",
+        "count": 32
+      }
+    ]
+  },
+  "backendMatrix": {
+    "cuda": 122,
+    "vulkanNcnn": 252,
+    "onnx": 7,
+    "tensorrt": 1,
+    "directml": 1,
+    "linuxOrProtonUnproven": 3
+  },
+  "safetyGate": {
+    "hardBlocks": [
+      "Patch dossier missing required proof.",
+      "Unknown-license model metadata cannot be used for package prep.",
+      "CUDA/5090 acceleration lacks direct host proof."
+    ],
+    "softWarnings": [
+      "Linux/Proton compatibility is candidate-only until runtime evidence exists."
+    ],
+    "approvalRequired": true
+  }
+}

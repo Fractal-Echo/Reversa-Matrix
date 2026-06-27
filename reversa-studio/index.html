@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Reversa Studio</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <div class="hero__copy">
+          <p class="eyebrow">Reversa-Matrix</p>
+          <h1>Reversa Studio</h1>
+          <p class="lede">Local evidence dashboard for GPU upscale, framegen, texture planning, and guarded patch dossiers.</p>
+        </div>
+        <div class="hero__status" aria-label="Studio status">
+          <span class="pulse"></span>
+          <span>Planning Only</span>
+        </div>
+      </header>
+
+      <nav class="rail" aria-label="Studio panels">
+        <button class="rail__button is-active" type="button" data-panel="intake">Intake</button>
+        <button class="rail__button" type="button" data-panel="evidence">Evidence</button>
+        <button class="rail__button" type="button" data-panel="models">Models</button>
+        <button class="rail__button" type="button" data-panel="texture">Textures</button>
+        <button class="rail__button" type="button" data-panel="framegen">Framegen</button>
+        <button class="rail__button" type="button" data-panel="patch">Patch</button>
+        <button class="rail__button" type="button" data-panel="safety">Safety</button>
+      </nav>
+
+      <section class="panel is-active" id="panel-intake" data-panel-view="intake">
+        <div class="section-head">
+          <p class="eyebrow">Project Intake</p>
+          <h2 id="project-name">Loading local fixture</h2>
+          <p id="project-next">Reading fixture JSON from this folder.</p>
+        </div>
+        <div class="card-grid" id="project-cards"></div>
+      </section>
+
+      <section class="panel" id="panel-evidence" data-panel-view="evidence">
+        <div class="section-head">
+          <p class="eyebrow">Evidence Board</p>
+          <h2>Proof Before Plans</h2>
+          <p>Generated rows stay separated from source-backed rows.</p>
+        </div>
+        <div class="metric-grid" id="evidence-metrics"></div>
+        <div class="band">
+          <h3>Top Labels</h3>
+          <div class="label-cloud" id="top-labels"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-models" data-panel-view="models">
+        <div class="section-head">
+          <p class="eyebrow">Model Library</p>
+          <h2>Metadata Review</h2>
+          <p>Unknown licenses and missing hashes remain review items.</p>
+        </div>
+        <div class="toolbar">
+          <button class="toggle" type="button" id="advanced-toggle" aria-pressed="false">Advanced Details</button>
+        </div>
+        <div class="model-list" id="model-list"></div>
+      </section>
+
+      <section class="panel" id="panel-texture" data-panel-view="texture">
+        <div class="section-head">
+          <p class="eyebrow">Texture Pipeline</p>
+          <h2>Review Package Builder</h2>
+          <p>Every step is a planning state until hashes, manifests, and rollback proof exist.</p>
+        </div>
+        <div class="step-grid" id="texture-steps"></div>
+      </section>
+
+      <section class="panel" id="panel-framegen" data-panel-view="framegen">
+        <div class="section-head">
+          <p class="eyebrow">Framegen Pipeline</p>
+          <h2>Backend Readiness</h2>
+          <p>CUDA, Vulkan NCNN, ONNX, TensorRT, and DirectML are candidates until direct proof exists.</p>
+        </div>
+        <div class="metric-grid" id="backend-matrix"></div>
+      </section>
+
+      <section class="panel" id="panel-patch" data-panel-view="patch">
+        <div class="section-head">
+          <p class="eyebrow">Patch Dossier</p>
+          <h2>Proposal Only</h2>
+          <p id="patch-banner">Loading patch safety banner.</p>
+        </div>
+        <div class="checklist" id="patch-checklist"></div>
+        <div class="dossier-list" id="dossier-list"></div>
+      </section>
+
+      <section class="panel" id="panel-safety" data-panel-view="safety">
+        <div class="section-head">
+          <p class="eyebrow">Safety Gate</p>
+          <h2>Blocked Until Proven</h2>
+          <p>Review warnings do not become actions.</p>
+        </div>
+        <div class="safety-grid">
+          <div class="band">
+            <h3>Hard Blocks</h3>
+            <ul id="hard-blocks"></ul>
+          </div>
+          <div class="band">
+            <h3>Soft Warnings</h3>
+            <ul id="soft-warnings"></ul>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>

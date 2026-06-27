@@ -1,0 +1,488 @@
+{
+  "schema_version": 1,
+  "generated_fixture": true,
+  "source_authority": false,
+  "title": "Reversa Studio Sample Model Library",
+  "summary": {
+    "totalModels": 18,
+    "unknownLicense": 12,
+    "backendFamilies": [
+      "cuda",
+      "onnx",
+      "pytorch",
+      "unknown",
+      "vulkan_ncnn"
+    ],
+    "labelCount": 28
+  },
+  "models": [
+    {
+      "id": "Xessen/bert-turkish-from-scratch-2",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "UNKNOWN",
+      "licenseStatus": "warning",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "unknown"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "unknown",
+      "acquisitionStatus": "deferred_license_review",
+      "risk": [
+        "backend_unknown",
+        "license_unknown"
+      ],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY"
+      ]
+    },
+    {
+      "id": "vvolhejn/ema-vfi-large",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "UNKNOWN",
+      "licenseStatus": "warning",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "cuda",
+        "pytorch"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "medium-high",
+      "acquisitionStatus": "deferred_license_review",
+      "risk": [
+        "license_unknown"
+      ],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "CANDIDATE_CUDA_5090",
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY"
+      ]
+    },
+    {
+      "id": "huseinzol05/super-resolution-srgan-128",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "UNKNOWN",
+      "licenseStatus": "warning",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "unknown"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "unknown",
+      "acquisitionStatus": "deferred_license_review",
+      "risk": [
+        "backend_unknown",
+        "license_unknown"
+      ],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY"
+      ]
+    },
+    {
+      "id": "deepghs/waifu2x_onnx",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "UNKNOWN",
+      "licenseStatus": "warning",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "onnx"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "unknown",
+      "acquisitionStatus": "deferred_license_review",
+      "risk": [
+        "license_unknown"
+      ],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "CANDIDATE_ONNX",
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY",
+        "ONNX_BACKEND_PRESENT"
+      ]
+    },
+    {
+      "id": "rocca/swin-ir-onnx",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "apache-2.0",
+      "licenseStatus": "reviewed",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "onnx"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "unknown",
+      "acquisitionStatus": "deferred_hash_review",
+      "risk": [],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "CANDIDATE_ONNX",
+        "MODEL_LICENSE_OK",
+        "MODEL_METADATA_ONLY",
+        "ONNX_BACKEND_PRESENT"
+      ]
+    },
+    {
+      "id": "Andrewy/DLS_SPEECH_PROJECT-25-26",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "UNKNOWN",
+      "licenseStatus": "warning",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "cuda",
+        "pytorch"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "medium-high",
+      "acquisitionStatus": "deferred_license_review",
+      "risk": [
+        "license_unknown"
+      ],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "CANDIDATE_CUDA_5090",
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY"
+      ]
+    },
+    {
+      "id": "pavlichenko/ifrnet_gopro",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "mit",
+      "licenseStatus": "reviewed",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "cuda",
+        "pytorch"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "medium-high",
+      "acquisitionStatus": "deferred_hash_review",
+      "risk": [],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "CANDIDATE_CUDA_5090",
+        "MODEL_LICENSE_OK",
+        "MODEL_METADATA_ONLY"
+      ]
+    },
+    {
+      "id": "dim/dls_speech_2025",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "UNKNOWN",
+      "licenseStatus": "warning",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "unknown"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "unknown",
+      "acquisitionStatus": "deferred_license_review",
+      "risk": [
+        "backend_unknown",
+        "license_unknown"
+      ],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY"
+      ]
+    },
+    {
+      "id": "x0unmaze/gmfss",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "UNKNOWN",
+      "licenseStatus": "warning",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "unknown"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "unknown",
+      "acquisitionStatus": "deferred_license_review",
+      "risk": [
+        "backend_unknown",
+        "license_unknown"
+      ],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY"
+      ]
+    },
+    {
+      "id": "Heliosoph/scunet-onnx",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "apache-2.0",
+      "licenseStatus": "reviewed",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "onnx"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "unknown",
+      "acquisitionStatus": "deferred_hash_review",
+      "risk": [],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "CANDIDATE_ONNX",
+        "MODEL_LICENSE_OK",
+        "MODEL_METADATA_ONLY",
+        "ONNX_BACKEND_PRESENT"
+      ]
+    },
+    {
+      "id": "shammisw/real-cugan-tensorflowjs",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "apache-2.0",
+      "licenseStatus": "reviewed",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "medium",
+      "acquisitionStatus": "deferred_hash_review",
+      "risk": [],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "CANDIDATE_VULKAN_NCNN",
+        "MODEL_LICENSE_OK",
+        "MODEL_METADATA_ONLY",
+        "VULKAN_NCNN_BACKEND_PRESENT"
+      ]
+    },
+    {
+      "id": "smnorini/Real_CUGAN_4x",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "other",
+      "licenseStatus": "reviewed",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "cuda",
+        "pytorch"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "medium-high",
+      "acquisitionStatus": "deferred_hash_review",
+      "risk": [],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "CANDIDATE_CUDA_5090",
+        "MODEL_LICENSE_OK",
+        "MODEL_METADATA_ONLY"
+      ]
+    },
+    {
+      "id": "tamnvcc/RealCUGAN",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "UNKNOWN",
+      "licenseStatus": "warning",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "medium",
+      "acquisitionStatus": "deferred_license_review",
+      "risk": [
+        "license_unknown"
+      ],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "CANDIDATE_VULKAN_NCNN",
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY",
+        "VULKAN_NCNN_BACKEND_PRESENT"
+      ]
+    },
+    {
+      "id": "xmanifold/emavfi",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "UNKNOWN",
+      "licenseStatus": "warning",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "unknown"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "unknown",
+      "acquisitionStatus": "deferred_license_review",
+      "risk": [
+        "backend_unknown",
+        "license_unknown"
+      ],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY"
+      ]
+    },
+    {
+      "id": "Xessen/bert-turkish-from-scratch-3",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "UNKNOWN",
+      "licenseStatus": "warning",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "unknown"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "unknown",
+      "acquisitionStatus": "deferred_license_review",
+      "risk": [
+        "backend_unknown",
+        "license_unknown"
+      ],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY"
+      ]
+    },
+    {
+      "id": "nunif/waifu2x",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "agpl-3.0",
+      "licenseStatus": "reviewed",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "onnx"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "unknown",
+      "acquisitionStatus": "deferred_hash_review",
+      "risk": [],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "CANDIDATE_ONNX",
+        "MODEL_LICENSE_OK",
+        "MODEL_METADATA_ONLY",
+        "ONNX_BACKEND_PRESENT"
+      ]
+    },
+    {
+      "id": "deepinv/scunet",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "UNKNOWN",
+      "licenseStatus": "warning",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "cuda",
+        "pytorch"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "medium-high",
+      "acquisitionStatus": "deferred_license_review",
+      "risk": [
+        "license_unknown"
+      ],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "CANDIDATE_CUDA_5090",
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY"
+      ]
+    },
+    {
+      "id": "Library-Mutsumi/waifu2x_onnx",
+      "source": "Hugging Face metadata",
+      "source_authority": false,
+      "generated_artifact": true,
+      "license": "UNKNOWN",
+      "licenseStatus": "warning",
+      "hashStatus": "metadata_only",
+      "backend": [
+        "onnx"
+      ],
+      "runtime": [
+        "metadata_only"
+      ],
+      "vramEstimate": "unknown",
+      "acquisitionStatus": "deferred_license_review",
+      "risk": [
+        "license_unknown"
+      ],
+      "recommendedAction": "metadata indexed only; review license/provenance/hash before artifact acquisition",
+      "labels": [
+        "CANDIDATE_ONNX",
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY",
+        "ONNX_BACKEND_PRESENT"
+      ]
+    }
+  ]
+}

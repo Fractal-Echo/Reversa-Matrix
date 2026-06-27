@@ -120,6 +120,24 @@ Dashboard sections include:
 
 ---
 
+### `studio`
+
+```bash
+node ./bin/reversa.js studio export-fixtures \
+  --dataset /path/to/gpu-advisory-dataset \
+  --out ./reversa-studio/fixtures
+```
+
+Exports small local JSON fixtures for the Reversa Studio prototype. Reversa
+Studio is an early local dashboard prototype for evidence, model metadata, and
+guarded workflow planning.
+
+The command reads local JSONL/TSV files and writes display fixtures. It does not
+acquire models, launch runtimes, patch binaries, connect to phones, or mutate
+projects.
+
+---
+
 ### `patterns`
 
 ```bash
