@@ -12,6 +12,10 @@ When installed as a package, use:
 npx reversa <command>
 ```
 
+Reversa is an AI evidence, contradiction, and guarded patch-intelligence engine.
+It scans first, writes artifacts second, and keeps patch or command execution
+behind review gates.
+
 ---
 
 ## Scanner Commands
@@ -49,7 +53,7 @@ Useful flags:
 | `--jsonl` | Write `evidence.jsonl` |
 | `--markdown` | Write `summary.md` |
 | `--agent-handoff` | Write handoff files for agents |
-| `--profiles` | List available profiles |
+| `--profiles [ids]` | List available profiles, or scan comma-separated profile ids |
 | `--include-ignored` | Include files ignored by git exclude rules |
 
 If no output flags are passed, scan writes all primary formats.
@@ -196,6 +200,39 @@ node ./bin/reversa.js scan \
   --out reversa_policy_out
 ```
 
+Scan a real project for semantic policy drift:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root /path/to/project \
+  --profile semantic_policy \
+  --out reversa_policy_out
+```
+
+Equivalent short form:
+
+```bash
+node ./bin/reversa.js scan --profiles semantic_policy /path/to/project
+```
+
+Scan a real provider gateway or agent launcher tree:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root /path/to/project \
+  --profile agentic_gateway \
+  --out reversa_gateway_out
+```
+
+Scan both profiles in one pass:
+
+```bash
+node ./bin/reversa.js scan \
+  --profiles semantic_policy,agentic_gateway \
+  --out reversa_agentic_sweep \
+  /path/to/project
+```
+
 Use `windows_compat` when a sweep brief says "Windows compatibility"; it aliases
 `windows_system`. Use `kernel` when a sweep brief says "kernel"; it aliases
 `android_kernel`.
@@ -285,6 +322,114 @@ node ./bin/reversa.js agent models --base-url http://127.0.0.1:8000/v1
 
 Lists models from a local OpenAI-compatible endpoint such as vLLM, Ollama, or
 llama.cpp.
+
+### `agent eval`
+
+```bash
+node ./bin/reversa.js agent eval \
+  --base-url http://127.0.0.1:8000/v1 \
+  --model Qwen/Qwen3-Coder-30B-A3B-Instruct \
+  --evidence-file /path/to/nebula-result.md \
+  --out local/evals/nebula-wayland
+```
+
+Scores a local OpenAI-compatible model on held-out Reversa JSON cases. Eval
+output is advisory only: it writes `eval_report.json`, `eval_report.md`,
+per-case request/response artifacts, and evidence hashes, but it does not mutate
+scanner findings or contradictions.
+
+Built-in eval cases include a Nebula Wayland regression guard, an agent policy
+destructive-operation guard, and a DroidSpaces container command-wizard guard.
+The command-wizard case scores whether the local model returns exact proposed
+commands with a risk/approval policy instead of executing anything.
+
+Eval cases may scope optional evidence by domain. This prevents a DroidSpaces
+command-plan eval from copying unrelated host repo scan commands, and lets
+policy cases score normalized meaning such as `ask_before_destructive` instead
+of brittle prose-only string matches.
+
+Useful eval flags:
+
+| Flag | Meaning |
+| --- | --- |
+| `--case <id>` | Run one built-in eval case; repeatable |
+| `--evidence-file <path>` | Add optional evidence context; repeatable |
+| `--evidence-dir <path>` | Add optional evidence directory context; repeatable |
+| `--max-prompt-evidence-chars <n>` | Cap evidence included in the model prompt |
+| `--no-fail-on-mismatch` | Write metrics while exiting 0 on failed assertions |
+
+### `agent command-plan`
+
+```bash
+node ./bin/reversa.js agent command-plan \
+  --domain droidspaces-container \
+  --profile gaming \
+  --evidence-file /path/to/nebula-display-lanes.json \
+  --out local/command-plans/rm11pro-gaming
+```
+
+Writes a compact, approval-aware command plan. This is the offline wizard lane:
+Reversa proposes validation commands and candidate actions, but every command is
+tagged with risk and `execute=false`; mutating actions remain human-approved.
+Nebula plans prefer the active module path by default. Pending
+`/data/adb/modules_update` artifacts are treated as explicit dry-check targets,
+not normal UI or command-plan sources.
+
+Initial domains:
+
+| Domain | Purpose |
+| --- | --- |
+| `droidspaces-container` | Map containers, Anland env, rootfs candidates, and method selection |
+| `nebula-wayland` | Preserve the proven Wayland real-buffer path while preparing client runtime checks |
+| `gaming-performance` | Read RedMagic, thermal, GPU, and PowerDeck evidence before gaming tuning |
+| `battery-optimization` | Read battery, power, and process state before low-power tuning |
+| `stability` | Capture module, crash, and safe-mode evidence before repair work |
+
+### `agent patch-plan` / `agent patch-wizard`
+
+```bash
+node ./bin/reversa.js agent patch-wizard \
+  --scan-out /path/to/reversa-scan \
+  --candidate PATCH_CONFIG_MODE \
+  --project-root /path/to/source-tree \
+  --out local/patch-wizards/config-mode
+```
+
+The same command can be aimed at a policy or gateway scan:
+
+```bash
+node ./bin/reversa.js agent patch-wizard \
+  --project-root /path/to/project \
+  --scan-out reversa_policy_out \
+  --candidate <patch-candidate-id> \
+  --out .reversa/patch-plans/policy-fix-01
+```
+
+Turns a Reversa `agent_handoff/patch_candidates.json` entry into a guarded patch
+review dossier. It writes `patch_plan.json`, `patch_plan.md`, an evidence
+manifest, and evidence hashes. It does not edit source files, run formatters,
+commit, push, reboot, flash, or install modules.
+
+Manual mode is available when a scan candidate does not exist yet:
+
+```bash
+node ./bin/reversa.js agent patch-plan \
+  --project-root /path/to/source-tree \
+  --target-file src/config.js \
+  --proposed-change "Normalize stale config mode to the proven value." \
+  --find-text 'mode = "stale"' \
+  --replace-text 'mode = "proven"' \
+  --out local/patch-wizards/manual-config
+```
+
+Patch wizard output includes target-file root validation, target SHA-256 before
+review, edit groups, verification commands, rollback notes, stop conditions, and
+approval guardrails. Targets resolving outside `--project-root` are rejected.
+
+When both `--find-text` and `--replace-text` are supplied, Reversa writes a
+review-only `patch.diff` using one exact literal replacement. It still does not
+edit the target file or apply the patch; missing text, oversized files, binary
+files, or incomplete replacement input block diff generation.
 
 ### `agent run`
 

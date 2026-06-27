@@ -1,12 +1,23 @@
 # Reversa-Matrix
 
-**Reverse-engineering evidence mapper for Windows, Android, Linux, and mixed source trees.**
+Reversa-Matrix is an AI evidence, contradiction, and guarded patch-intelligence engine.
+
+It turns messy repositories, logs, runtime traces, device reports, and agent instructions into:
+
+- traceable findings;
+- contradiction maps;
+- project memory/frontiers;
+- guarded patch dossiers;
+- review-only patch diffs;
+- agent-ready operating rules.
+
+It is built to stop regressions, stale assumptions, and AI amnesia during complex engineering work.
 
 [![Docs](https://img.shields.io/badge/DOCS-Reversa--Matrix-009c3b?style=for-the-badge&logo=material-for-mkdocs&logoColor=white&labelColor=2d2d2d)](https://fractal-echo.github.io/Reversa-Matrix/)
 
-Reversa-Matrix is an evidence-first research assistant for real code trees: Android recovery and kernels, Linux userspace and graphics stacks, Windows services and drivers, build systems, generated files, copied constants, known-good facts, contradictions, and agent handoff.
+Reversa-Matrix is an evidence-first research assistant for real code trees: Android recovery and kernels, Linux userspace and graphics stacks, Windows services and drivers, build systems, generated files, copied constants, known-good facts, contradictions, guarded patch plans, and agent handoff.
 
-It is not a patch bot. It is not a flashing tool. It maps evidence so humans and Codex agents can make better decisions.
+It is built toward a local Jarvis-style engineering cockpit: memory, evidence, contradiction detection, local model evals, safe command plans, and guarded patch proposals that help a human operator move faster without losing the proof trail.
 
 Reversa-Matrix may name upstream ecosystems such as Android, OrangeFox, TWRP,
 Gamescope, Xwayland, Mesa, Wine, Proton, DXVK, Special K, ReShade, 3DMigoto,
@@ -16,6 +27,26 @@ bundled, owned, or endorsed by Reversa-Matrix.
 
 New direction: Reversa can also run a local agent scaffold. The model is not the
 agent; Reversa owns memory, typed tools, policy, evidence, and patch gates.
+
+---
+
+## What Reversa Is Now
+
+- An AI evidence engine for codebases, devices, runtimes, games, and agent workflows.
+- A contradiction detector for stale claims, policy drift, unsafe command plans, and copied constants.
+- A guarded patch-intelligence layer that writes review artifacts before any source change.
+- A project-memory and frontier tracker for long-running engineering work.
+- A local model/eval lane for 5090/vLLM-backed advisory reasoning, with deterministic scanner truth preserved.
+- A domain profile system for Android, Linux, Windows, games, containers, Vulkan/Wayland, kernels, and agent tooling.
+
+## What Reversa Is Not
+
+- It is not an autonomous unrestricted patcher.
+- It is not a flashing, rooting, rebooting, or module-install tool.
+- It is not a bypass, piracy, malware, or exploit-delivery system.
+- It does not treat model output as proof.
+- It does not replace human approval for destructive, device-mutating, or source-mutating actions.
+- It does not bundle, own, or imply endorsement by upstream projects it scans or references.
 
 ---
 
@@ -311,7 +342,7 @@ The console identity uses a dark evidence-lab layout with a subtle source-tree g
 Tagline:
 
 ```text
-Reverse-engineering evidence mapper for source trees, contradictions, and analysis.
+AI evidence, contradiction, and guarded patch-intelligence engine.
 ```
 
 ```text

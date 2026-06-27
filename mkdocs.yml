@@ -1,6 +1,6 @@
 site_name: Reversa-Matrix
 site_url: https://fractal-echo.github.io/Reversa-Matrix
-site_description: Reverse-engineering evidence mapper for Windows, Android, Linux, and mixed source trees.
+site_description: AI evidence, contradiction, and guarded patch-intelligence engine for codebases, devices, runtimes, games, and agent workflows.
 site_author: Fractal-Echo
 repo_url: https://github.com/Fractal-Echo/Reversa-Matrix
 repo_name: Fractal-Echo/Reversa-Matrix
@@ -53,6 +53,8 @@ plugins:
 
 nav:
   - Home: index.md
+  - Reversa Identity: REVERSA_IDENTITY.md
+  - Online Repo Summary: ONLINE_REPO_SUMMARY.md
   - Why Reversa-Matrix: por-que-reversa.md
   - Installation: instalacao.md
   - First Scan: uso.md

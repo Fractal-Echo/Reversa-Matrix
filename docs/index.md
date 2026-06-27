@@ -1,10 +1,28 @@
 # Reversa-Matrix
 
-**Reverse-engineering evidence mapper for Windows, Android, Linux, and mixed source trees.**
+Reversa-Matrix is an AI evidence, contradiction, and guarded patch-intelligence engine.
 
-Reversa-Matrix is an evidence-first research assistant for operating-system, device, application, kernel, userspace, build, and recovery trees.
+It turns messy repositories, logs, runtime traces, device reports, and agent instructions into traceable findings, contradiction maps, project memory/frontiers, guarded patch dossiers, review-only patch diffs, and agent-ready operating rules.
 
-It does not assume a web application or modernization workflow. It starts with files, symbols, build declarations, device facts, paths, configs, logs, and contradictions.
+It is built to stop regressions, stale assumptions, and AI amnesia during complex engineering work. It starts with files, symbols, build declarations, device facts, paths, configs, logs, runtime traces, agent policies, and contradictions.
+
+## What Reversa Is Now
+
+- An AI evidence engine for codebases, devices, runtimes, games, and agent workflows.
+- A contradiction detector for stale claims, policy drift, unsafe command plans, and copied constants.
+- A guarded patch-intelligence layer that writes review artifacts before any source change.
+- A project-memory and frontier tracker for long-running engineering work.
+- A local model/eval lane for 5090/vLLM-backed advisory reasoning, with deterministic scanner truth preserved.
+- A domain profile system for Android, Linux, Windows, games, containers, Vulkan/Wayland, kernels, and agent tooling.
+
+## What Reversa Is Not
+
+- It is not an autonomous unrestricted patcher.
+- It is not a flashing, rooting, rebooting, or module-install tool.
+- It is not a bypass, piracy, malware, or exploit-delivery system.
+- It does not treat model output as proof.
+- It does not replace human approval for destructive, device-mutating, or source-mutating actions.
+- It does not bundle, own, or imply endorsement by upstream projects it scans or references.
 
 ---
 
@@ -36,7 +54,7 @@ The generated report and offline dashboard share the Reversa-Matrix console iden
 <div class="rm-console-preview" aria-label="Reversa-Matrix console preview">
   <div class="rm-console-copy">
     <strong>Reversa-Matrix Console</strong>
-    <span>Reverse-engineering evidence mapper for source trees, contradictions, and analysis.</span>
+    <span>AI evidence, contradiction, and guarded patch-intelligence engine.</span>
   </div>
   <div class="rm-console-graph" aria-hidden="true">
     <span class="rm-node evidence"></span>
@@ -65,7 +83,7 @@ The current scanner already understands Android recovery-style trees and generic
 | Games | PCGamingWiki-style fixes, modding runtimes, graphics wrappers, widescreen/framegen evidence, Vulkan loader state, render enhancement manifests |
 | Cross-platform | C/C++/Rust/Java/Kotlin/Python/JS projects, generated artifacts, copied constants, risky assumptions |
 
-Reversa-Matrix is a platform-aware evidence mapper, not a website modernization wrapper.
+Reversa-Matrix is a platform-aware evidence and patch-intelligence engine, not a website modernization wrapper.
 
 ---
 
@@ -160,6 +178,8 @@ That safety boundary matters because Reversa-Matrix is meant for kernel, recover
 ## Where To Go Next
 
 - [Installation](instalacao.md)
+- [Reversa identity](REVERSA_IDENTITY.md)
+- [Online repo summary](ONLINE_REPO_SUMMARY.md)
 - [First scan](uso.md)
 - [CLI](cli.md)
 - [GUI Dashboard](gui.md)

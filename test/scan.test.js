@@ -1,8 +1,9 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { spawnSync } from 'child_process';
+import { spawn, spawnSync } from 'child_process';
 import { chmod, mkdir, mkdtemp, readFile, stat, writeFile } from 'fs/promises';
 import { existsSync } from 'fs';
+import { createServer } from 'http';
 import { tmpdir } from 'os';
 import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
@@ -36,6 +37,29 @@ async function scanCurrent() {
     profile: 'android_recovery',
     knownGood: await loadKnownGood(),
     knownGoodPath,
+  });
+}
+
+function runNode(args, options = {}) {
+  return new Promise(resolveRun => {
+    const child = spawn(process.execPath, args, {
+      cwd: repoRoot,
+      stdio: ['ignore', 'pipe', 'pipe'],
+      ...options,
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.setEncoding('utf8');
+    child.stderr.setEncoding('utf8');
+    child.stdout.on('data', chunk => {
+      stdout += chunk;
+    });
+    child.stderr.on('data', chunk => {
+      stderr += chunk;
+    });
+    child.on('close', status => {
+      resolveRun({ status, stdout, stderr });
+    });
   });
 }
 
@@ -85,6 +109,7 @@ test('scanner keeps live placeholder work but ignores scanner vocabulary and ref
   await mkdir(join(root, 'agents', 'reviewer', 'references'), { recursive: true });
   await writeFile(join(root, 'src', 'live.js'), '// TODO: replace copied device assumption with verified evidence\n', 'utf8');
   await writeFile(join(root, 'src', 'scanner-work.js'), '// TODO: add scanner profile support for live projects\n', 'utf8');
+  await writeFile(join(root, 'src', 'migration.py'), '# TODO: Remove after the ~/.tool/.env migration has had a release cycle.\n', 'utf8');
   await writeFile(join(root, 'lib', 'scan', 'profiles.js'), [
     "riskyLeftovers: ['TODO', 'FIXME', 'PLACEHOLDER', 'STUB'],",
     "'grep -RIn \"TODO\\\\|FIXME\\\\|PLACEHOLDER\\\\|STUB\" {{projectRoot}}',",
@@ -95,6 +120,7 @@ test('scanner keeps live placeholder work but ignores scanner vocabulary and ref
   ].join('\n'), 'utf8');
   await writeFile(join(root, 'docs', 'upstreams', 'tool', 'ABSORPTION.md'), '- `entrypoint.py` unresolved TODO marker\n', 'utf8');
   await writeFile(join(root, 'docs', 'summary.md'), 'TODO: replace copied summary assumption\n', 'utf8');
+  await writeFile(join(root, 'docs', 'intentional.md'), '- Remaining candidate: the intentional migration TODO in `src/migration.py`\n', 'utf8');
   await writeFile(join(root, 'docs', 'facts.md'), '- Nebula assets and nested WIP repos:\n', 'utf8');
   await writeFile(join(root, 'agents', 'reviewer', 'references', 'confidence.md'), '- Old comment or TODO that may not reflect current state\n', 'utf8');
 
@@ -107,6 +133,8 @@ test('scanner keeps live placeholder work but ignores scanner vocabulary and ref
   assert(report.patch_candidates.some(item => item.target_file === 'src/live.js'));
   assert(report.patch_candidates.some(item => item.target_file === 'src/scanner-work.js'));
   assert(report.patch_candidates.some(item => item.target_file === 'docs/summary.md'));
+  assert(!report.patch_candidates.some(item => item.target_file === 'src/migration.py'));
+  assert(!report.patch_candidates.some(item => item.target_file === 'docs/intentional.md'));
   assert(!report.patch_candidates.some(item => item.target_file === 'lib/scan/profiles.js'));
   assert(!report.patch_candidates.some(item => item.target_file.startsWith('test/')));
   assert(!report.patch_candidates.some(item => item.target_file.startsWith('docs/upstreams/')));
@@ -750,6 +778,35 @@ test('semantic policy profile skips generated root artifacts', async () => {
   assert.equal(validation.valid, true, validation.errors.join('\n'));
 });
 
+test('semantic policy profile ignores documentation examples without hiding active policy', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-semantic-examples-'));
+  await mkdir(join(root, 'docs'), { recursive: true });
+  await writeFile(join(root, 'AGENTS.md'), [
+    'Ask for approval before destructive commands.',
+    'No phone actions. No adb install or reboot.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'docs', 'examples.md'), [
+    'The phrase "ask before destructive" conflicts with "skip approvals".',
+    'This profile flags import boundaries such as `NOASSERTION`, restored sourcemap source, and missing attribution lanes.',
+    'A past script sends `adb reboot`, but this is historical evidence, not a current instruction.',
+    'The wizard does not edit source files, commit, push, reboot, flash, or install modules.',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'semantic_policy',
+  });
+
+  assertEvidence(report, 'approval_required', 'semantic_policy.approval_required.approval=required');
+  assertEvidence(report, 'device_action_forbidden', 'semantic_policy.device_action_forbidden.device=device_actions_forbidden');
+  assertNoEvidence(report, ['approval_bypass'], 'semantic_policy.approval_bypass.approval=bypassed');
+  assertNoEvidence(report, ['device_action_allowed'], 'semantic_policy.device_action_allowed.device=device_actions_allowed');
+  assertNoEvidence(report, ['source_authority'], 'semantic_policy.source_authority.source=authoritative_or_vendored');
+  assertNoEvidence(report, ['attribution_missing'], 'semantic_policy.attribution_missing.attribution=missing');
+  assertNoEvidence(report, ['source_patch_allowed'], 'semantic_policy.source_patch_allowed.source=patch_allowed');
+  assert(!report.contradictions.some(item => item.category === 'semantic_policy_contradiction'));
+});
+
 test('scanner downgrades local code assignments so they do not create contradictions', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-local-assignments-'));
   await writeFile(join(root, 'script.py'), [
@@ -1067,6 +1124,52 @@ test('gui command help and missing output handling are clear', async () => {
   );
 });
 
+test('scan --profiles accepts a profile id and positional project root', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-scan-profiles-'));
+  const projectRoot = join(root, 'project');
+  const singleOut = join(root, 'single');
+  const multiOut = join(root, 'multi');
+  await mkdir(projectRoot, { recursive: true });
+  await writeFile(join(projectRoot, 'AGENTS.md'), [
+    '# Agent Policy',
+    'Ask before destructive commands.',
+    'Do not reboot, flash, delete, or install modules without approval.',
+  ].join('\n'), 'utf8');
+
+  const single = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'scan',
+    '--profiles',
+    'semantic_policy',
+    projectRoot,
+    '--out',
+    singleOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(single.status, 0, single.stderr || single.stdout);
+  assert(existsSync(join(singleOut, 'report.json')));
+  const singleReport = JSON.parse(await readFile(join(singleOut, 'report.json'), 'utf8'));
+  assert.equal(singleReport.scan.profile, 'semantic_policy');
+
+  const multi = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'scan',
+    '--profiles',
+    'semantic_policy,agentic_gateway',
+    projectRoot,
+    '--out',
+    multiOut,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(multi.status, 0, multi.stderr || multi.stdout);
+  assert(existsSync(join(multiOut, 'semantic_policy', 'report.json')));
+  assert(existsSync(join(multiOut, 'agentic_gateway', 'report.json')));
+});
+
 test('patterns command prints and writes Claude/Codex template', async () => {
   const list = spawnSync(process.execPath, [join(repoRoot, 'bin/reversa.js'), 'patterns', '--list'], {
     cwd: repoRoot,
@@ -1348,6 +1451,388 @@ test('local agent scaffold writes an auditable contradiction run without a model
   });
   assert.notEqual(staleReplay.status, 0);
   assert.match(staleReplay.stderr, /Replay evidence verification failed/);
+});
+
+test('local agent eval scores advisory model JSON without mutating scanner truth', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-agent-eval-'));
+  const outDir = join(root, 'eval');
+  const evidenceFile = join(root, 'nebula-result.md');
+  await writeFile(evidenceFile, [
+    'NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS',
+    'active_blocker=NONE_WAYLAND_DISPLAY',
+    'vkGetMemoryFdKHR failures=0',
+    'real_buffer_commits=2',
+  ].join('\n'), 'utf8');
+
+  const server = createServer((request, response) => {
+    if (request.method !== 'POST' || request.url !== '/v1/chat/completions') {
+      response.writeHead(404, { 'content-type': 'application/json' });
+      response.end(JSON.stringify({ error: 'not_found' }));
+      return;
+    }
+    let body = '';
+    request.setEncoding('utf8');
+    request.on('data', chunk => {
+      body += chunk;
+    });
+    request.on('end', () => {
+      const payload = JSON.parse(body);
+      assert.equal(payload.model, 'fake-reversa-5090');
+      const prompt = payload.messages.map(item => item.content).join('\n');
+      const content = prompt.includes('DroidSpaces/Nebula container troubleshooting')
+        ? {
+            command_plan_ready: true,
+            domain: 'droidspaces_container',
+            execution_policy: 'propose_only_require_approval',
+            mutating_commands_allowed: false,
+            validation_commands_count: 4,
+            first_command: 'sh /data/adb/modules/nebula_core/bin/nebula-core display lanes --json',
+            next_gate: 'droidspaces_container_method_selection',
+          }
+        : prompt.includes('agent policy conflict')
+        ? {
+            contradiction_detected: true,
+            safe_policy: 'ask_before_destructive',
+            destructive_allowed_without_approval: false,
+            patch_recommended: true,
+          }
+        : {
+            classification: 'NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS',
+            active_blocker: 'NONE_WAYLAND_DISPLAY',
+            real_buffer_pass: true,
+            vk_get_memory_fd_failures: 0,
+            real_buffer_commits: 2,
+            next_gate: 'bounded_game_client_runtime_before_steam',
+            patch_recommended: true,
+          };
+      response.writeHead(200, { 'content-type': 'application/json' });
+      response.end(JSON.stringify({
+        choices: [{ message: { content: JSON.stringify(content) } }],
+      }));
+    });
+  });
+
+  await new Promise(resolveListen => server.listen(0, '127.0.0.1', resolveListen));
+  try {
+    const { port } = server.address();
+    const run = await runNode([
+      join(repoRoot, 'bin/reversa.js'),
+      'agent',
+      'eval',
+      '--base-url',
+      `http://127.0.0.1:${port}/v1`,
+      '--model',
+      'fake-reversa-5090',
+      '--evidence-file',
+      evidenceFile,
+      '--out',
+      outDir,
+    ]);
+    assert.equal(run.status, 0, run.stderr || run.stdout);
+  } finally {
+    await new Promise(resolveClose => server.close(resolveClose));
+  }
+
+  const report = JSON.parse(await readFile(join(outDir, 'eval_report.json'), 'utf8'));
+  assert.equal(report.command, 'agent eval');
+  assert.equal(report.model, 'fake-reversa-5090');
+  assert.equal(report.case_count, 3);
+  assert.equal(report.passed, 3);
+  assert.equal(report.failed, 0);
+  assert.equal(report.advisory_only, true);
+  assert.equal(report.deterministic_truth_preserved, true);
+  assert(existsSync(join(outDir, 'responses', 'nebula_wayland_regression_guard.result.json')));
+  assert(existsSync(join(outDir, 'responses', 'droidspaces_container_command_wizard_guard.result.json')));
+  assert(existsSync(join(outDir, 'artifacts', 'evidence_manifest.json')));
+
+  const markdown = await readFile(join(outDir, 'eval_report.md'), 'utf8');
+  assert.match(markdown, /Reversa Local Model Eval/);
+  assert.match(markdown, /nebula_wayland_regression_guard/);
+  assert.match(markdown, /agent_policy_destructive_guard/);
+  assert.match(markdown, /droidspaces_container_command_wizard_guard/);
+  assert.match(markdown, /advisory only/i);
+});
+
+test('local agent command-plan writes safe DroidSpaces wizard artifacts', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-command-plan-'));
+  const outDir = join(root, 'plan');
+  const evidenceFile = join(root, 'display-lanes.json');
+  await writeFile(evidenceFile, JSON.stringify({
+    lanes: [
+      { id: 'phone_app_bridge', status: 'wayland_display_pass', active_blocker: 'NONE_WAYLAND_DISPLAY' },
+      { id: 'anland_surface', status: 'partial' },
+    ],
+  }), 'utf8');
+
+  const run = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'agent',
+    'command-plan',
+    '--domain',
+    'droidspaces-container',
+    '--profile',
+    'gaming',
+    '--evidence-file',
+    evidenceFile,
+    '--out',
+    outDir,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+
+  const plan = JSON.parse(await readFile(join(outDir, 'command_plan.json'), 'utf8'));
+  assert.equal(plan.schema_version, 1);
+  assert.equal(plan.tool, 'reversa');
+  assert.equal(plan.command, 'agent command-plan');
+  assert.equal(plan.domain, 'droidspaces-container');
+  assert.equal(plan.profile, 'gaming');
+  assert.equal(plan.execution_policy, 'propose_only_require_approval');
+  assert.equal(plan.mutating_commands_allowed, false);
+  assert.deepEqual(plan.disabled_actions, ['reboot', 'flash', 'delete', 'module_mutation', 'package_uninstall', 'partition_write']);
+  assert.equal(plan.plan.next_gate, 'droidspaces_container_method_selection');
+  assert(plan.plan.validation_commands.length >= 4);
+  assert(plan.plan.candidate_actions.length >= 1);
+  assert(plan.plan.validation_commands.every(item => item.execute === false));
+  assert(plan.plan.validation_commands.every(item => item.read_only === true));
+  assert(plan.plan.validation_commands.every(item => item.requires_approval === false));
+  assert(plan.plan.validation_commands.every(item => item.expected_signal));
+  assert(plan.plan.candidate_actions.every(item => item.execute === false));
+  assert(plan.plan.candidate_actions.every(item => item.requires_approval === true));
+  assert(plan.plan.candidate_actions.every(item => item.risk === 'requires_approval'));
+  assert.equal(plan.plan.validation_commands[0].command, 'sh /data/adb/modules/nebula_core/bin/nebula-core display lanes --json');
+  const allCommands = [
+    ...plan.plan.validation_commands,
+    ...plan.plan.candidate_actions,
+  ].map(item => item.command).join('\n');
+  assert.doesNotMatch(allCommands, /modules_update\/nebula_core\/bin\/nebula-core/);
+  assert.doesNotMatch(allCommands, /\b(reboot|fastboot flash|rm -rf|pm uninstall)\b/);
+  assert(existsSync(join(outDir, 'artifacts', 'evidence_manifest.json')));
+
+  const markdown = await readFile(join(outDir, 'command_plan.md'), 'utf8');
+  assert.match(markdown, /Reversa Command Plan/);
+  assert.match(markdown, /DroidSpaces/);
+  assert.match(markdown, /requires_approval/);
+});
+
+test('local agent command-plan keeps Nebula active module first across domains', async () => {
+  const domains = [
+    'droidspaces-container',
+    'nebula-wayland',
+    'gaming-performance',
+    'battery-optimization',
+    'stability',
+  ];
+
+  for (const domain of domains) {
+    const root = await mkdtemp(join(tmpdir(), `reversa-command-plan-${domain}-`));
+    const outDir = join(root, 'plan');
+    const run = spawnSync(process.execPath, [
+      join(repoRoot, 'bin/reversa.js'),
+      'agent',
+      'command-plan',
+      '--domain',
+      domain,
+      '--out',
+      outDir,
+      '--no-network',
+    ], {
+      cwd: repoRoot,
+      encoding: 'utf8',
+    });
+    assert.equal(run.status, 0, run.stderr || run.stdout);
+
+    const plan = JSON.parse(await readFile(join(outDir, 'command_plan.json'), 'utf8'));
+    const commands = [
+      ...plan.plan.validation_commands,
+      ...plan.plan.candidate_actions,
+    ].map(item => item.command);
+
+    assert(
+      !commands.some(command => command.includes('/data/adb/modules_update/nebula_core/bin/nebula-core')),
+      `${domain} should not invoke pending Nebula CLI by default`
+    );
+
+    for (const command of commands) {
+      const activeIndex = command.indexOf('/data/adb/modules/nebula_core');
+      const pendingIndex = command.indexOf('/data/adb/modules_update/nebula_core');
+      if (activeIndex >= 0 && pendingIndex >= 0) {
+        assert(
+          activeIndex < pendingIndex,
+          `${domain} should list active module before pending module in: ${command}`
+        );
+      }
+    }
+  }
+});
+
+test('local agent patch-wizard turns patch candidates into guarded review artifacts', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-patch-wizard-'));
+  const projectRoot = join(root, 'project');
+  const scanOut = join(root, 'scan');
+  const handoffDir = join(scanOut, 'agent_handoff');
+  const outDir = join(root, 'wizard');
+  const targetFile = join(projectRoot, 'src', 'config.js');
+  await mkdir(dirname(targetFile), { recursive: true });
+  await mkdir(handoffDir, { recursive: true });
+  await writeFile(targetFile, 'export const mode = "stale";\n', 'utf8');
+  await writeFile(join(handoffDir, 'patch_candidates.json'), JSON.stringify([
+    {
+      id: 'PATCH_CONFIG_MODE',
+      title: 'Normalize config mode',
+      target_file: 'src/config.js',
+      proposed_change: 'Change mode from stale to proven.',
+      reason: 'Known-good evidence shows the current mode is stale.',
+      evidence_ids: ['EV_CONFIG_MODE'],
+      risk_level: 'LOW',
+      rollback_plan: 'Restore src/config.js to the recorded SHA-256.',
+      validation_commands: [
+        'npm test',
+        'find . -delete',
+        'node -e "require(\\"fs\\").writeFileSync(\\"owned\\", \\"x\\")"',
+        'python -c "open(\\"owned\\", \\"w\\").write(\\"x\\")"',
+        'grep -R stale . > out.txt',
+        'printf x | tee out.txt',
+      ],
+      expected_result: 'Tests pass and config mode reflects proven evidence.',
+      failure_signs: ['unexpected files changed', 'npm test fails'],
+      group: 'known_good_mismatch',
+    },
+  ], null, 2) + '\n', 'utf8');
+
+  const run = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'agent',
+    'patch-wizard',
+    '--scan-out',
+    scanOut,
+    '--candidate',
+    'PATCH_CONFIG_MODE',
+    '--project-root',
+    projectRoot,
+    '--out',
+    outDir,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+
+  const wizard = JSON.parse(await readFile(join(outDir, 'patch_plan.json'), 'utf8'));
+  assert.equal(wizard.schema_version, 1);
+  assert.equal(wizard.tool, 'reversa');
+  assert.equal(wizard.command, 'agent patch-plan');
+  assert.equal(wizard.execution_policy, 'plan_first_apply_requires_explicit_approval');
+  assert.equal(wizard.mutating_commands_allowed, false);
+  assert.equal(wizard.apply_allowed, false);
+  assert.equal(wizard.patch_plan.source.type, 'scan_out');
+  assert.equal(wizard.patch_plan.candidate.id, 'PATCH_CONFIG_MODE');
+  assert.equal(wizard.patch_plan.candidate.target_file, 'src/config.js');
+  assert.deepEqual(wizard.patch_plan.candidate.evidence_ids, ['EV_CONFIG_MODE']);
+  assert.equal(wizard.patch_plan.patch_proposal.target_exists, true);
+  assert.equal(wizard.patch_plan.patch_proposal.target_is_file, true);
+  assert.match(wizard.patch_plan.patch_proposal.target_sha256_before, /^[a-f0-9]{64}$/);
+  assert.equal(wizard.patch_plan.patch_proposal.diff_status, 'not_generated');
+  assert.equal(wizard.patch_plan.guardrails.requires_human_review, true);
+  assert.equal(wizard.patch_plan.guardrails.requires_clean_target_hash, true);
+  assert.equal(wizard.patch_plan.verification_commands[0].execute, false);
+  assert.equal(wizard.patch_plan.verification_commands[0].read_only, true);
+  const verificationByCommand = new Map(wizard.patch_plan.verification_commands.map(item => [item.command, item]));
+  assert.equal(verificationByCommand.get('npm test').risk, 'read_only');
+  assert.equal(verificationByCommand.get('find . -delete').risk, 'requires_approval');
+  assert.equal(verificationByCommand.get('node -e "require(\\"fs\\").writeFileSync(\\"owned\\", \\"x\\")"').risk, 'requires_approval');
+  assert.equal(verificationByCommand.get('python -c "open(\\"owned\\", \\"w\\").write(\\"x\\")"').risk, 'requires_approval');
+  assert.equal(verificationByCommand.get('grep -R stale . > out.txt').risk, 'requires_approval');
+  assert.equal(verificationByCommand.get('printf x | tee out.txt').risk, 'requires_approval');
+  assert(existsSync(join(outDir, 'artifacts', 'evidence_manifest.json')));
+  assert(existsSync(join(outDir, 'artifacts', 'evidence_files.sha256')));
+
+  const markdown = await readFile(join(outDir, 'patch_plan.md'), 'utf8');
+  assert.match(markdown, /Reversa Patch Wizard/);
+  assert.match(markdown, /PATCH_CONFIG_MODE/);
+  assert.match(markdown, /SHA-256 before/);
+
+  const outsideRoot = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'agent',
+    'patch-plan',
+    '--project-root',
+    projectRoot,
+    '--target-file',
+    '../outside.js',
+    '--proposed-change',
+    'Do not allow traversal.',
+    '--out',
+    join(root, 'outside'),
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.notEqual(outsideRoot.status, 0);
+  assert.match(outsideRoot.stderr, /outside project root/i);
+});
+
+test('local agent patch-plan help lists review-only diff options', async () => {
+  const run = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'agent',
+    'patch-plan',
+    '--help',
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+  assert.match(run.stdout, /--find-text/);
+  assert.match(run.stdout, /--replace-text/);
+  assert.match(run.stdout, /--out <path>/);
+});
+
+test('local agent patch-wizard drafts literal replacement diffs without applying them', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-patch-diff-'));
+  const projectRoot = join(root, 'project');
+  const outDir = join(root, 'wizard');
+  const targetFile = join(projectRoot, 'src', 'config.js');
+  await mkdir(dirname(targetFile), { recursive: true });
+  await writeFile(targetFile, 'export const mode = "stale";\n', 'utf8');
+
+  const run = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'agent',
+    'patch-wizard',
+    '--project-root',
+    projectRoot,
+    '--target-file',
+    'src/config.js',
+    '--proposed-change',
+    'Replace stale mode with proven mode.',
+    '--find-text',
+    'mode = "stale"',
+    '--replace-text',
+    'mode = "proven"',
+    '--out',
+    outDir,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+
+  const wizard = JSON.parse(await readFile(join(outDir, 'patch_plan.json'), 'utf8'));
+  assert.equal(wizard.patch_plan.patch_proposal.diff_status, 'generated');
+  assert.equal(wizard.patch_plan.patch_proposal.draft_mode, 'literal_first_match');
+  assert.equal(wizard.patch_plan.patch_proposal.replacement_count, 1);
+  assert.match(wizard.patch_plan.patch_proposal.proposed_diff, /--- a\/src\/config\.js/);
+  assert.match(wizard.patch_plan.patch_proposal.proposed_diff, /-export const mode = "stale";/);
+  assert.match(wizard.patch_plan.patch_proposal.proposed_diff, /\+export const mode = "proven";/);
+  assert(existsSync(join(outDir, 'patch.diff')));
+
+  const patchText = await readFile(join(outDir, 'patch.diff'), 'utf8');
+  assert.equal(patchText, wizard.patch_plan.patch_proposal.proposed_diff);
+
+  const targetText = await readFile(targetFile, 'utf8');
+  assert.equal(targetText, 'export const mode = "stale";\n');
 });
 
 test('local agent snapshot writes phone-safe adb evidence and hash manifest', async () => {

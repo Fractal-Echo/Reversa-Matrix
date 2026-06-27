@@ -109,6 +109,50 @@ bridge intentionally rejects non-dmabuf frames when final-copy is forbidden:
 reason=not-dmabuf-zero-copy
 ```
 
+## Nebula Active Module Dispatch Guard
+
+The active phone module is authoritative for Nebula status unless it is missing
+or the operator explicitly requests a pending-module dry-check.
+
+Default read path:
+
+```text
+/data/adb/modules/nebula_core/bin/nebula-core
+```
+
+Guarded dry-check path only:
+
+```text
+/data/adb/modules_update/nebula_core/bin/nebula-core
+```
+
+Do not prefer `modules_update` by default. That recreates the stale staged-module
+regression path where a pending update can override a proven active module before
+reboot.
+
+Known-good active proof:
+
+```text
+classification=NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS
+active_blocker=NONE_WAYLAND_DISPLAY
+VKGETMEMORYFD_FAILURE_COUNT=0
+real_buffer_commits=2
+```
+
+Reject pending output if active reports the known-good proof above while pending
+reports the stale blocked signature:
+
+```text
+blocked_export
+blocked_real_buffer
+NEBULA_R6_EXPORT_A1_VULKAN_LOADER_PIN_CONFIRMED
+vkGetMemoryFdKHR failures=1199
+real_buffer_commits=0
+```
+
+Reversa command plans must use active-first dispatch. Pending-module inspection
+belongs in an explicit dry-check/probe lane with anti-regression comparison.
+
 If Wayland appears broken again, first verify the sidecar-14 dmabuf lane before
 patching source.
 

@@ -1,7 +1,7 @@
 {
   "name": "reversa",
   "version": "1.2.44",
-  "description": "Reverse-engineering evidence mapper for source trees, contradictions, and analysis",
+  "description": "AI evidence, contradiction, and guarded patch-intelligence engine for codebases, devices, runtimes, games, and agent workflows",
   "bin": {
     "reversa": "bin/reversa.js"
   },
@@ -19,8 +19,12 @@
     "windows",
     "evidence",
     "contradictions",
+    "patching",
+    "code-intelligence",
+    "runtime-analysis",
     "ai",
     "codex",
+    "claude",
     "agents"
   ],
   "files": [

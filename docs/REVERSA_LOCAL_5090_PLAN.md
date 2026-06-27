@@ -68,6 +68,23 @@ cp runtime.env.example runtime.env
 docker compose up
 ```
 
+Smoke endpoint defaults favor reliable startup over maximum context:
+
+- `REVERSA_VLLM_MAX_MODEL_LEN=8192`
+- `REVERSA_VLLM_GPU_MEMORY_UTILIZATION=0.85`
+- vLLM eager mode in `reversa-runtime/docker-compose.yml`
+
+First proof model used for endpoint bring-up:
+
+```bash
+REVERSA_VLLM_MODEL=Qwen/Qwen2.5-Coder-7B-Instruct \
+REVERSA_SERVED_MODEL=reversa-coder \
+docker compose -f reversa-runtime/docker-compose.yml up -d
+```
+
+Use the 30B-class target only after `/v1/models` and `agent eval` pass on the
+7B smoke model.
+
 The expected endpoint is:
 
 ```text
@@ -165,7 +182,7 @@ node scripts/build-agentic-training-pack.js \
 ```
 
 This pack is metadata/evidence only. It does not copy third-party source text.
-Reference-only and commercial-license lanes can train classifiers and policy
+Reference-only and commercial-license lanes can inform classifiers and policy
 recognition, but they must not feed copied implementation text into Reversa.
 
 ## 2026-06-27 Core Rebuild Result
@@ -203,3 +220,44 @@ Do not call Reversa "trained" until one of these is true:
 Preferred next step: build the held-out eval harness first. It is cheaper,
 reversible, and tells us whether the GPU model actually improves Reversa instead
 of just generating confident noise.
+
+Implemented first lane:
+
+```bash
+node ./bin/reversa.js agent eval \
+  --base-url http://127.0.0.1:8000/v1 \
+  --model Qwen/Qwen3-Coder-30B-A3B-Instruct \
+  --evidence-dir local/evidence/nebula \
+  --out local/evals/nebula-wayland
+```
+
+`agent eval` uses the local 5090-backed OpenAI-compatible endpoint as an
+advisory reasoning engine only. It scores bounded JSON answers against fixed
+expectations, writes metrics and evidence hashes, and leaves deterministic scan
+truth untouched until repeated evals prove value.
+
+Eval prompts now scope optional evidence by case. Command-wizard and policy
+guards do not inherit unrelated scan commands, and semantic policy claims such as
+`ask_before_destructive` can be accepted from equivalent safe prose while still
+recording the raw model output.
+
+Implemented patch-wizard lane:
+
+```bash
+node ./bin/reversa.js agent patch-wizard \
+  --scan-out /path/to/reversa-scan \
+  --candidate <patch_candidate_id> \
+  --project-root /path/to/source-tree \
+  --out local/patch-wizards/<run-id>
+```
+
+This is the professional patch bridge: scan evidence and patch candidates become
+reviewable patch dossiers with target hashes, edit groups, verification commands,
+rollback notes, and stop conditions. It is still proposal-only. The 5090 model
+can later help rank or draft diffs after `agent eval` passes, but deterministic
+Reversa evidence remains the source of truth.
+
+When the operator supplies exact `--find-text` and `--replace-text` values,
+patch-wizard can also write a review-only `patch.diff`. It records the target
+hash first and does not edit source files, so literal fixes are inspectable
+before any human-approved apply step.

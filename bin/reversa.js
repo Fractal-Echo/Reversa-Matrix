@@ -32,13 +32,15 @@ if (!command || command === '--help' || command === '-h') {
 
   reversa v${pkg.version}
 
+  AI evidence, contradiction, and guarded patch-intelligence engine.
+
   Usage: npx reversa <command>
 
   Commands:
     scan               Scan a source tree and generate structured evidence
     compare            Compare two trees and classify differences
     gui                Generate a local dashboard for scan/compare results
-    agent              Run local agent doctor/models/memory/report scaffolding
+    agent              Run local agent doctor/models/eval/memory/patch scaffolding
     install            Install compatibility agent workflow files
     update             Update installed compatibility agents
     status             Show current compatibility analysis state

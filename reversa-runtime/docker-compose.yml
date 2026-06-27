@@ -16,6 +16,11 @@ services:
       - "${REVERSA_VLLM_MODEL:-Qwen/Qwen3-Coder-30B-A3B-Instruct}"
       - "--served-model-name"
       - "${REVERSA_SERVED_MODEL:-reversa-coder}"
+      - "--max-model-len"
+      - "${REVERSA_VLLM_MAX_MODEL_LEN:-8192}"
+      - "--gpu-memory-utilization"
+      - "${REVERSA_VLLM_GPU_MEMORY_UTILIZATION:-0.85}"
+      - "--enforce-eager"
     deploy:
       resources:
         reservations:
