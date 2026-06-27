@@ -15,7 +15,7 @@ Newer lower run:
 NEBULA_R6_A1E_BASELINE_SIGBUS_CONFIRMED
 Xserver ready=no
 Xwayland SIGBUS stayed fatal
-sidecar-13
+A1E used sidecar-13 instead of sidecar-14
 shm preload
 keepalive child
 GLX skipped

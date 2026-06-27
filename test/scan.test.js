@@ -515,6 +515,30 @@ test('known good frontier profile detects A1E below older raw frontier', async (
   );
 });
 
+test('known good frontier profile ignores historical sidecar-13 notes', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-known-good-historical-sidecar-'));
+  await writeFile(join(root, 'result.md'), [
+    'NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS',
+    'NONE_WAYLAND_DISPLAY',
+    'real_buffer_commits=2',
+    'vkGetMemoryFdKHR_failures=0',
+    'sidecar-14',
+    'sidecar-06',
+    '',
+    'Sidecar-13 is historical promotion evidence, not default behavior.',
+    'Do not treat sidecar-13 as proof that Steam is ready.',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'known_good_frontier',
+  });
+
+  assertEvidence(report, 'known_good_frontier', 'known_good_frontier.raw.classification=NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS');
+  assertNoEvidence(report, ['frontier_regression_marker'], 'frontier.lower.gamescope_sidecar=sidecar-13');
+  assert(!report.contradictions.some(item => item.category === 'known_good_frontier_guard'));
+});
+
 test('known good frontier profile rejects invalid A1 export proof', async () => {
   const report = await scanProject({
     projectRoot: knownGoodFrontierA1InvalidFixture,
