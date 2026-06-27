@@ -127,6 +127,15 @@ node ./bin/reversa.js scan \
   --out reversa_game_out
 ```
 
+Scan a Claude/Codex/agent tooling tree:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root ./test/fixtures/agentic-toolchain \
+  --profile agentic_toolchain \
+  --out reversa_agentic_out
+```
+
 Open a dashboard for any scan output:
 
 ```bash
@@ -213,6 +222,7 @@ See:
 
 ```text
 generic_source_tree
+agentic_toolchain
 android_recovery
 orangefox
 twrp

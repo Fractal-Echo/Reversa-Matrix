@@ -1,0 +1,8 @@
+{
+  "allowedTools": ["Read", "Grep", "Glob"],
+  "permissions": {
+    "defaultMode": "read-only",
+    "deny": ["rm", "fastboot flash", "adb reboot"]
+  }
+}
+

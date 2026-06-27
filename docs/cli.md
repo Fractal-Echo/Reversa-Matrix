@@ -121,6 +121,7 @@ node ./bin/reversa.js scan --profiles
 Current practical profiles include:
 
 - `generic_source_tree`
+- `agentic_toolchain`
 - `android_recovery`
 - `orangefox`
 - `twrp`
@@ -137,6 +138,23 @@ Current practical profiles include:
 - `rm11pro_gaming_runtime`
 
 Game and graphics-runtime profiles classify evidence for wrappers, frame timing, render hook surfaces, texture injection, HDR, API translation, Vulkan loader state, and mobile Linux runtime assumptions.
+
+The `agentic_toolchain` profile classifies Claude/Codex-style instruction
+files, skills, hooks, permissions, provider routing, memory/context injection,
+subagent orchestration, worktree isolation, MCP/plugin surfaces, attribution
+requirements, and proprietary-source import risk.
+
+To distill scanned upstreams into a license-clean training/review pack:
+
+```bash
+node scripts/build-agentic-training-pack.js \
+  --manifest docs/upstreams/claude-code-matrix/source-sync.json \
+  --out /path/to/training-pack
+```
+
+The pack is metadata/evidence only. It records source URL, commit, import
+stance, license evidence, scan counts, evidence-category weights, and GPU proof
+when `nvidia-smi` is available. It does not copy third-party source text.
 
 ---
 

@@ -1,0 +1,115 @@
+{
+  "generated_at": "2026-06-26",
+  "target": {
+    "repo": "Fractal-Echo/claude-code-matrix",
+    "url": "https://github.com/Fractal-Echo/claude-code-matrix",
+    "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix",
+    "default_branch": "main",
+    "license": "MIT",
+    "fork_parent": "Alishahryar1/free-claude-code",
+    "naming_note": "User-linked target is claude-code-matrix; claude-codex-matrix was a typo and does not exist under Fractal-Echo."
+  },
+  "local_cache_root": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26",
+  "reversa_profile": "agentic_toolchain",
+  "sources": [
+    {
+      "repo": "shanraisshan/claude-code-best-practice",
+      "url": "https://github.com/shanraisshan/claude-code-best-practice",
+      "default_branch": "main",
+      "commit": "d3560b123a31a0fb84ce6b7d41fe9bc0fec84d62",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/repos/shanraisshan__claude-code-best-practice",
+      "reversa_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/reversa/shanraisshan__claude-code-best-practice",
+      "license_evidence": "MIT LICENSE in repo root",
+      "import_stance": "selective_adapt_with_attribution",
+      "recommended_goodies": ["Claude settings shape", "skill docs", "hook/event checklist", "subagent workflow notes"]
+    },
+    {
+      "repo": "ChinaSiro/claude-code-sourcemap",
+      "url": "https://github.com/ChinaSiro/claude-code-sourcemap",
+      "default_branch": "main",
+      "commit": "a8a678cb6244e6770e1e421767ff0987a1d95549",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/repos/ChinaSiro__claude-code-sourcemap",
+      "reversa_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/reversa/ChinaSiro__claude-code-sourcemap",
+      "license_evidence": "GitHub license metadata NOASSERTION; package LICENSE says Anthropic all rights reserved/legal terms",
+      "import_stance": "reference_only_no_copy",
+      "recommended_goodies": ["sourcemap provenance detection", "restored-source contamination warning"]
+    },
+    {
+      "repo": "luongnv89/claude-howto",
+      "url": "https://github.com/luongnv89/claude-howto",
+      "default_branch": "main",
+      "commit": "6b9ce6463f96d5556a0f3c92aaaf80123ec42100",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/repos/luongnv89__claude-howto",
+      "reversa_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/reversa/luongnv89__claude-howto",
+      "license_evidence": "MIT LICENSE in repo root",
+      "import_stance": "selective_adapt_with_attribution",
+      "recommended_goodies": ["beginner guide structure", "slash command docs", "subagent examples", "hook examples", "plugin docs"]
+    },
+    {
+      "repo": "ComposioHQ/awesome-claude-skills",
+      "url": "https://github.com/ComposioHQ/awesome-claude-skills",
+      "default_branch": "master",
+      "commit": "92568c1edaff1bde5371154f036d959346c145a8",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/repos/ComposioHQ__awesome-claude-skills",
+      "reversa_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/reversa/ComposioHQ__awesome-claude-skills",
+      "license_evidence": "GitHub license metadata NOASSERTION; selected folders have Apache-2.0 LICENSE.txt",
+      "import_stance": "per_folder_allowlist_only",
+      "recommended_goodies": ["skill taxonomy", "skill packaging checks", "MCP builder concepts"]
+    },
+    {
+      "repo": "anthropics/claude-cookbooks",
+      "url": "https://github.com/anthropics/claude-cookbooks",
+      "default_branch": "main",
+      "commit": "34022c55c1fde7056280e01b84f562cb92575cb5",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/repos/anthropics__claude-cookbooks",
+      "reversa_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/reversa/anthropics__claude-cookbooks",
+      "license_evidence": "MIT LICENSE in repo root",
+      "import_stance": "selective_adapt_with_attribution",
+      "recommended_goodies": ["cookbook audit rubric", "CI review command ideas", "managed-agent examples"]
+    },
+    {
+      "repo": "shareAI-lab/learn-claude-code",
+      "url": "https://github.com/shareAI-lab/learn-claude-code",
+      "default_branch": "main",
+      "commit": "a9cafe953aa714f9cb1171f217d96bd2734bbcc7",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/repos/shareAI-lab__learn-claude-code",
+      "reversa_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/reversa/shareAI-lab__learn-claude-code",
+      "license_evidence": "MIT LICENSE in repo root",
+      "import_stance": "concept_adapt_with_attribution",
+      "recommended_goodies": ["skill loading", "memory overview", "agent teams", "worktree task isolation"]
+    },
+    {
+      "repo": "claude-code-best/claude-code",
+      "url": "https://github.com/claude-code-best/claude-code",
+      "default_branch": "main",
+      "commit": "8246ffa3929d90231cc3059e094c82755169373e",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/repos/claude-code-best__claude-code",
+      "reversa_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/reversa/claude-code-best__claude-code",
+      "license_evidence": "GitHub license metadata NOASSERTION; no root license detected in local scan",
+      "import_stance": "reference_only_no_copy",
+      "recommended_goodies": ["idea radar only; cross-check against licensed or official sources before implementation"]
+    },
+    {
+      "repo": "thedotmack/claude-mem",
+      "url": "https://github.com/thedotmack/claude-mem",
+      "default_branch": "main",
+      "commit": "3fe0725a97e18b5edf3e61cde60e181ab2b6c997",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/repos/thedotmack__claude-mem",
+      "reversa_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/reversa/thedotmack__claude-mem",
+      "license_evidence": "Apache-2.0 LICENSE plus NOTICE in repo root",
+      "import_stance": "selective_adapt_with_notice_preservation",
+      "recommended_goodies": ["persistent context architecture", "hook lifecycle", "memory/search boundary", "graceful degradation"]
+    },
+    {
+      "repo": "anthropics/claude-code",
+      "url": "https://github.com/anthropics/claude-code",
+      "default_branch": "main",
+      "commit": "01f1617f14452ac78bf319cef2236d87c0fe05cb",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/repos/anthropics__claude-code",
+      "reversa_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/reversa/anthropics__claude-code",
+      "license_evidence": "Custom Anthropic commercial terms in LICENSE.md",
+      "import_stance": "compatibility_reference_only_no_vendor",
+      "recommended_goodies": ["official plugin layout", "settings examples", "hook validator idea", "security guidance pattern"]
+    }
+  ]
+}

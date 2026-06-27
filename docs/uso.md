@@ -23,6 +23,7 @@ node ./bin/reversa.js scan --profiles
 Current practical profiles include:
 
 - `generic_source_tree`
+- `agentic_toolchain`
 - `android_recovery`
 - `orangefox`
 - `twrp`
@@ -65,7 +66,24 @@ The scanner is read-only against `/path/to/source/tree`.
 
 ---
 
-## 3. Try A Game Runtime Scan
+## 3. Try An Agentic Toolchain Scan
+
+Use this profile for Claude/Codex-style repos, skills, hooks, plugins, memory,
+provider routing, and source-ingestion audits:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root ./test/fixtures/agentic-toolchain \
+  --profile agentic_toolchain \
+  --out reversa_agentic_out
+```
+
+This profile flags import boundaries such as `NOASSERTION`, restored
+sourcemap source, custom commercial terms, and missing attribution lanes.
+
+---
+
+## 4. Try A Game Runtime Scan
 
 The repository includes a small fixture for game/runtime bring-up:
 
@@ -80,7 +98,7 @@ Use this to verify that render hook, frame timing, texture injection, HDR, API t
 
 ---
 
-## 4. Open The Dashboard
+## 5. Open The Dashboard
 
 ```bash
 node ./bin/reversa.js gui --out reversa_out
@@ -90,7 +108,7 @@ Open the printed `file://` URL. The dashboard lets you browse findings, contradi
 
 ---
 
-## 5. Compare Trees
+## 6. Compare Trees
 
 Use compare mode when you have a current tree and a reference tree:
 
@@ -107,7 +125,7 @@ Compare mode classifies differences and import candidates. It does not copy file
 
 ---
 
-## 6. Hand Off To Codex
+## 7. Hand Off To Codex
 
 Give the next agent these files first:
 

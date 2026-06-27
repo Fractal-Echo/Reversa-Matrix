@@ -18,6 +18,7 @@ const repoRoot = resolve(__dirname, '..');
 const currentFixture = join(repoRoot, 'test/fixtures/android-recovery-current');
 const referenceFixture = join(repoRoot, 'test/fixtures/android-recovery-reference');
 const bo3Fixture = join(repoRoot, 'test/fixtures/bo3-runtime-diagnostics');
+const agenticFixture = join(repoRoot, 'test/fixtures/agentic-toolchain');
 const knownGoodPath = join(repoRoot, 'examples/known_good_rm11pro_nx809j.json');
 
 async function loadKnownGood() {
@@ -123,6 +124,32 @@ test('render enhancement profiles detect plugin and RM11Pro runtime surfaces', a
 
   const mobileValidation = validateScanReport(mobileReport);
   assert.equal(mobileValidation.valid, true, mobileValidation.errors.join('\n'));
+});
+
+test('agentic toolchain profile detects skills, hooks, memory, providers, and import risk', async () => {
+  const report = await scanProject({
+    projectRoot: agenticFixture,
+    profile: 'agentic_toolchain',
+  });
+
+  assert.equal(report.scan.profile, 'agentic_toolchain');
+  assertEvidence(report, 'agent_instruction_surface', 'agent_instruction_file:AGENTS.md');
+  assertEvidence(report, 'agent_skill_contracts', 'skill_contract_file:.claude/skills/reversa-audit/SKILL.md');
+  assertEvidence(report, 'hook_lifecycle_policy', 'hook_policy_file:.claude/hooks/hooks.json');
+  assertEvidence(report, 'permission_safety_policy', 'settings_policy_file:.claude/settings.json');
+  assertEvidence(report, 'memory_context_injection', 'MEMORY_ROOT=.reversa/memory');
+  assertEvidence(report, 'provider_routing_surface', 'ANTHROPIC_API_KEY=example-redacted');
+  assertEvidence(report, 'subagent_orchestration', 'subagent_orchestration:Subagent workers');
+  assertEvidence(report, 'worktree_isolation', 'worktree_isolation:Worktree task isolation');
+  assertEvidence(report, 'mcp_plugin_surface', 'MCP_SERVER=reversa-local');
+  assertEvidence(report, 'proprietary_source_risk', 'proprietary_source_risk:The package includes cli.js.map');
+  assertEvidence(report, 'attribution_license_surface', 'attribution_license_surface:Patterns adapted from MIT License');
+
+  assert(report.commands_to_run.some(command => command.includes('SKILL.md')));
+  assert(report.commands_to_run.some(command => command.includes('sourcemap')));
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
 });
 
 test('scan report schema is complete and agent handoff files are written', async () => {
