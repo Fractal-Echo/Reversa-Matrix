@@ -841,6 +841,7 @@ test('gpu upscale framegen profile treats generated scans and training artifacts
   await mkdir(join(root, 'src'), { recursive: true });
   await mkdir(join(root, 'local', 'scans', 'run-01'), { recursive: true });
   await mkdir(join(root, 'local', 'agentic-training-pack-gpu'), { recursive: true });
+  await mkdir(join(root, 'nebula-assets', 'reversa-datasets', 'gpu'), { recursive: true });
   await writeFile(join(root, 'src', 'runtime.md'), [
     'ModelPath=models/source-model.pth',
     'Backend proof: nvidia-smi OK; torch.cuda.is_available()=true; CUDA runtime 12.8; driver version 575; backend PyTorch CUDA.',
@@ -848,6 +849,7 @@ test('gpu upscale framegen profile treats generated scans and training artifacts
   await writeFile(join(root, 'local', 'scans', 'run-01', 'report.json'), '{"text":"ModelPath=models/generated-model.pth"}', 'utf8');
   await writeFile(join(root, 'local', 'scans', 'run-01', 'dashboard.html'), '<p>5090 CUDA generated echo</p>', 'utf8');
   await writeFile(join(root, 'local', 'agentic-training-pack-gpu', 'agentic-training-pack.jsonl'), '{"text":"TargetExe=Generated.exe FileOffset=0x99"}\n', 'utf8');
+  await writeFile(join(root, 'nebula-assets', 'reversa-datasets', 'gpu', 'gpu-upscale-framegen-train.jsonl'), '{"text":"ModelPath=models/dataset-model.pth"}\n', 'utf8');
 
   const report = await scanProject({
     projectRoot: root,
@@ -856,10 +858,13 @@ test('gpu upscale framegen profile treats generated scans and training artifacts
 
   assertEvidence(report, 'gpu_model_assets', 'MODEL_ASSET_PRESENT');
   assertEvidence(report, 'generated_evidence_boundary', 'GENERATED_EVIDENCE:local/scans');
+  assertEvidence(report, 'generated_evidence_boundary', 'GENERATED_EVIDENCE:nebula-assets/reversa-datasets');
   assertEvidence(report, 'generated_evidence_boundary', 'TRAINING_EVAL_ARTIFACT:local/agentic-training-pack-gpu');
   assertEvidence(report, 'generated_evidence_boundary', 'NOT_SOURCE_AUTHORITY:local/scans');
+  assertEvidence(report, 'generated_evidence_boundary', 'NOT_SOURCE_AUTHORITY:nebula-assets/reversa-datasets');
   assertEvidence(report, 'generated_evidence_boundary', 'NOT_SOURCE_AUTHORITY:local/agentic-training-pack-gpu');
   assertNoExtractedText(report, 'generated-model.pth');
+  assertNoExtractedText(report, 'dataset-model.pth');
   assertNoExtractedText(report, 'Generated.exe');
 
   const validation = validateScanReport(report);

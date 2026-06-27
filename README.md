@@ -195,6 +195,19 @@ Open a dashboard for any scan output:
 node ./bin/reversa.js gui --out reversa_game_out
 ```
 
+Build the local GPU upscale/frame-generation advisory dataset:
+
+```bash
+node ./bin/reversa.js dataset gpu-upscale-framegen \
+  --cupscale-scan /path/to/cupscale-scan \
+  --flowframes-scan /path/to/flowframes-scan \
+  --hf-index /path/to/HF_MODEL_METADATA_INDEX.tsv \
+  --out /path/to/gpu-advisory-dataset
+```
+
+The dataset builder writes JSONL splits and summaries. It does not download
+model weights, launch runtimes, patch binaries, or mutate scanned projects.
+
 Compare two trees:
 
 ```bash
