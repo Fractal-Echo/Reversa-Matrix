@@ -11,7 +11,8 @@ Digite `reversa` para ativar o Reversa e iniciar ou retomar a análise do projet
 Quando o usuário digitar `reversa` sozinho em uma mensagem:
 
 1. Ative o skill `reversa` disponível em `.agents/skills/reversa/SKILL.md`
-2. Leia o SKILL.md na íntegra e siga exatamente as instruções do Reversa
+2. Se existir, leia também `.reversa/patterns/CLAUDE_CODEX_REVERSA_PATTERNS.md`
+3. Leia o SKILL.md na íntegra e siga exatamente as instruções do Reversa
 
 ## Regra não-negociável
 

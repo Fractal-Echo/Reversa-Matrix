@@ -12,7 +12,8 @@ Quando o usuário digitar `/reversa` ou a palavra `reversa` sozinha em uma mensa
 
 1. Ative o skill `reversa` disponível em `.claude/skills/reversa/SKILL.md`
 2. Se não encontrar em `.claude/skills/`, tente `.agents/skills/reversa/SKILL.md`
-3. Leia o SKILL.md na íntegra e siga exatamente as instruções do Reversa
+3. Se existir, leia também `.reversa/patterns/CLAUDE_CODEX_REVERSA_PATTERNS.md`
+4. Leia o SKILL.md na íntegra e siga exatamente as instruções do Reversa
 
 ## Regra não-negociável
 

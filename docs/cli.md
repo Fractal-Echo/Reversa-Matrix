@@ -110,6 +110,23 @@ Dashboard sections include:
 
 ---
 
+### `patterns`
+
+```bash
+node ./bin/reversa.js patterns --list
+node ./bin/reversa.js patterns --pattern claude-codex
+node ./bin/reversa.js patterns --pattern claude-codex --out CLAUDE_CODEX_REVERSA_PATTERNS.md
+```
+
+Prints or writes reusable Reversa pattern templates. Use this when another
+project needs the same instruction, hook, skill, memory, provider, subagent,
+worktree, and attribution checklist without copying it by hand.
+
+When `claude-code` or `codex` engines are installed, Reversa also manages this
+pattern under `.reversa/patterns/CLAUDE_CODEX_REVERSA_PATTERNS.md`.
+
+---
+
 ## Profiles
 
 List the profiles supported by the current build:
@@ -158,6 +175,13 @@ when `nvidia-smi` is available. It does not copy third-party source text.
 
 For a reusable Claude/Codex/Reversa checklist, see
 `templates/engines/CLAUDE_CODEX_REVERSA_PATTERNS.md`.
+
+Print or write that reusable checklist from the CLI:
+
+```bash
+node ./bin/reversa.js patterns --pattern claude-codex
+node ./bin/reversa.js patterns --pattern claude-codex --out CLAUDE_CODEX_REVERSA_PATTERNS.md
+```
 
 ---
 

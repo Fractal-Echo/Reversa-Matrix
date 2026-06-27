@@ -22,6 +22,7 @@ const commands = {
   uninstall:          () => import('../lib/commands/uninstall.js'),
   'add-agent':        () => import('../lib/commands/add-agent.js'),
   'add-engine':       () => import('../lib/commands/add-engine.js'),
+  patterns:           () => import('../lib/commands/patterns.js'),
   'export-diagrams':  () => import('../lib/commands/export-diagrams.js'),
 };
 
@@ -44,6 +45,7 @@ if (!command || command === '--help' || command === '-h') {
     uninstall          Remove Reversa-created files from a project
     add-agent          Add a compatibility agent
     add-engine         Add engine support
+    patterns           Print or write reusable Reversa pattern templates
     export-diagrams    Export Mermaid diagrams as SVG/PNG images
                        Options: --format=svg|png  --output=<folder>
                        Requires: npm install -g @mermaid-js/mermaid-cli

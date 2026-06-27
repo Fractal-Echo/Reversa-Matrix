@@ -244,6 +244,13 @@ Use `generic_source_tree` when you are not sure which profile fits yet.
 For Claude/Codex-style projects, pair `agentic_toolchain` scans with
 `templates/engines/CLAUDE_CODEX_REVERSA_PATTERNS.md`.
 
+Print or write that reusable checklist from the CLI:
+
+```bash
+node ./bin/reversa.js patterns --pattern claude-codex
+node ./bin/reversa.js patterns --pattern claude-codex --out CLAUDE_CODEX_REVERSA_PATTERNS.md
+```
+
 ---
 
 ## Reversa-Matrix Console Preview

@@ -9,6 +9,8 @@ import { fileURLToPath } from 'url';
 import { compareProjects, writeCompareOutputs } from '../lib/scan/compare.js';
 import guiCommand from '../lib/commands/gui.js';
 import { generateDashboard } from '../lib/gui/dashboard.js';
+import { ENGINES } from '../lib/installer/detector.js';
+import { Writer } from '../lib/installer/writer.js';
 import { scanProject } from '../lib/scan/scanner.js';
 import { validateScanReport } from '../lib/scan/schema.js';
 import { writeScanOutputs } from '../lib/scan/writers.js';
@@ -50,6 +52,74 @@ test('scanner detects placeholders, suspicious paths, missing paths, and Android
   assertEvidence(report, 'keymaster_keymint_gatekeeper_decrypt_dependencies', 'qsee');
   assertEvidence(report, 'fstab_entries', 'fstab:/dev/block/sda17->/metadata');
   assertEvidence(report, 'vendor_blobs', 'vendor_blob:vendor/lib64/libmissing_keymint.so');
+});
+
+test('scanner keeps real task markers but ignores template placeholder examples', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-placeholder-examples-'));
+  await writeFile(join(root, 'template.md'), [
+    '- [ ] Q-010 | Cobertura | Todo Requisito Funcional tem pelo menos um cenario Gherkin',
+    '- AMB-XXX: <descricao curta>',
+    '- <RISK-XXX: ver risk_register.md>',
+    '- TODO: replace this with verified evidence',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'generic_source_tree',
+  });
+
+  assertEvidence(report, 'todo_fixme_stub_markers', 'placeholder_marker:TODO');
+  assertNoEvidence(report, ['placeholders', 'todo_fixme_stub_markers'], 'placeholder_marker:XXX');
+  assertNoEvidence(report, ['placeholders', 'todo_fixme_stub_markers'], 'placeholder_marker:TODO Requisito');
+});
+
+test('scanner avoids comment and profile false positives for fstab-like code lines', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-fstab-comments-'));
+  await writeFile(join(root, 'script.js'), [
+    '// Sanitize path before passing it to the renderer',
+    '/* /dev/block/by-name/system /system ext4 ro */',
+    '* /dev/block/by-name/vendor /vendor ext4 ro',
+    '/dev/block/by-name/system /system ext4 ro',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'fstab.qcom'), [
+    '# /dev/block/by-name/metadata /metadata ext4 noatime',
+    '/dev/block/by-name/userdata /data f2fs rw',
+  ].join('\n'), 'utf8');
+
+  const genericReport = await scanProject({
+    projectRoot: root,
+    profile: 'generic_source_tree',
+  });
+  assertNoEvidence(genericReport, ['fstab_entries'], 'fstab:/dev/block/by-name/system->/system');
+  assertEvidence(genericReport, 'fstab_entries', 'fstab:/dev/block/by-name/userdata->/data');
+
+  const recoveryReport = await scanProject({
+    projectRoot: root,
+    profile: 'android_recovery',
+  });
+  assertEvidence(recoveryReport, 'fstab_entries', 'fstab:/dev/block/by-name/system->/system');
+  assertNoEvidence(recoveryReport, ['fstab_entries'], 'fstab://->Sanitize');
+  assertNoEvidence(recoveryReport, ['fstab_entries'], 'fstab:/*->/dev/block/by-name/system');
+});
+
+test('scanner skips root-level generated scan artifacts', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-root-artifacts-'));
+  await writeFile(join(root, 'report.json'), '{"tool":"reversa"}\n', 'utf8');
+  await writeFile(join(root, 'evidence.jsonl'), 'MODEL=old\nMODEL=new\n', 'utf8');
+  await writeFile(join(root, 'summary.md'), 'MODEL=old\nMODEL=new\n', 'utf8');
+  await writeFile(join(root, 'notes.md'), 'MODEL=kept\n', 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'agentic_toolchain',
+  });
+
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'report.json' && item.reason === 'generated_scan_artifact'));
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'evidence.jsonl' && item.reason === 'generated_scan_artifact'));
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'summary.md' && item.reason === 'generated_scan_artifact'));
+  assertEvidence(report, 'provider_routing_surface', 'MODEL=kept');
+  assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=old');
+  assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=new');
 });
 
 test('scanner generates known-good mismatches, contradictions, and patch candidates', async () => {
@@ -152,6 +222,81 @@ test('agentic toolchain profile detects skills, hooks, memory, providers, and im
   assert.equal(validation.valid, true, validation.errors.join('\n'));
 });
 
+test('scanner downgrades local code assignments so they do not create contradictions', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-local-assignments-'));
+  await writeFile(join(root, 'script.py'), [
+    'events = []',
+    'current = None',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'other.js'), [
+    'events = {}',
+    'current = null',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'config.env'), 'MODEL=example\n', 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'agentic_toolchain',
+  });
+
+  assertEvidence(report, 'local_code_assignments', 'events=[]');
+  assertEvidence(report, 'local_code_assignments', 'current=None');
+  assertEvidence(report, 'provider_routing_surface', 'MODEL=example');
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for events')),
+    'local code variables should not create definition contradictions'
+  );
+});
+
+test('scanner downgrades lowercase code assignments even when keys look like provider/plugin settings', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-template-code-'));
+  const templateDir = join(root, 'templates');
+  await mkdir(templateDir);
+  await writeFile(join(templateDir, 'effect.py'), [
+    'model = "slack"',
+    'provider = "local"',
+    'plugin = "gif-maker"',
+    'frame_width = 512',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'generic_source_tree',
+  });
+
+  assertEvidence(report, 'local_code_assignments', 'model=slack');
+  assertEvidence(report, 'local_code_assignments', 'provider=local');
+  assertEvidence(report, 'local_code_assignments', 'plugin=gif-maker');
+  assertEvidence(report, 'local_code_assignments', 'frame_width=512');
+  assertNoEvidence(report, ['provider_routing_surface'], 'model=slack');
+  assertNoEvidence(report, ['mcp_plugin_surface'], 'plugin=gif-maker');
+});
+
+test('scanner scopes sectioned config assignments before contradiction grouping', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-sectioned-config-'));
+  await writeFile(join(root, 'config.toml'), [
+    '[agents]',
+    'installed = [',
+    '  "reversa-scout"',
+    ']',
+    '',
+    '[engines]',
+    'installed = []',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'agentic_toolchain',
+  });
+
+  assertEvidence(report, 'build_variables', 'agents.installed=[');
+  assertEvidence(report, 'build_variables', 'engines.installed=[]');
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for installed')),
+    'same lowercase key in separate config sections should not conflict globally'
+  );
+});
+
 test('scan report schema is complete and agent handoff files are written', async () => {
   const report = await scanCurrent();
   const validation = validateScanReport(report);
@@ -244,6 +389,76 @@ test('gui command help and missing output handling are clear', async () => {
     () => guiCommand(['--out', join(tmpdir(), 'reversa-missing-output-for-test')]),
     /Output directory does not exist/
   );
+});
+
+test('patterns command prints and writes Claude/Codex template', async () => {
+  const list = spawnSync(process.execPath, [join(repoRoot, 'bin/reversa.js'), 'patterns', '--list'], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(list.status, 0, list.stderr || list.stdout);
+  assert.match(list.stdout, /claude-codex/);
+
+  const print = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'patterns',
+    '--pattern',
+    'claude-codex',
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(print.status, 0, print.stderr || print.stdout);
+  assert.match(print.stdout, /Claude\/Codex\/Reversa Patterns/);
+
+  const outDir = await mkdtemp(join(tmpdir(), 'reversa-pattern-test-'));
+  const outFile = join(outDir, 'patterns.md');
+  const write = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'patterns',
+    '--pattern',
+    'claude-codex',
+    '--out',
+    outFile,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+  assert.equal(write.status, 0, write.stderr || write.stdout);
+
+  const contents = await readFile(outFile, 'utf8');
+  assert.match(contents, /Claude\/Codex\/Reversa Patterns/);
+});
+
+test('writer installs Claude/Codex support patterns as managed files', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-support-files-'));
+  const writer = new Writer(root);
+  const claude = ENGINES.find(engine => engine.id === 'claude-code');
+  const codex = ENGINES.find(engine => engine.id === 'codex');
+  assert(claude);
+  assert(codex);
+
+  const seen = new Set();
+  await writer.installSupportFiles(claude, { seen });
+  await writer.installSupportFiles(codex, { seen });
+
+  const relPath = '.reversa/patterns/CLAUDE_CODEX_REVERSA_PATTERNS.md';
+  const installedPath = join(root, relPath);
+  assert(existsSync(installedPath));
+  assert(writer.manifestPaths.includes(relPath));
+  assert(writer.createdFiles.includes(relPath));
+
+  const contents = await readFile(installedPath, 'utf8');
+  assert.match(contents, /Claude\/Codex\/Reversa Patterns/);
+
+  await writeFile(installedPath, 'user edit\n', 'utf8');
+  const updateWriter = new Writer(root);
+  await updateWriter.installSupportFiles(claude, {
+    force: true,
+    modifiedSet: new Set([relPath]),
+    manifest: { [relPath]: 'old-hash' },
+  });
+  assert.equal(await readFile(installedPath, 'utf8'), 'user edit\n');
 });
 
 test('gui dashboard is generated from valid scan output', async () => {
