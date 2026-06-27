@@ -23,6 +23,7 @@ const bo3Fixture = join(repoRoot, 'test/fixtures/bo3-runtime-diagnostics');
 const pcgwFixture = join(repoRoot, 'test/fixtures/pcgamingwiki-runtime');
 const agenticFixture = join(repoRoot, 'test/fixtures/agentic-toolchain');
 const agenticGatewayFixture = join(repoRoot, 'test/fixtures/agentic-gateway');
+const semanticPolicyFixture = join(repoRoot, 'test/fixtures/semantic-policy');
 const knownGoodPath = join(repoRoot, 'examples/known_good_rm11pro_nx809j.json');
 
 async function loadKnownGood() {
@@ -446,6 +447,76 @@ test('agentic gateway profile detects provider, launcher, protocol, smoke, and s
     report.commands_to_run.some(command => command.includes('ProviderDescriptor')),
     'gateway profile should include provider catalog validation commands'
   );
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('semantic policy profile emits normalized claims and contradictions', async () => {
+  const report = await scanProject({
+    projectRoot: semanticPolicyFixture,
+    profile: 'semantic_policy',
+  });
+
+  assert.equal(report.scan.profile, 'semantic_policy');
+  assertEvidence(report, 'read_only', 'semantic_policy.read_only.workspace=read_only');
+  assertEvidence(report, 'write_allowed', 'semantic_policy.write_allowed.workspace=writes_allowed');
+  assertEvidence(report, 'approval_required', 'semantic_policy.approval_required.approval=required');
+  assertEvidence(report, 'approval_bypass', 'semantic_policy.approval_bypass.approval=bypassed');
+  assertEvidence(report, 'device_action_forbidden', 'semantic_policy.device_action_forbidden.device=device_actions_forbidden');
+  assertEvidence(report, 'device_action_allowed', 'semantic_policy.device_action_allowed.device=device_actions_allowed');
+  assertEvidence(report, 'network_forbidden', 'semantic_policy.network_forbidden.network=network_forbidden');
+  assertEvidence(report, 'network_allowed', 'semantic_policy.network_allowed.network=network_allowed');
+  assertEvidence(report, 'proprietary_reference_only', 'semantic_policy.proprietary_reference_only.proprietary_source=reference_only');
+  assertEvidence(report, 'source_authority', 'semantic_policy.source_authority.source=authoritative_or_vendored');
+  assertEvidence(report, 'memory_reference_only', 'semantic_policy.memory_reference_only.memory=reference_only');
+  assertEvidence(report, 'memory_authoritative', 'semantic_policy.memory_authoritative.memory=authoritative');
+  assertEvidence(report, 'sandbox_required', 'semantic_policy.sandbox_required.sandbox=required');
+  assertEvidence(report, 'sandbox_bypass', 'semantic_policy.sandbox_bypass.sandbox=bypassed');
+  assertEvidence(report, 'attribution_required', 'semantic_policy.attribution_required.attribution=required');
+  assertEvidence(report, 'attribution_missing', 'semantic_policy.attribution_missing.attribution=missing');
+  assertEvidence(report, 'stale_agent', 'semantic_policy.stale_agent.agent_lifecycle=stale_or_cleanup_required');
+  assertEvidence(report, 'active_agent', 'semantic_policy.active_agent.agent_lifecycle=active_or_retained');
+
+  assert(report.contradictions.some(item => item.title.includes('Read-only policy conflicts')));
+  assert(report.contradictions.some(item => item.title.includes('Approval-required policy conflicts')));
+  assert(report.contradictions.some(item => item.title.includes('Device-action ban conflicts')));
+  assert(report.contradictions.some(item => item.title.includes('Network ban conflicts')));
+  assert(report.contradictions.some(item => item.title.includes('Reference-only or do-not-copy policy conflicts')));
+  assert(report.contradictions.some(item => item.title.includes('Memory-reference-only policy conflicts')));
+  assert(report.contradictions.some(item => item.title.includes('Stale-agent cleanup policy conflicts')));
+  assert(report.contradictions.every(item => item.category !== 'semantic_policy_contradiction' || ['HIGH', 'MEDIUM'].includes(item.severity)));
+
+  assert(
+    report.evidence.some(item => item.category === 'read_only' && item.evidence_kind === 'instruction'),
+    'semantic evidence should carry evidence_kind metadata'
+  );
+  assertNoExtractedText(report, 'fenced-example.git');
+  assertNoExtractedText(report, 'fenced-example.apk');
+  assertNoExtractedText(report, 'bypassExample');
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('semantic policy profile skips generated root artifacts', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-semantic-generated-'));
+  await writeFile(join(root, 'report.json'), '{"generated":true,"text":"git clone https://example.invalid/generated.git"}', 'utf8');
+  await writeFile(join(root, 'evidence.jsonl'), '{"text":"adb install generated.apk"}\n', 'utf8');
+  await writeFile(join(root, 'summary.md'), 'No network. git clone https://example.invalid/generated-summary.git', 'utf8');
+  await writeFile(join(root, 'AGENTS.md'), 'No network access is allowed for this pass.', 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'semantic_policy',
+  });
+
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'report.json' && item.reason === 'generated_scan_artifact'));
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'evidence.jsonl' && item.reason === 'generated_scan_artifact'));
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'summary.md' && item.reason === 'generated_scan_artifact'));
+  assertNoExtractedText(report, 'generated.git');
+  assertNoExtractedText(report, 'generated.apk');
+  assertNoExtractedText(report, 'generated-summary.git');
 
   const validation = validateScanReport(report);
   assert.equal(validation.valid, true, validation.errors.join('\n'));
@@ -1131,5 +1202,12 @@ function assertNoEvidence(report, categories, claimIncludes) {
   assert(
     !report.evidence.some(item => categories.includes(item.category) && item.normalized_claim.includes(claimIncludes)),
     `expected no ${categories.join('/')} evidence including ${claimIncludes}`
+  );
+}
+
+function assertNoExtractedText(report, textIncludes) {
+  assert(
+    !report.evidence.some(item => item.extracted_text.includes(textIncludes)),
+    `expected no evidence extracted text including ${textIncludes}`
   );
 }

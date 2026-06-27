@@ -146,11 +146,14 @@ Current practical profiles include:
 - `generic_source_tree`
 - `agentic_toolchain`
 - `agentic_gateway`
+- `semantic_policy`
 - `windows_system`
+- `windows_compat`
 - `android_recovery`
 - `orangefox`
 - `twrp`
 - `android_kernel`
+- `kernel`
 - `gki_kernel`
 - `userspace_graphics`
 - `linux_container`
@@ -176,6 +179,26 @@ The `agentic_gateway` profile extends that lane for provider-gateway repos. It
 classifies provider catalogs, model routing, Anthropic Messages/OpenAI
 Responses adapters, Claude/Codex launcher env hygiene, admin config surfaces,
 smoke coverage, messaging bridges, and secret redaction.
+
+The `semantic_policy` profile extends the agentic lane with meaning-level
+policy checks. It normalizes claims such as `read_only`, `approval_required`,
+`approval_bypass`, `device_action_forbidden`, `network_allowed`,
+`commit_forbidden`, `push_allowed`, `proprietary_reference_only`,
+`attribution_missing`, `stale_agent`, and `active_agent`, then reports HIGH or
+MEDIUM contradictions when the claims collide. Markdown fenced examples,
+generated scan outputs, and local code string assignments are guarded so they
+do not become durable policy by accident.
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root ./test/fixtures/semantic-policy \
+  --profile semantic_policy \
+  --out reversa_policy_out
+```
+
+Use `windows_compat` when a sweep brief says "Windows compatibility"; it aliases
+`windows_system`. Use `kernel` when a sweep brief says "kernel"; it aliases
+`android_kernel`.
 
 To distill scanned upstreams into a license-clean training/review pack:
 

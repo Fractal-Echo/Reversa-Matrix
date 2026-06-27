@@ -63,6 +63,7 @@ nav:
   - Scanner Contract: enhanced-reversa.md
   - Configuration: configuracao.md
   - Agent And Engine Use: engines.md
+  - Semantic Policy Contradictions: semantic-policy-contradictions.md
   - Reversa Agent Runtime: REVERSA_AGENT_RUNTIME.md
   - RM11Pro Fast-Test Facts: RM11PRO_FAST_TEST_FACTS.md
   - Workspace Troubleshooting Facts: WORKSPACE_TROUBLESHOOTING_FACTS.md

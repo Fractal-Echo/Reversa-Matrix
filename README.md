@@ -149,6 +149,15 @@ node ./bin/reversa.js scan \
   --out reversa_gateway_out
 ```
 
+Scan agent instructions for semantic policy contradictions:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root ./test/fixtures/semantic-policy \
+  --profile semantic_policy \
+  --out reversa_policy_out
+```
+
 Open a dashboard for any scan output:
 
 ```bash
@@ -237,11 +246,14 @@ See:
 generic_source_tree
 agentic_toolchain
 agentic_gateway
+semantic_policy
 windows_system
+windows_compat
 android_recovery
 orangefox
 twrp
 android_kernel
+kernel
 gki_kernel
 userspace_graphics
 linux_container
@@ -264,6 +276,15 @@ For Claude/Codex-style projects, start with `agentic_toolchain`. Use
 launchers, Anthropic Messages/OpenAI Responses adapters, smoke matrices,
 messaging bridges, or secret-redaction code. Pair both with
 `templates/engines/CLAUDE_CODEX_REVERSA_PATTERNS.md`.
+
+Use `semantic_policy` when a repo has AGENTS/CLAUDE/SKILL files, memories,
+handoffs, hooks, or project docs that may disagree about approvals, destructive
+commands, device access, network access, source patching, commits, pushes,
+sandboxing, attribution, proprietary-source handling, or stale agents. It
+normalizes policy claims before comparing them, so "ask before destructive" and
+"skip approvals" become a clear contradiction instead of two loose keywords.
+`windows_compat` is an alias for `windows_system`; `kernel` is an alias for
+`android_kernel`.
 
 For PC game compatibility work, start with `pcgamingwiki_runtime` for game data,
 store/version, video, input, audio, network, API, middleware, Wine, Proton, and
