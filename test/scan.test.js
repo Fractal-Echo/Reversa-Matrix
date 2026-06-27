@@ -122,6 +122,114 @@ test('scanner skips root-level generated scan artifacts', async () => {
   assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=new');
 });
 
+test('scanner honors git ignored paths unless includeIgnored is set', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-gitignore-'));
+  const init = spawnSync('git', ['init'], {
+    cwd: root,
+    encoding: 'utf8',
+  });
+  assert.equal(init.status, 0, init.stderr || init.stdout);
+
+  await mkdir(join(root, 'local'));
+  await writeFile(join(root, '.gitignore'), 'local/\nreport.json\n', 'utf8');
+  await writeFile(join(root, 'local', 'scratch.env'), 'MODEL=ignored\n', 'utf8');
+  await writeFile(join(root, 'report.json'), '{"MODEL":"ignored-report"}\n', 'utf8');
+  await writeFile(join(root, 'live.env'), 'MODEL=live\n', 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'agentic_toolchain',
+  });
+
+  assert.equal(report.tree_inventory.ignore_policy.honor_gitignore, true);
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'local' && item.reason === 'git_ignored_directory'));
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'report.json' && item.reason === 'git_ignored_file'));
+  assertEvidence(report, 'provider_routing_surface', 'MODEL=live');
+  assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=ignored');
+
+  const forensicReport = await scanProject({
+    projectRoot: root,
+    profile: 'agentic_toolchain',
+    includeIgnored: true,
+  });
+
+  assert.equal(forensicReport.tree_inventory.ignore_policy.honor_gitignore, false);
+  assertEvidence(forensicReport, 'provider_routing_surface', 'MODEL=ignored');
+});
+
+test('scanner scopes fixtures and docs examples out of repo-root contradiction groups', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-source-scope-'));
+  await mkdir(join(root, 'test', 'fixtures'), { recursive: true });
+  await mkdir(join(root, 'agents', 'example', 'references'), { recursive: true });
+  await writeFile(join(root, 'live.env'), 'MODEL=live\nADB=/mnt/c/platform-tools/adb.exe NEBULA_ADB_MODEL=NX809J \\\n', 'utf8');
+  await writeFile(join(root, 'facts.env'), 'ADB=/mnt/c/platform-tools/adb.exe\n', 'utf8');
+  await writeFile(join(root, 'test', 'fixtures', 'fixture.env'), 'MODEL=fixture\nTARGET_BOARD_PLATFORM := sm8750\n', 'utf8');
+  await writeFile(join(root, 'agents', 'example', 'references', 'sizing.md'), 'S=0, M=1, L=2\nS=15, M=35\n', 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'agentic_toolchain',
+  });
+
+  assertEvidence(report, 'provider_routing_surface', 'MODEL=live');
+  assertEvidence(report, 'provider_routing_surface', 'MODEL=fixture');
+  assertEvidence(report, 'build_variables', 'ADB=/mnt/c/platform-tools/adb.exe');
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for MODEL')),
+    'fixture definitions should not conflict with live repo-root definitions'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for S')),
+    'agent reference formulas should not create repo-root definition contradictions'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for ADB')),
+    'shell-style env prefixes with the same first value should not conflict'
+  );
+
+  const fixtureReport = await scanProject({
+    projectRoot: join(root, 'test', 'fixtures'),
+    profile: 'agentic_toolchain',
+  });
+  assertEvidence(fixtureReport, 'provider_routing_surface', 'MODEL=fixture');
+});
+
+test('scanner keeps output filenames and prose compounds out of missing-path checks', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-output-paths-'));
+  await writeFile(join(root, 'agent.js'), [
+    "commandResults.push(await runCapture(options, 'device/getprop.txt', ['adb']));",
+    'The kernel/userland boundary matters.',
+    'A proprietary/commercial-term source is reference-only.',
+    'vendor/lib64/libmissing_keymint.so',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'agentic_toolchain',
+  });
+
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:device/getprop.txt');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:kernel/userland');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:proprietary/commercial-term');
+  assertEvidence(report, 'invalid_paths', 'referenced_path_missing:vendor/lib64/libmissing_keymint.so');
+});
+
+test('scanner does not derive missing-path contradictions from repo test assertions', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-test-paths-'));
+  await mkdir(join(root, 'test'), { recursive: true });
+  await writeFile(join(root, 'test', 'scan.test.js'), [
+    "assertEvidence(report, 'invalid_paths', 'referenced_path_missing:vendor/lib64/libmissing_keymint.so');",
+    "'vendor/lib64/libmissing_keymint.so',",
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'agentic_toolchain',
+  });
+
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:vendor/lib64/libmissing_keymint.so');
+});
+
 test('scanner generates known-good mismatches, contradictions, and patch candidates', async () => {
   const report = await scanCurrent();
 

@@ -74,6 +74,10 @@ npm test
 node ./bin/reversa.js scan --help
 ```
 
+Default scans honor git ignore rules so private scratch folders and generated
+outputs do not pollute live-source evidence. Add `--include-ignored` when you
+want a forensic sweep.
+
 Run the included Android recovery fixture:
 
 ```bash

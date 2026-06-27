@@ -50,8 +50,14 @@ Useful flags:
 | `--markdown` | Write `summary.md` |
 | `--agent-handoff` | Write handoff files for agents |
 | `--profiles` | List available profiles |
+| `--include-ignored` | Include files ignored by git exclude rules |
 
 If no output flags are passed, scan writes all primary formats.
+
+By default, scans honor git ignore rules so private scratch folders, generated
+outputs, and local experiments do not pollute live-source evidence. Use
+`--include-ignored` for forensic sweeps where ignored files are part of the
+question.
 
 ---
 
