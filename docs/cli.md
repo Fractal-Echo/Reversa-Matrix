@@ -126,15 +126,19 @@ Dashboard sections include:
 node ./bin/reversa.js studio export-fixtures \
   --dataset /path/to/gpu-advisory-dataset \
   --out ./reversa-studio/fixtures
+
+node ./bin/reversa.js studio gpu-proof \
+  --out /path/to/gpu-proof
 ```
 
 Exports small local JSON fixtures for the Reversa Studio prototype. Reversa
 Studio is an early local dashboard prototype for evidence, model metadata, and
 guarded workflow planning.
 
-The command reads local JSONL/TSV files and writes display fixtures. It does not
-acquire models, launch runtimes, patch binaries, connect to phones, or mutate
-projects.
+The fixture command reads local JSONL/TSV files and writes display fixtures.
+The GPU proof command records passive Nvidia/CUDA/Python/backend evidence.
+Neither command acquires models, launches runtimes, patches binaries, connects
+to phones, or mutates projects.
 
 ---
 

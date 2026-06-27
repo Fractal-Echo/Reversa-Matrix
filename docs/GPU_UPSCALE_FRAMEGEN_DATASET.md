@@ -7,6 +7,10 @@ negative examples.
 
 It is not a model-weight cache, runtime launcher, phone test, or patch applicator.
 
+Reversa Studio can capture local GPU proof and use it to rank advisory
+candidates. The local fit join never edits the original dataset; it writes
+generated evidence with `source_authority=false`.
+
 ## Record Schema
 
 Each JSONL row uses schema version 1:
@@ -113,3 +117,18 @@ Outputs:
 - `rejected-records.tsv`
 
 The split is deterministic and based on the record hash.
+
+## Local Fit Join
+
+Use a captured proof file to rank advisory rows:
+
+```bash
+node scripts/join-gpu-proof-with-advisory.js \
+  --proof /path/to/gpu-proof.json \
+  --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
+  --out /path/to/local-fit
+```
+
+The join classifies rows as local candidates, possible CUDA candidates, license
+blocked, backend unknown, Linux/Proton unproven, or not GPU relevant. It does not
+acquire model artifacts or run any model pipeline.

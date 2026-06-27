@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "generated_fixture": true,
+  "source_authority": false,
+  "timestamp": "fixture",
+  "host": "sample-host",
+  "gpu": {
+    "nvidia_smi_available": false,
+    "name": "unknown",
+    "driver_version": "unknown",
+    "cuda_version": "unknown",
+    "memory_total_mib": 0
+  },
+  "python": {
+    "executable": "unknown",
+    "version": "unknown",
+    "torch_available": false,
+    "torch_version": "unknown",
+    "torch_cuda_available": false,
+    "torch_cuda_version": "unknown",
+    "torch_device_name": "unknown",
+    "tensor_op_pass": false,
+    "torch_cuda_status": "TORCH_MISSING"
+  },
+  "backends": {
+    "onnxruntime": "unknown",
+    "tensorrt": "unknown",
+    "ncnn": "unknown",
+    "ffmpeg": "unknown",
+    "vapoursynth": "unknown"
+  },
+  "backend_classifications": [
+    "GPU_PROOF_BACKEND_UNKNOWN"
+  ],
+  "classification": "GPU_PROOF_UNAVAILABLE",
+  "safe_for_model_download": false,
+  "notes": [
+    "Sample fixture. Run studio gpu-proof to capture host evidence."
+  ]
+}

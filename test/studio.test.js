@@ -29,6 +29,8 @@ test('studio fixture exporter reads advisory dataset and writes model library', 
   assert(existsSync(join(out, 'sample-model-library.json')));
   assert(existsSync(join(out, 'sample-project.json')));
   assert(existsSync(join(out, 'sample-patch-dossier.json')));
+  assert(existsSync(join(out, 'sample-gpu-proof.json')));
+  assert(existsSync(join(out, 'sample-local-fit.json')));
 
   const library = JSON.parse(await readFile(join(out, 'sample-model-library.json'), 'utf8'));
   assert.equal(library.source_authority, false);
@@ -120,6 +122,22 @@ test('studio command exposes export-fixtures help', () => {
   assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.match(result.stdout, /export-fixtures/);
   assert.match(result.stdout, /local Reversa Studio fixtures/);
+});
+
+test('studio command exposes gpu-proof help', () => {
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'studio',
+    'gpu-proof',
+    '--help',
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /gpu-proof/);
+  assert.match(result.stdout, /local GPU proof/);
 });
 
 async function readStudioSurfaceText() {

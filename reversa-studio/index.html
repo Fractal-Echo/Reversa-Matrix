@@ -23,6 +23,7 @@
       <nav class="rail" aria-label="Studio panels">
         <button class="rail__button is-active" type="button" data-panel="intake">Intake</button>
         <button class="rail__button" type="button" data-panel="evidence">Evidence</button>
+        <button class="rail__button" type="button" data-panel="gpu">GPU Proof</button>
         <button class="rail__button" type="button" data-panel="models">Models</button>
         <button class="rail__button" type="button" data-panel="texture">Textures</button>
         <button class="rail__button" type="button" data-panel="framegen">Framegen</button>
@@ -49,6 +50,24 @@
         <div class="band">
           <h3>Top Labels</h3>
           <div class="label-cloud" id="top-labels"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-gpu" data-panel-view="gpu">
+        <div class="section-head">
+          <p class="eyebrow">Local 5090 Proof</p>
+          <h2>Host Evidence</h2>
+          <p>GPU proof ranks advisory candidates without acquiring models or launching runtimes.</p>
+        </div>
+        <div class="card-grid" id="gpu-proof-cards"></div>
+        <div class="band">
+          <h3>Backend Readiness</h3>
+          <div class="metric-grid" id="gpu-backend-readiness"></div>
+        </div>
+        <div class="band">
+          <h3>Local Fit Summary</h3>
+          <div class="metric-grid" id="local-fit-summary"></div>
+          <div class="model__meta" id="local-fit-actions"></div>
         </div>
       </section>
 

@@ -214,12 +214,19 @@ Export local fixtures for the first Reversa Studio prototype:
 node ./bin/reversa.js studio export-fixtures \
   --dataset /path/to/gpu-advisory-dataset \
   --out ./reversa-studio/fixtures
+
+node ./bin/reversa.js studio gpu-proof \
+  --out /path/to/gpu-proof
 ```
 
 Reversa Studio is an early local dashboard prototype for evidence, model
 metadata, and guarded workflow planning. It reads committed fixture JSON only
 and does not acquire models, launch runtimes, patch binaries, or mutate scanned
 projects.
+
+Reversa Studio can capture local GPU proof and use it to rank advisory
+candidates. The proof lane records Nvidia/CUDA/Python/backend evidence and keeps
+model acquisition disabled by default.
 
 Compare two trees:
 

@@ -11,6 +11,7 @@ Primary navigation:
 
 - Home
 - Evidence
+- GPU Proof
 - Models
 - Textures
 - Framegen
@@ -40,11 +41,12 @@ page sections should stay full-width bands or unframed grids.
 1. Create or select a project.
 2. Import Reversa scan output or advisory dataset fixture.
 3. Review evidence health and known-good frontier.
-4. Review model metadata and license risk.
-5. Select a texture/upscale/framegen planning lane.
-6. Build a patch or reinjection checklist.
-7. Stop at the Safety Gate until required proof exists.
-8. Export a report.
+4. Capture or import local GPU proof.
+5. Review model metadata and license risk.
+6. Select a texture/upscale/framegen planning lane.
+7. Build a patch or reinjection checklist.
+8. Stop at the Safety Gate until required proof exists.
+9. Export a report.
 
 ## Visual Direction
 
@@ -125,6 +127,7 @@ Home:
 - Active Project
 - Evidence Health
 - Known-Good Frontier
+- GPU Proof
 - Unsafe Actions Blocked
 - GPU Readiness
 - Model License Risk
@@ -147,6 +150,17 @@ Framegen Pipeline:
 - Scene Change Guard
 - Artifact Risk
 - Output Plan
+
+GPU Proof:
+
+- Nvidia SMI status
+- driver version
+- CUDA runtime version
+- VRAM
+- PyTorch CUDA status
+- tiny tensor operation result
+- backend readiness
+- local advisory fit summary
 
 Model Library:
 

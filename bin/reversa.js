@@ -45,7 +45,7 @@ if (!command || command === '--help' || command === '-h') {
     gui                Generate a local dashboard for scan/compare results
     agent              Run local agent doctor/models/eval/memory/patch scaffolding
     dataset            Build local advisory datasets from bounded evidence
-    studio             Export local Reversa Studio prototype fixtures
+    studio             Export Reversa Studio fixtures and capture GPU proof
     nebula             Read-only Nebula phone companion status bridge
     install            Install compatibility agent workflow files
     update             Update installed compatibility agents

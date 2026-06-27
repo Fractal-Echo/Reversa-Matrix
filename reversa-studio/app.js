@@ -2,6 +2,8 @@ const state = {
   project: null,
   library: null,
   dossier: null,
+  gpuProof: null,
+  localFit: null,
 };
 
 const textureSteps = [
@@ -17,14 +19,18 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireNavigation();
   wireAdvancedToggle();
   try {
-    const [project, library, dossier] = await Promise.all([
+    const [project, library, dossier, gpuProof, localFit] = await Promise.all([
       loadJson('fixtures/sample-project.json'),
       loadJson('fixtures/sample-model-library.json'),
       loadJson('fixtures/sample-patch-dossier.json'),
+      loadJson('fixtures/sample-gpu-proof.json'),
+      loadJson('fixtures/sample-local-fit.json'),
     ]);
     state.project = project;
     state.library = library;
     state.dossier = dossier;
+    state.gpuProof = gpuProof;
+    state.localFit = localFit;
     renderAll();
   } catch (error) {
     renderError(error);
@@ -63,11 +69,56 @@ function wireAdvancedToggle() {
 function renderAll() {
   renderProject();
   renderEvidence();
+  renderGpuProof();
   renderModels();
   renderTextureSteps();
   renderBackendMatrix();
   renderPatchDossier();
   renderSafetyGate();
+}
+
+function renderGpuProof() {
+  const proof = state.gpuProof;
+  const localFit = state.localFit;
+  document.getElementById('gpu-proof-cards').innerHTML = [
+    proofCard('GPU Proof', proof.classification, proofStatus(proof.classification)),
+    proofCard('Driver / CUDA / VRAM', `${proof.gpu.driver_version} / ${proof.gpu.cuda_version} / ${proof.gpu.memory_total_mib} MiB`, proof.gpu.nvidia_smi_available ? 'Review' : 'Blocked'),
+    proofCard('PyTorch CUDA', proof.python.torch_cuda_status, proof.python.torch_cuda_available ? 'Safe' : 'Blocked'),
+    proofCard('Tensor Op', proof.python.tensor_op_pass ? 'pass' : 'Runtime test not run', proof.python.tensor_op_pass ? 'Safe' : 'Review'),
+  ].join('');
+
+  document.getElementById('gpu-backend-readiness').innerHTML = Object.entries(proof.backends).map(([backend, status]) => (
+    metric(backend, status === 'present' ? 1 : 0)
+  )).join('');
+
+  const summary = localFit.summary;
+  document.getElementById('local-fit-summary').innerHTML = [
+    metric('Ready Candidates', summary.readyCandidates),
+    metric('CUDA Possible', summary.cudaBackendPossible),
+    metric('License Review', summary.blockedByLicense),
+    metric('Missing Backend', summary.blockedByMissingBackend),
+    metric('Deferred Artifacts', summary.deferredModelArtifacts),
+    metric('Linux Candidate', summary.linuxProtonUnproven),
+  ].join('');
+  document.getElementById('local-fit-actions').innerHTML = localFit.actions.map(action => (
+    `<span class="label">${escapeHtml(action.label)} ${Number(action.count).toLocaleString()}</span>`
+  )).join('');
+}
+
+function proofCard(title, description, status) {
+  return `
+    <article class="card">
+      ${chip(status)}
+      <h3>${escapeHtml(title)}</h3>
+      <p>${escapeHtml(description)}</p>
+    </article>
+  `;
+}
+
+function proofStatus(classification) {
+  if (classification === 'GPU_PROOF_TENSOR_OP_PASS') return 'Safe';
+  if (classification === 'GPU_PROOF_UNAVAILABLE') return 'Blocked';
+  return 'Review';
 }
 
 function renderProject() {

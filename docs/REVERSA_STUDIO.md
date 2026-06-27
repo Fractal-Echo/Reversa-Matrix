@@ -37,6 +37,16 @@ The focus is mechanism over guesswork:
 Version 01 may show proposed workflow steps, but every future patch,
 reinjection, or runtime-adjacent action stays proposal-only.
 
+## Local 5090 Proof Capture
+
+Reversa Studio can capture local GPU proof and use it to rank advisory
+candidates. The proof lane records Nvidia metadata, CUDA visibility, existing
+PyTorch CUDA state, a tiny CUDA tensor result when PyTorch already supports it,
+and passive backend availability.
+
+The proof lane does not install packages, acquire model artifacts, launch games,
+launch graphics runtimes, connect to phones, or mutate projects.
+
 ## What Version 01 Does Not Do
 
 - no game launch;
@@ -61,6 +71,7 @@ packages. It must not copy third-party UI assets or source code wholesale.
 
 - Home / Project Intake
 - Evidence Board
+- GPU Proof
 - Model Library
 - Texture Pipeline
 - Upscale Pipeline
@@ -103,6 +114,23 @@ button.
 - model size/VRAM estimate.
 
 Without those facts, acceleration remains a candidate, not a proven backend.
+
+Use:
+
+```bash
+node ./bin/reversa.js studio gpu-proof --out /path/to/gpu-proof
+```
+
+Then join it with the advisory dataset:
+
+```bash
+node scripts/join-gpu-proof-with-advisory.js \
+  --proof /path/to/gpu-proof/gpu-proof.json \
+  --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
+  --out /path/to/local-fit
+```
+
+The join output is generated evidence with `source_authority=false`.
 
 ## Reversa / Nebula Relation
 

@@ -20,10 +20,14 @@ export async function exportGpuAdvisoryUiFixtures(options) {
   const modelLibrary = buildModelLibrary(records, labelSummary);
   const project = buildProjectFixture(records, labelSummary, sourceSummary);
   const patchDossier = buildPatchDossier(records);
+  const gpuProof = buildSampleGpuProofFixture();
+  const localFit = buildSampleLocalFitFixture(records, labelSummary);
 
   await writeFile(join(outDir, 'sample-model-library.json'), JSON.stringify(modelLibrary, null, 2) + '\n', 'utf8');
   await writeFile(join(outDir, 'sample-project.json'), JSON.stringify(project, null, 2) + '\n', 'utf8');
   await writeFile(join(outDir, 'sample-patch-dossier.json'), JSON.stringify(patchDossier, null, 2) + '\n', 'utf8');
+  await writeFile(join(outDir, 'sample-gpu-proof.json'), JSON.stringify(gpuProof, null, 2) + '\n', 'utf8');
+  await writeFile(join(outDir, 'sample-local-fit.json'), JSON.stringify(localFit, null, 2) + '\n', 'utf8');
 
   return {
     outDir,
@@ -31,6 +35,7 @@ export async function exportGpuAdvisoryUiFixtures(options) {
     models: modelLibrary.models.length,
     patchChecks: patchDossier.checklist.length,
     hardBlocks: project.safetyGate.hardBlocks.length,
+    localFitRecords: localFit.records.length,
   };
 }
 
@@ -193,6 +198,89 @@ export function buildPatchDossier(records) {
       recommendedAction: sanitizeUiText(record.recommended_action),
       labels: uiSafeLabels(record.labels),
     })),
+  };
+}
+
+export function buildSampleGpuProofFixture() {
+  return {
+    schema_version: 1,
+    generated_fixture: true,
+    source_authority: false,
+    timestamp: 'fixture',
+    host: 'sample-host',
+    gpu: {
+      nvidia_smi_available: false,
+      name: 'unknown',
+      driver_version: 'unknown',
+      cuda_version: 'unknown',
+      memory_total_mib: 0,
+    },
+    python: {
+      executable: 'unknown',
+      version: 'unknown',
+      torch_available: false,
+      torch_version: 'unknown',
+      torch_cuda_available: false,
+      torch_cuda_version: 'unknown',
+      torch_device_name: 'unknown',
+      tensor_op_pass: false,
+      torch_cuda_status: 'TORCH_MISSING',
+    },
+    backends: {
+      onnxruntime: 'unknown',
+      tensorrt: 'unknown',
+      ncnn: 'unknown',
+      ffmpeg: 'unknown',
+      vapoursynth: 'unknown',
+    },
+    backend_classifications: ['GPU_PROOF_BACKEND_UNKNOWN'],
+    classification: 'GPU_PROOF_UNAVAILABLE',
+    safe_for_model_download: false,
+    notes: ['Sample fixture. Run studio gpu-proof to capture host evidence.'],
+  };
+}
+
+export function buildSampleLocalFitFixture(records, labelSummary = []) {
+  const labelCounts = Object.fromEntries(labelSummary.map(row => [row.label, Number(row.count) || 0]));
+  const cudaCount = labelCounts.CUDA_BACKEND_PRESENT ?? 0;
+  const licenseBlocked = labelCounts.MODEL_LICENSE_UNKNOWN ?? 0;
+  const backendUnknown = records.filter(record => (record.backend ?? []).length === 0 || (record.backend ?? []).includes('unknown')).length;
+  const deferredArtifacts = labelCounts.MODEL_METADATA_ONLY ?? 0;
+  const linuxUnproven = (labelCounts.LINUX_RUNTIME_UNKNOWN ?? 0) + (labelCounts.PROTON_COMPATIBLE_CANDIDATE ?? 0);
+
+  return {
+    schema_version: 1,
+    generated_fixture: true,
+    source_authority: false,
+    proof_classification: 'GPU_PROOF_UNAVAILABLE',
+    summary: {
+      totalRecords: records.length,
+      readyCandidates: 0,
+      possibleButModelDeferred: 0,
+      cudaBackendPossible: 0,
+      torchCudaMissing: cudaCount,
+      blockedByLicense: licenseBlocked,
+      blockedByMissingBackend: backendUnknown,
+      deferredModelArtifacts: deferredArtifacts,
+      linuxProtonUnproven: linuxUnproven,
+    },
+    actions: [
+      { label: 'Proof missing', status: 'blocked', count: cudaCount },
+      { label: 'License review required', status: 'review', count: licenseBlocked },
+      { label: 'Download deferred', status: 'review', count: deferredArtifacts },
+      { label: 'Runtime test not run', status: 'blocked', count: records.length },
+    ],
+    records: records
+      .filter(record => (record.labels ?? []).some(label => /CUDA|MODEL_|ONNX|TENSORRT|NCNN/.test(label)))
+      .slice(0, 8)
+      .map(record => ({
+        id: record.record_id,
+        source_project: record.source_project,
+        status: (record.labels ?? []).includes('MODEL_LICENSE_UNKNOWN') ? 'review' : 'blocked',
+        backend: record.backend ?? [],
+        action: (record.labels ?? []).includes('MODEL_LICENSE_UNKNOWN') ? 'License review required' : 'Proof missing',
+        source_authority: false,
+      })),
   };
 }
 
