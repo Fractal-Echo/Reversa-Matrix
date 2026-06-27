@@ -19,6 +19,7 @@ const commands = {
   compare:            () => import('../lib/commands/compare.js'),
   gui:                () => import('../lib/commands/gui.js'),
   agent:              () => import('../lib/commands/agent.js'),
+  nebula:             () => import('../lib/commands/nebula.js'),
   uninstall:          () => import('../lib/commands/uninstall.js'),
   'add-agent':        () => import('../lib/commands/add-agent.js'),
   'add-engine':       () => import('../lib/commands/add-engine.js'),
@@ -41,6 +42,7 @@ if (!command || command === '--help' || command === '-h') {
     compare            Compare two trees and classify differences
     gui                Generate a local dashboard for scan/compare results
     agent              Run local agent doctor/models/eval/memory/patch scaffolding
+    nebula             Read-only Nebula phone companion status bridge
     install            Install compatibility agent workflow files
     update             Update installed compatibility agents
     status             Show current compatibility analysis state

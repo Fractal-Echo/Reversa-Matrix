@@ -202,10 +202,15 @@ test('scanner skips generated Reversa scan collections without skipping runtime 
   const root = await mkdtemp(join(tmpdir(), 'reversa-generated-collections-'));
   await mkdir(join(root, 'reversa_matrix_old', 'agent_handoff'), { recursive: true });
   await mkdir(join(root, 'reversa_scan_adapter', 'reversa_scan_core'), { recursive: true });
+  await mkdir(join(root, 'reversa-archaeology-frontier'), { recursive: true });
+  await mkdir(join(root, 'reversa-known-good-raw-proof'), { recursive: true });
   await mkdir(join(root, 'reversa-runtime'), { recursive: true });
   await writeFile(join(root, 'reversa_matrix_old', 'report.json'), '{"tool":"reversa"}\n', 'utf8');
   await writeFile(join(root, 'reversa_matrix_old', 'agent_handoff', 'evidence.jsonl'), 'MODEL=stale\n', 'utf8');
   await writeFile(join(root, 'reversa_scan_adapter', 'reversa_scan_core', 'live.env'), 'MODEL=adapter\n', 'utf8');
+  await writeFile(join(root, 'reversa-archaeology-frontier', 'report.json'), '{"tool":"reversa"}\n', 'utf8');
+  await writeFile(join(root, 'reversa-archaeology-frontier', 'summary.md'), 'MODEL=archaeology-loop\n', 'utf8');
+  await writeFile(join(root, 'reversa-known-good-raw-proof', 'evidence.jsonl'), 'MODEL=raw-proof-loop\n', 'utf8');
   await writeFile(join(root, 'reversa-runtime', 'runtime.env'), 'MODEL=runtime\n', 'utf8');
   await writeFile(join(root, 'live.env'), 'MODEL=live\n', 'utf8');
 
@@ -216,11 +221,15 @@ test('scanner skips generated Reversa scan collections without skipping runtime 
   });
 
   assert(report.tree_inventory.skipped_files.some(item => item.path === 'reversa_matrix_old' && item.reason === 'generated_scan_output_directory'));
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'reversa-archaeology-frontier' && item.reason === 'generated_scan_output_directory'));
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'reversa-known-good-raw-proof' && item.reason === 'generated_scan_output_directory'));
   assert(!report.tree_inventory.skipped_files.some(item => item.path === 'reversa_scan_adapter' && item.reason === 'generated_scan_output_directory'));
   assertEvidence(report, 'provider_routing_surface', 'MODEL=live');
   assertEvidence(report, 'provider_routing_surface', 'MODEL=adapter');
   assertEvidence(report, 'provider_routing_surface', 'MODEL=runtime');
   assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=stale');
+  assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=archaeology-loop');
+  assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=raw-proof-loop');
 });
 
 test('scanner honors git ignored paths unless includeIgnored is set', async () => {

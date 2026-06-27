@@ -137,6 +137,44 @@ pattern under `.reversa/patterns/CLAUDE_CODEX_REVERSA_PATTERNS.md`.
 
 ---
 
+## Nebula Companion Commands
+
+### `nebula`
+
+```bash
+node ./bin/reversa.js nebula status \
+  --adb 912607710184 \
+  --out local/nebula-status
+```
+
+Runs a read-only Nebula companion probe over ADB. Reversa captures active-module
+status, display frontier, integrations baseline, cooling policy, package paths,
+and pending-module presence without installing, staging, rebooting, or launching
+graphics runtimes.
+
+Common subcommands:
+
+| Subcommand | Purpose |
+|---|---|
+| `status` | Capture active status, active frontier, packages, and pending presence |
+| `active-module` | Capture active module JSON command surface |
+| `pending-module` | Explicitly read pending module status/display lanes |
+| `compare-modules` | Compare active vs pending and classify stage safety |
+| `frontier` | Capture active known-good frontier evidence |
+| `propose --from <dir>` | Classify an offline scan/result directory |
+
+Safety rules:
+
+- active module is authoritative by default
+- pending module is read only after explicit request
+- arbitrary shell commands are not accepted
+- package deployment, module staging, device restart, bootloader tooling,
+  destructive delete, raw block writes, and lease actions are rejected
+
+See `docs/NEBULA_COMPANION_LINK.md` for the full protocol.
+
+---
+
 ## Profiles
 
 List the profiles supported by the current build:
