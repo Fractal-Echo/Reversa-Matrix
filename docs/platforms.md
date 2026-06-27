@@ -85,6 +85,7 @@ Current related profiles:
 - `pcgamingwiki_runtime`
 - `widescreen_framegen_runtime`
 - `game_exe_patch_runtime`
+- `gpu_upscale_framegen`
 - `graphics_wrapper`
 - `vulkan_loader`
 - `bo3_zombies_diagnostics`
@@ -97,6 +98,7 @@ Useful targets:
 - PCGamingWiki-style game data, store/version, video, input, audio, network, API, middleware, Wine, Proton, and Linux fix notes
 - graphics wrapper chains such as DXVK, VKD3D, ReShade, SpecialK, 3DMigoto, SUWSF, and upscalers
 - Flawless Widescreen, ultrawide/FOV/HUD, frame generation, Windows DLL proxy, and Linux Vulkan layer evidence
+- Cupscale/Flowframes, RIFE/DAIN/FLAVR, Real-ESRGAN/SwinIR/waifu2x/Real-CUGAN, NCNN/Vulkan, PyTorch/CUDA, TensorRT, ONNX Runtime, DirectML, FFmpeg/VapourSynth/ImageMagick, and model provenance/hash/license evidence
 - offline/private executable patch manifests with exact version/hash guards, RVA/signature mapping, backup/rollback, and Linux/Proton validation
 - Vulkan loader variables, ICD JSON references, and driver negotiation logs
 - render hook, frame timing, texture injection, and HDR pipeline manifests

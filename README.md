@@ -293,6 +293,7 @@ game_modding
 pcgamingwiki_runtime
 widescreen_framegen_runtime
 game_exe_patch_runtime
+gpu_upscale_framegen
 graphics_wrapper
 vulkan_loader
 bo3_zombies_diagnostics
@@ -322,7 +323,11 @@ store/version, video, input, audio, network, API, middleware, Wine, Proton, and
 Linux notes. Use `widescreen_framegen_runtime` for Flawless Widescreen,
 ultrawide/FOV/HUD, DLSSG/FSR FG/XeFG/LSFG, and Windows-vs-Linux framegen
 separation. Use `game_exe_patch_runtime` only for hash-guarded offline/private
-patch manifests with rollback and Linux/Proton validation evidence.
+patch manifests with rollback and Linux/Proton validation evidence. Use
+`gpu_upscale_framegen` for Cupscale, Flowframes, RIFE/DAIN/FLAVR, Real-ESRGAN,
+SwinIR, NCNN/Vulkan, PyTorch/CUDA, TensorRT, ONNX Runtime, DirectML,
+FFmpeg/VapourSynth/ImageMagick, model provenance/hash/license guards, and
+generated-artifact self-reference boundaries.
 
 Print or write that reusable checklist from the CLI:
 

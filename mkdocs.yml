@@ -67,6 +67,7 @@ nav:
   - Agent And Engine Use: engines.md
   - Semantic Policy Contradictions: semantic-policy-contradictions.md
   - Known-Good Frontier Guard: KNOWN_GOOD_FRONTIER_GUARD.md
+  - GPU Upscale And Framegen Evidence: GPU_UPSCALE_FRAMEGEN_EVIDENCE.md
   - Nebula Companion Link: NEBULA_COMPANION_LINK.md
   - Reversa Agent Runtime: REVERSA_AGENT_RUNTIME.md
   - RM11Pro Fast-Test Facts: RM11PRO_FAST_TEST_FACTS.md

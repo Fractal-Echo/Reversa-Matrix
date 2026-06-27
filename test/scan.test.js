@@ -312,6 +312,8 @@ test('scanner keeps output filenames and prose compounds out of missing-path che
     'A proprietary/commercial-term source is reference-only.',
     'Keep risky root/module work out of the first app cut.',
     'RedMagic hardware/status references remain future hook/control lanes.',
+    'TensorRT engines are hardware/runtime sensitive.',
+    'The setup help prints the list of packages/modules required.',
     'Recovery and device-tree context lives in recovery/device-tree notes.',
     'vendor/lib64/libmissing_keymint.so',
   ].join('\n'), 'utf8');
@@ -326,6 +328,8 @@ test('scanner keeps output filenames and prose compounds out of missing-path che
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:proprietary/commercial-term');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:root/module');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/status');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/runtime');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:packages/modules');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:recovery/device-tree');
   assertEvidence(report, 'invalid_paths', 'referenced_path_missing:vendor/lib64/libmissing_keymint.so');
 });
@@ -750,6 +754,113 @@ test('game exe patch profile detects Linux-focused executable patch evidence and
   assert(report.commands_to_run.some(command => command.includes('SHA256Before')));
   assert(report.commands_to_run.some(command => command.includes('LinuxPatchTarget')));
   assert(report.commands_to_run.some(command => command.includes('DRM')));
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('gpu upscale framegen profile detects clean Cupscale and Flowframes runtime evidence', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-gpu-framegen-clean-'));
+  await writeFile(join(root, 'README.md'), [
+    'Cupscale uses Real-ESRGAN, ESRGAN, SwinIR, EDSR, waifu2x, and Real-CUGAN as upscaling candidates.',
+    'Flowframes supports RIFE, DAIN, FLAVR, XVFI, IFRNet, optical flow, frame interpolation, and frame generation.',
+    'Backend proof: nvidia-smi OK; torch.cuda.is_available()=true; CUDA runtime 12.8; driver version 575; backend PyTorch CUDA.',
+    'Portable backend: rife-ncnn-vulkan.exe, dain-ncnn-vulkan.exe, ifrnet-ncnn-vulkan.exe use NCNN Vulkan.',
+    'Media pipeline: FFmpeg, VapourSynth, Magick.NET, and ImageMagick.',
+    'Tuning: fp16 half precision, UHD mode, scene-change, deduplication, GPU IDs, NCNN processing threads, VRAM, tile size.',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'gpu_upscale_framegen',
+  });
+
+  assert.equal(report.scan.profile, 'gpu_upscale_framegen');
+  assertEvidence(report, 'gpu_upscale_runtime', 'UPSCALE_RUNTIME_CANDIDATE');
+  assertEvidence(report, 'gpu_framegen_runtime', 'FRAMEGEN_RUNTIME_CANDIDATE');
+  assertEvidence(report, 'gpu_backend_surface', 'VULKAN_NCNN_BACKEND_PRESENT');
+  assertEvidence(report, 'gpu_backend_surface', 'CUDA_BACKEND_PRESENT');
+  assertEvidence(report, 'gpu_cuda_guard', '5090_ACCELERATION_CANDIDATE');
+  assertEvidence(report, 'gpu_media_pipeline', 'PERFORMANCE_TUNING_HINT');
+  assertEvidence(report, 'gpu_performance_tuning', 'PERFORMANCE_TUNING_HINT');
+  assert.equal(report.contradictions.length, 0);
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('gpu upscale framegen profile guards model assets and unverified acceleration claims', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-gpu-framegen-guards-'));
+  await writeFile(join(root, 'models.md'), [
+    'ModelPath=models/rife-v4/model.pth',
+    '5090 CUDA acceleration supported.',
+    'Proton compatible Linux support.',
+    'dxgi.dll d3d11.dll proxy DLL for Windows Graphics Capture net8.0-windows WinForms.',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'gpu_upscale_framegen',
+  });
+
+  assertEvidence(report, 'gpu_model_assets', 'MODEL_ASSET_PRESENT');
+  assertEvidence(report, 'gpu_model_asset_guard', 'MODEL_HASH_MISSING');
+  assertEvidence(report, 'gpu_model_asset_guard', 'MODEL_LICENSE_UNKNOWN');
+  assertEvidence(report, 'gpu_model_asset_guard', 'MODEL_PROVENANCE_MISSING');
+  assertEvidence(report, 'gpu_cuda_guard', 'CUDA_CLAIM_UNVERIFIED');
+  assertEvidence(report, 'gpu_linux_proton_guard', 'PROTON_COMPATIBLE_CANDIDATE');
+  assertEvidence(report, 'gpu_runtime_platform', 'WINDOWS_ONLY_RUNTIME');
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('gpu upscale framegen profile enforces executable patch dossiers', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-gpu-exe-patch-'));
+  await writeFile(join(root, 'patches.md'), [
+    'TargetExe=Game.exe FileOffset=0x123 PatchedBytes=90',
+    'TargetExe=Game.exe SHA256Before=aaaaaaaa SHA256After=bbbbbbbb reversible RollbackPlan=restore BackupPath=backup GameVersion=1.0 FileOffset=0x123 AOBSignature=AA BB PatchSource=research legal offline',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'gpu_upscale_framegen',
+  });
+
+  assertEvidence(report, 'gpu_game_patch_guard', 'GAME_PATCH_UNSAFE');
+  assertEvidence(report, 'gpu_game_patch_guard', 'EXE_PATCH_HASH_REQUIRED');
+  assertEvidence(report, 'gpu_game_patch_guard', 'REVERSIBLE_PATCH_REQUIRED');
+  assertEvidence(report, 'gpu_game_patch_guard', 'GAME_PATCH_REVIEW_SAFE');
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('gpu upscale framegen profile treats generated scans and training artifacts as non-authoritative', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-gpu-generated-boundary-'));
+  await mkdir(join(root, 'src'), { recursive: true });
+  await mkdir(join(root, 'local', 'scans', 'run-01'), { recursive: true });
+  await mkdir(join(root, 'local', 'agentic-training-pack-gpu'), { recursive: true });
+  await writeFile(join(root, 'src', 'runtime.md'), [
+    'ModelPath=models/source-model.pth',
+    'Backend proof: nvidia-smi OK; torch.cuda.is_available()=true; CUDA runtime 12.8; driver version 575; backend PyTorch CUDA.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'local', 'scans', 'run-01', 'report.json'), '{"text":"ModelPath=models/generated-model.pth"}', 'utf8');
+  await writeFile(join(root, 'local', 'scans', 'run-01', 'dashboard.html'), '<p>5090 CUDA generated echo</p>', 'utf8');
+  await writeFile(join(root, 'local', 'agentic-training-pack-gpu', 'agentic-training-pack.jsonl'), '{"text":"TargetExe=Generated.exe FileOffset=0x99"}\n', 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'gpu_upscale_framegen',
+  });
+
+  assertEvidence(report, 'gpu_model_assets', 'MODEL_ASSET_PRESENT');
+  assertEvidence(report, 'generated_evidence_boundary', 'GENERATED_EVIDENCE:local/scans');
+  assertEvidence(report, 'generated_evidence_boundary', 'TRAINING_EVAL_ARTIFACT:local/agentic-training-pack-gpu');
+  assertEvidence(report, 'generated_evidence_boundary', 'NOT_SOURCE_AUTHORITY:local/scans');
+  assertEvidence(report, 'generated_evidence_boundary', 'NOT_SOURCE_AUTHORITY:local/agentic-training-pack-gpu');
+  assertNoExtractedText(report, 'generated-model.pth');
+  assertNoExtractedText(report, 'Generated.exe');
 
   const validation = validateScanReport(report);
   assert.equal(validation.valid, true, validation.errors.join('\n'));
