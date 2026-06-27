@@ -25,6 +25,11 @@ const pcgwFixture = join(repoRoot, 'test/fixtures/pcgamingwiki-runtime');
 const agenticFixture = join(repoRoot, 'test/fixtures/agentic-toolchain');
 const agenticGatewayFixture = join(repoRoot, 'test/fixtures/agentic-gateway');
 const semanticPolicyFixture = join(repoRoot, 'test/fixtures/semantic-policy');
+const knownGoodFrontierFixture = join(repoRoot, 'test/fixtures/known-good-frontier');
+const knownGoodFrontierRegressionFixture = join(repoRoot, 'test/fixtures/known-good-frontier-regression');
+const knownGoodFrontierA1InvalidFixture = join(repoRoot, 'test/fixtures/known-good-frontier-a1-invalid');
+const knownGoodFrontierStatusOnlyFixture = join(repoRoot, 'test/fixtures/known-good-frontier-status-only');
+const knownGoodFrontierRawProofFixture = join(repoRoot, 'test/fixtures/known-good-frontier-raw-proof');
 const knownGoodPath = join(repoRoot, 'examples/known_good_rm11pro_nx809j.json');
 
 async function loadKnownGood() {
@@ -467,6 +472,74 @@ test('child libpath profile catches Nebula A1 multi-variable early exit', async 
     !restoredReport.contradictions.some(item => item.category === 'nebula_runtime_regression'),
     'sidecar-first Gamescope libpath should not trip the A1 multi-variable regression detector'
   );
+});
+
+test('known good frontier profile records raw working frontier without self contradiction', async () => {
+  const report = await scanProject({
+    projectRoot: knownGoodFrontierFixture,
+    profile: 'known_good_frontier',
+  });
+
+  assert.equal(report.scan.profile, 'known_good_frontier');
+  assertEvidence(report, 'known_good_frontier', 'known_good_frontier.raw.classification=NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS');
+  assertEvidence(report, 'known_good_frontier', 'known_good_frontier.raw_metric.real_buffer_commits=2');
+  assertEvidence(report, 'known_good_frontier', 'known_good_frontier.raw_metric.vkGetMemoryFdKHR_failures=0');
+  assertEvidence(report, 'known_good_frontier', 'known_good_frontier.harness.gamescope_sidecar=sidecar-14');
+  assert(!report.contradictions.some(item => item.category === 'known_good_frontier_guard'));
+});
+
+test('known good frontier profile detects A1E below older raw frontier', async () => {
+  const report = await scanProject({
+    projectRoot: knownGoodFrontierRegressionFixture,
+    profile: 'nebula_frontier_guard',
+  });
+
+  assert.equal(report.scan.profile, 'nebula_frontier_guard');
+  assertEvidence(report, 'known_good_frontier_guard', 'REGRESSION_BELOW_KNOWN_GOOD_FRONTIER');
+  const contradiction = report.contradictions.find(item => item.title === 'REGRESSION_BELOW_KNOWN_GOOD_FRONTIER');
+  assert(contradiction, 'expected below-frontier contradiction');
+  assert.equal(contradiction.likely_winner, 'R6_WAYLAND_WORKING_03_SIDEcar14_SIDEcar06_REPLAY');
+  assert.equal(contradiction.recommended_action, 'RECOVER_EXACT_WORKING_HARNESS');
+  assert(
+    !report.patch_candidates.some(item => item.title === 'REGRESSION_BELOW_KNOWN_GOOD_FRONTIER'),
+    'frontier regressions should not become source patch candidates'
+  );
+});
+
+test('known good frontier profile rejects invalid A1 export proof', async () => {
+  const report = await scanProject({
+    projectRoot: knownGoodFrontierA1InvalidFixture,
+    profile: 'frontier_guard',
+  });
+
+  assertEvidence(report, 'frontier_regression_marker', 'frontier.invalid_export.GAMESCOPE_EXIT=135');
+  assert(report.contradictions.some(item => item.category === 'known_good_frontier_guard'
+    && item.title === 'A1 invalid export proof below frontier'
+    && item.likely_winner === 'A1B_KGSL_ENV_ONLY_R6_LIBPATH_RESTORED'));
+  assert.equal(report.patch_candidates.length, 0);
+});
+
+test('known good frontier profile requires raw proof for status-only success', async () => {
+  const report = await scanProject({
+    projectRoot: knownGoodFrontierStatusOnlyFixture,
+    profile: 'known_good_frontier',
+  });
+
+  assertEvidence(report, 'known_good_frontier', 'known_good_frontier.status.classification=NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS');
+  assertEvidence(report, 'known_good_frontier_guard', 'STATUS_PROOF_REQUIRES_RAW_LOG_RECOVERY');
+  assert(report.contradictions.some(item => item.title === 'STATUS_PROOF_REQUIRES_RAW_LOG_RECOVERY'));
+});
+
+test('known good frontier profile promotes raw counts above status-only', async () => {
+  const report = await scanProject({
+    projectRoot: knownGoodFrontierRawProofFixture,
+    profile: 'known_good_frontier',
+  });
+
+  assertEvidence(report, 'known_good_frontier', 'known_good_frontier.raw_metric.real_buffer_commits=2');
+  assertEvidence(report, 'known_good_frontier', 'known_good_frontier.raw_metric.vkGetMemoryFdKHR_failures=0');
+  assertNoEvidence(report, ['known_good_frontier_guard'], 'STATUS_PROOF_REQUIRES_RAW_LOG_RECOVERY');
+  assert(!report.contradictions.some(item => item.title === 'STATUS_PROOF_REQUIRES_RAW_LOG_RECOVERY'));
 });
 
 test('child libpath profile does not mix Nebula runtime evidence across lanes', async () => {

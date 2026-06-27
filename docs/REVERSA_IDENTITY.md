@@ -30,6 +30,8 @@ HTML is a view.
 JSON and JSONL are the source of truth.
 ```
 
+Reversa prevents regressions by preserving and enforcing known-good frontiers.
+
 ## Core Lanes
 
 Current practical lanes include:

@@ -156,6 +156,29 @@ belongs in an explicit dry-check/probe lane with anti-regression comparison.
 If Wayland appears broken again, first verify the sidecar-14 dmabuf lane before
 patching source.
 
+## Known-good Frontier Rule
+
+Highest known-good Nebula graphics frontier:
+
+```text
+NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS
+```
+
+Raw proof exists under:
+
+```text
+/home/richtofen/.android/repositories/nebula-assets/logs/2026-06-25-nebula-r6-wayland-working-03
+```
+
+Critical rule:
+
+- A1E is below the known-good frontier and must not be continued blindly.
+- The sidecar-14 plus sidecar-06 working harness must be recovered or replayed
+  before source patching.
+- A newer failed lane does not supersede older raw proof.
+- Reversa should classify this condition as
+  `REGRESSION_BELOW_KNOWN_GOOD_FRONTIER`.
+
 ## GPU OC 1230MHz KernelSU Module Audit
 
 Current audit proof from 2026-06-27:

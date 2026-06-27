@@ -1,0 +1,4 @@
+classification	NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS
+blocker	NONE_WAYLAND_DISPLAY
+real_buffer_commits	2
+vkGetMemoryFdKHR_failures	0
