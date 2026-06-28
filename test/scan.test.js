@@ -512,6 +512,28 @@ test('scanner ignores legacy target names in explicit warning and provenance doc
   assertEvidence(report, 'likely_copy_paste_leftovers', 'risky_leftover:RM10');
 });
 
+test('scanner gates recovery patch advice when the scanned root is not a recovery tree', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-non-recovery-root-'));
+  await mkdir(join(root, 'app', 'src', 'main', 'cpp'), { recursive: true });
+  await mkdir(join(root, 'external', 'busybox', 'examples', 'bootfloppy', 'etc'), { recursive: true });
+  await writeFile(join(root, 'app', 'src', 'main', 'cpp', 'nnapi_npu.cpp'), [
+    '// TODO: tune the runtime probe once evidence exists',
+    'const char *soc_names[] = { "sm8750", "sm8850", "kalama", "taro", "kona" };',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'external', 'busybox', 'examples', 'bootfloppy', 'etc', 'fstab'), [
+    '/dev/fd0 / auto defaults 0 0',
+  ].join('\n'), 'utf8');
+
+  for (const profile of ['android_recovery', 'orangefox', 'twrp']) {
+    const report = await scanProject({ projectRoot: root, profile });
+
+    assertEvidence(report, 'profile_fit', `profile_fit:${profile}=not_applicable`);
+    assert.equal(report.tree_inventory.profile_applicability.status, 'not_applicable');
+    assert.equal(report.contradictions.length, 0);
+    assert.equal(report.patch_candidates.length, 0);
+  }
+});
+
 test('scanner does not derive missing-path contradictions from repo test assertions', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-test-paths-'));
   await mkdir(join(root, 'test'), { recursive: true });
@@ -526,6 +548,25 @@ test('scanner does not derive missing-path contradictions from repo test asserti
   });
 
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:vendor/lib64/libmissing_keymint.so');
+});
+
+test('scanner treats native target Makefile matrices as build arms, not contradictions', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-native-target-matrix-'));
+  await writeFile(join(root, 'Makefile'), [
+    'NATIVE_TARGET := x86_64-linux-musl',
+    'NATIVE_TARGET := aarch64-linux-musl',
+    'NATIVE_TARGET := i686-linux-musl',
+    'NATIVE_TARGET := riscv64-linux-musl',
+    'NATIVE_CC := $(call find-cc,$(NATIVE_TARGET))',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'gpu_upscale_framegen',
+  });
+
+  assert(!report.contradictions.some(item => item.title.includes('NATIVE_TARGET')));
+  assert(!report.patch_candidates.some(item => item.title.includes('NATIVE_TARGET')));
 });
 
 test('scanner keeps vendored dependency placeholders out of patch candidates', async () => {

@@ -79,3 +79,47 @@ test('scan-fleet writes aggregate output and keeps missing repos as classified e
   assert.match(await readFile(join(out, 'fleet-summary.tsv'), 'utf8'), /missing-repo/);
   assert.match(await readFile(join(out, 'fleet-summary.md'), 'utf8'), /SCAN_FAILED_MISSING_PROJECT_ROOT/);
 });
+
+test('scan-fleet keeps wrong-domain recovery profiles from generating patch work', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-fleet-recovery-gate-'));
+  const repo = join(root, 'android-app');
+  const out = join(root, 'out');
+  await mkdir(join(repo, 'app', 'src', 'main', 'cpp'), { recursive: true });
+  await mkdir(join(repo, 'external', 'busybox', 'examples', 'bootfloppy', 'etc'), { recursive: true });
+  await writeFile(join(repo, 'app', 'src', 'main', 'cpp', 'nnapi_npu.cpp'), [
+    '// TODO: tune the runtime probe once evidence exists',
+    'const char *soc_names[] = { "sm8750", "sm8850", "kalama", "taro", "kona" };',
+  ].join('\n'), 'utf8');
+  await writeFile(join(repo, 'external', 'busybox', 'examples', 'bootfloppy', 'etc', 'fstab'), [
+    '/dev/fd0 / auto defaults 0 0',
+  ].join('\n'), 'utf8');
+  const manifest = join(root, 'repos.json');
+  await writeFile(manifest, JSON.stringify([
+    { name: 'android-app', path: repo },
+  ]), 'utf8');
+
+  const run = spawnSync(process.execPath, [
+    './bin/reversa.js',
+    'scan-fleet',
+    '--manifest',
+    manifest,
+    '--profiles',
+    'android_recovery,orangefox,twrp',
+    '--out',
+    out,
+    '--timeout-ms',
+    '60000',
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(run.status, 0, run.stderr || run.stdout);
+  const report = JSON.parse(await readFile(join(out, 'fleet-report.json'), 'utf8'));
+  assert.equal(report.summary.total_shards, 3);
+  assert.equal(report.summary.passed_shards, 3);
+  assert.equal(report.summary.total_contradictions, 0);
+  assert.equal(report.summary.total_patch_candidates, 0);
+  assert(report.results.every(item => item.contradictions === 0));
+  assert(report.results.every(item => item.patch_candidates === 0));
+});
