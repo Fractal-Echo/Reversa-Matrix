@@ -2,13 +2,13 @@
   "schema_version": 1,
   "generated_fixture": true,
   "source_authority": false,
-  "proof_classification": "GPU_PROOF_UNAVAILABLE",
+  "proof_classification": "GPU_PROOF_CUDA_VISIBLE",
   "summary": {
     "totalRecords": 774,
     "readyCandidates": 0,
-    "possibleButModelDeferred": 0,
-    "cudaBackendPossible": 0,
-    "torchCudaMissing": 122,
+    "possibleButModelDeferred": 48,
+    "cudaBackendPossible": 122,
+    "torchCudaMissing": 0,
     "blockedByLicense": 32,
     "blockedByMissingBackend": 396,
     "deferredModelArtifacts": 48,
@@ -16,8 +16,8 @@
   },
   "actions": [
     {
-      "label": "Proof missing",
-      "status": "blocked",
+      "label": "CUDA possible",
+      "status": "candidate",
       "count": 122
     },
     {
@@ -40,21 +40,21 @@
     {
       "id": "gpuadvisory_02599791bb2a73ab",
       "source_project": "flowframes",
-      "status": "blocked",
+      "status": "review",
       "backend": [
         "vulkan_ncnn"
       ],
-      "action": "Proof missing",
+      "action": "Backend review required",
       "source_authority": false
     },
     {
       "id": "gpuadvisory_02aa3108c3df0591",
       "source_project": "flowframes",
-      "status": "blocked",
+      "status": "review",
       "backend": [
         "vulkan_ncnn"
       ],
-      "action": "Proof missing",
+      "action": "Backend review required",
       "source_authority": false
     },
     {
@@ -79,43 +79,43 @@
     {
       "id": "gpuadvisory_0445f9cf4316f132",
       "source_project": "flowframes",
-      "status": "blocked",
+      "status": "candidate",
       "backend": [
         "cuda",
         "pytorch"
       ],
-      "action": "Proof missing",
+      "action": "CUDA possible",
       "source_authority": false
     },
     {
       "id": "gpuadvisory_045535c4fb0921ec",
       "source_project": "flowframes",
-      "status": "blocked",
+      "status": "review",
       "backend": [
         "vulkan_ncnn"
       ],
-      "action": "Proof missing",
+      "action": "Backend review required",
       "source_authority": false
     },
     {
       "id": "gpuadvisory_0538423e61f2bbe3",
       "source_project": "flowframes",
-      "status": "blocked",
+      "status": "review",
       "backend": [
         "vulkan_ncnn"
       ],
-      "action": "Proof missing",
+      "action": "Backend review required",
       "source_authority": false
     },
     {
       "id": "gpuadvisory_06d5d77b9810a2e8",
       "source_project": "flowframes",
-      "status": "blocked",
+      "status": "candidate",
       "backend": [
         "cuda",
         "pytorch"
       ],
-      "action": "Proof missing",
+      "action": "CUDA possible",
       "source_authority": false
     }
   ]

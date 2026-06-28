@@ -23,11 +23,12 @@ const PROOF_LEVELS = new Set([
 
 export async function captureLocalGpuProof(options) {
   const outDir = resolveRequiredOut(options.out);
+  const pythonCommand = resolvePythonCommand(options.python);
   await mkdir(outDir, { recursive: true });
 
   const stderrLines = [];
   const nvidiaSmi = probeNvidiaSmi(stderrLines);
-  const pythonProbe = probePython(stderrLines);
+  const pythonProbe = probePython(stderrLines, pythonCommand);
   const backendProbe = probeBackends(pythonProbe, stderrLines);
   const proof = buildGpuProof({
     timestamp: new Date().toISOString(),
@@ -51,6 +52,7 @@ export function buildGpuProof({ timestamp, host, nvidiaSmi, pythonProbe, backend
   };
 
   const python = {
+    requested_executable: pythonProbe?.requested_executable ?? pythonProbe?.executable ?? 'unknown',
     executable: pythonProbe?.executable ?? 'unknown',
     version: pythonProbe?.version ?? 'unknown',
     torch_available: Boolean(pythonProbe?.torch_available),
@@ -127,32 +129,57 @@ function probeNvidiaSmi(stderrLines) {
   if (!commandExists('nvidia-smi')) {
     return { available: false };
   }
-  const result = runCommand('nvidia-smi', [
-    '--query-gpu=name,driver_version,cuda_version,memory.total',
+  const fullResult = runCommand('nvidia-smi', [], { timeout: 8000, maxBuffer: 1024 * 1024 });
+  const cudaVersion = parseCudaVersionFromNvidiaSmi(fullResult.stdout);
+  if (fullResult.stderr) stderrLines.push(`[nvidia-smi] ${fullResult.stderr.trim()}`);
+
+  const queryResult = runCommand('nvidia-smi', [
+    '--query-gpu=name,driver_version,memory.total',
     '--format=csv,noheader,nounits',
   ], { timeout: 8000 });
-  if (result.stderr) stderrLines.push(`[nvidia-smi] ${result.stderr.trim()}`);
-  if (result.status !== 0 || !result.stdout.trim()) {
-    return { available: false, error: result.stderr || result.stdout };
+  if (queryResult.stderr) stderrLines.push(`[nvidia-smi-query] ${queryResult.stderr.trim()}`);
+  if (queryResult.status !== 0 || !queryResult.stdout.trim()) {
+    return parseNvidiaSmiTable(fullResult.stdout);
   }
-  return parseNvidiaSmiCsv(result.stdout);
+  return parseNvidiaSmiCsv(queryResult.stdout, cudaVersion);
 }
 
-export function parseNvidiaSmiCsv(stdout) {
+export function parseNvidiaSmiCsv(stdout, cudaVersion = 'unknown') {
   const firstLine = String(stdout).trim().split(/\r?\n/).find(Boolean);
   if (!firstLine) return { available: false };
-  const [name, driver_version, cuda_version, memory_total_mib] = firstLine.split(',').map(part => part.trim());
+  const [name, driver_version, memory_total_mib] = firstLine.split(',').map(part => part.trim());
   return {
     available: true,
     name: name || 'unknown',
     driver_version: driver_version || 'unknown',
-    cuda_version: cuda_version || 'unknown',
+    cuda_version: cudaVersion || 'unknown',
     memory_total_mib: Number(String(memory_total_mib).replace(/[^\d.]/g, '')) || 0,
   };
 }
 
-function probePython(stderrLines) {
-  if (!commandExists('python3')) {
+export function parseCudaVersionFromNvidiaSmi(stdout) {
+  const match = String(stdout).match(/CUDA Version:\s*([0-9.]+)/i);
+  return match?.[1] ?? 'unknown';
+}
+
+function parseNvidiaSmiTable(stdout) {
+  const text = String(stdout);
+  if (!/NVIDIA-SMI/i.test(text)) return { available: false };
+  const cuda_version = parseCudaVersionFromNvidiaSmi(text);
+  const driverMatch = text.match(/Driver Version:\s*([0-9.]+)/i);
+  const nameMatch = text.match(/\|\s*\d+\s+(NVIDIA\s+[^|]+?)\s{2,}/i);
+  const memoryMatch = text.match(/\/\s*([0-9]+)MiB\s*\|/i);
+  return {
+    available: true,
+    name: nameMatch?.[1]?.trim() ?? 'unknown',
+    driver_version: driverMatch?.[1] ?? 'unknown',
+    cuda_version,
+    memory_total_mib: Number(memoryMatch?.[1]) || 0,
+  };
+}
+
+function probePython(stderrLines, pythonCommand) {
+  if (!pythonCommand) {
     return { available: false };
   }
   const probe = String.raw`
@@ -193,16 +220,28 @@ if importlib.util.find_spec("torch") is not None:
 
 print(json.dumps(result, sort_keys=True))
 `;
-  const result = runCommand('python3', ['-c', probe], { timeout: 15000, maxBuffer: 1024 * 1024 });
-  if (result.stderr) stderrLines.push(`[python3] ${result.stderr.trim()}`);
+  const result = runCommand(pythonCommand, ['-c', probe], { timeout: 15000, maxBuffer: 1024 * 1024 });
+  if (result.stderr) stderrLines.push(`[${pythonCommand}] ${result.stderr.trim()}`);
   if (result.status !== 0 || !result.stdout.trim()) {
-    return { available: true, executable: 'python3', version: 'unknown', error: result.stderr || result.stdout };
+    return {
+      available: true,
+      requested_executable: pythonCommand,
+      executable: pythonCommand,
+      version: 'unknown',
+      error: result.stderr || result.stdout,
+    };
   }
   try {
-    return JSON.parse(result.stdout);
+    return { requested_executable: pythonCommand, ...JSON.parse(result.stdout) };
   } catch (error) {
     stderrLines.push(`[python3] Could not parse probe JSON: ${error.message}`);
-    return { available: true, executable: 'python3', version: 'unknown', error: error.message };
+    return {
+      available: true,
+      requested_executable: pythonCommand,
+      executable: pythonCommand,
+      version: 'unknown',
+      error: error.message,
+    };
   }
 }
 
@@ -224,6 +263,15 @@ async function writeGpuProofOutputs(outDir, proof, stderrLines) {
   await writeFile(join(outDir, 'stderr.log'), stderrLines.join('\n') + (stderrLines.length > 0 ? '\n' : ''), 'utf8');
 }
 
+function resolvePythonCommand(pythonPath) {
+  if (!pythonPath) return commandExists('python3') ? 'python3' : null;
+  const resolved = resolve(pythonPath);
+  if (!existsSync(resolved)) {
+    throw new Error(`Selected Python does not exist: ${resolved}`);
+  }
+  return resolved;
+}
+
 export function renderGpuProofMarkdown(proof) {
   return [
     '# Local GPU Proof',
@@ -235,6 +283,7 @@ export function renderGpuProofMarkdown(proof) {
     `- Driver: ${proof.gpu.driver_version}`,
     `- CUDA runtime: ${proof.gpu.cuda_version}`,
     `- VRAM MiB: ${proof.gpu.memory_total_mib}`,
+    `- Python requested: ${proof.python.requested_executable}`,
     `- Python: ${proof.python.executable} ${proof.python.version}`,
     `- PyTorch: ${proof.python.torch_available ? proof.python.torch_version : 'missing'}`,
     `- PyTorch CUDA: ${proof.python.torch_cuda_status}`,
@@ -295,7 +344,7 @@ function resolveRequiredOut(out) {
 }
 
 function parseArgs(args) {
-  const options = { out: null, help: false };
+  const options = { out: null, python: null, help: false };
   for (let index = 0; index < args.length; index += 1) {
     const arg = args[index];
     const [flag, inlineValue] = arg.includes('=') ? arg.split(/=(.*)/s, 2) : [arg, null];
@@ -307,6 +356,10 @@ function parseArgs(args) {
         break;
       case '--out':
         options.out = resolve(requireValue(flag, value));
+        if (inlineValue === null) index += 1;
+        break;
+      case '--python':
+        options.python = resolve(requireValue(flag, value));
         if (inlineValue === null) index += 1;
         break;
       default:
@@ -326,12 +379,11 @@ function requireValue(flag, value) {
 function printHelp() {
   console.log(`
 Usage:
-  node scripts/capture-local-gpu-proof.js --out <dir>
+  node scripts/capture-local-gpu-proof.js --out <dir> [--python <path>]
 
 Captures passive local GPU proof. It runs nvidia-smi when present, probes the
-existing python3 environment, and writes JSON/Markdown/TSV evidence. It never
-installs packages, acquires model artifacts, launches games, or mutates
-runtimes.
+selected Python environment, and writes JSON/Markdown/TSV evidence. It never
+installs packages, acquires model artifacts, launches games, or mutates runtimes.
 `);
 }
 

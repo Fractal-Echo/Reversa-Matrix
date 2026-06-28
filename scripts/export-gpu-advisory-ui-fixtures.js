@@ -209,15 +209,16 @@ export function buildSampleGpuProofFixture() {
     timestamp: 'fixture',
     host: 'sample-host',
     gpu: {
-      nvidia_smi_available: false,
-      name: 'unknown',
-      driver_version: 'unknown',
-      cuda_version: 'unknown',
-      memory_total_mib: 0,
+      nvidia_smi_available: true,
+      name: 'NVIDIA GeForce RTX 5090',
+      driver_version: '595.97',
+      cuda_version: '13.2',
+      memory_total_mib: 32607,
     },
     python: {
-      executable: 'unknown',
-      version: 'unknown',
+      requested_executable: 'python3',
+      executable: '/usr/bin/python3',
+      version: '3.14.4',
       torch_available: false,
       torch_version: 'unknown',
       torch_cuda_available: false,
@@ -234,9 +235,9 @@ export function buildSampleGpuProofFixture() {
       vapoursynth: 'unknown',
     },
     backend_classifications: ['GPU_PROOF_BACKEND_UNKNOWN'],
-    classification: 'GPU_PROOF_UNAVAILABLE',
+    classification: 'GPU_PROOF_CUDA_VISIBLE',
     safe_for_model_download: false,
-    notes: ['Sample fixture. Run studio gpu-proof to capture host evidence.'],
+    notes: ['Sample fixture. CUDA is visible, but tensor and backend readiness are still unproven.'],
   };
 }
 
@@ -252,20 +253,20 @@ export function buildSampleLocalFitFixture(records, labelSummary = []) {
     schema_version: 1,
     generated_fixture: true,
     source_authority: false,
-    proof_classification: 'GPU_PROOF_UNAVAILABLE',
+    proof_classification: 'GPU_PROOF_CUDA_VISIBLE',
     summary: {
       totalRecords: records.length,
       readyCandidates: 0,
-      possibleButModelDeferred: 0,
-      cudaBackendPossible: 0,
-      torchCudaMissing: cudaCount,
+      possibleButModelDeferred: deferredArtifacts,
+      cudaBackendPossible: cudaCount,
+      torchCudaMissing: 0,
       blockedByLicense: licenseBlocked,
       blockedByMissingBackend: backendUnknown,
       deferredModelArtifacts: deferredArtifacts,
       linuxProtonUnproven: linuxUnproven,
     },
     actions: [
-      { label: 'Proof missing', status: 'blocked', count: cudaCount },
+      { label: 'CUDA possible', status: 'candidate', count: cudaCount },
       { label: 'License review required', status: 'review', count: licenseBlocked },
       { label: 'Download deferred', status: 'review', count: deferredArtifacts },
       { label: 'Runtime test not run', status: 'blocked', count: records.length },
@@ -273,14 +274,21 @@ export function buildSampleLocalFitFixture(records, labelSummary = []) {
     records: records
       .filter(record => (record.labels ?? []).some(label => /CUDA|MODEL_|ONNX|TENSORRT|NCNN/.test(label)))
       .slice(0, 8)
-      .map(record => ({
-        id: record.record_id,
-        source_project: record.source_project,
-        status: (record.labels ?? []).includes('MODEL_LICENSE_UNKNOWN') ? 'review' : 'blocked',
-        backend: record.backend ?? [],
-        action: (record.labels ?? []).includes('MODEL_LICENSE_UNKNOWN') ? 'License review required' : 'Proof missing',
-        source_authority: false,
-      })),
+      .map(record => {
+        const labels = record.labels ?? [];
+        const backend = record.backend ?? [];
+        const licenseReview = labels.includes('MODEL_LICENSE_UNKNOWN');
+        const cudaCandidate = backend.some(item => item === 'cuda' || item === 'pytorch')
+          || labels.some(label => /CUDA/.test(label));
+        return {
+          id: record.record_id,
+          source_project: record.source_project,
+          status: licenseReview ? 'review' : (cudaCandidate ? 'candidate' : 'review'),
+          backend,
+          action: licenseReview ? 'License review required' : (cudaCandidate ? 'CUDA possible' : 'Backend review required'),
+          source_authority: false,
+        };
+      }),
   };
 }
 

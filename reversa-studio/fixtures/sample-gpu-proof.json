@@ -5,15 +5,16 @@
   "timestamp": "fixture",
   "host": "sample-host",
   "gpu": {
-    "nvidia_smi_available": false,
-    "name": "unknown",
-    "driver_version": "unknown",
-    "cuda_version": "unknown",
-    "memory_total_mib": 0
+    "nvidia_smi_available": true,
+    "name": "NVIDIA GeForce RTX 5090",
+    "driver_version": "595.97",
+    "cuda_version": "13.2",
+    "memory_total_mib": 32607
   },
   "python": {
-    "executable": "unknown",
-    "version": "unknown",
+    "requested_executable": "python3",
+    "executable": "/usr/bin/python3",
+    "version": "3.14.4",
     "torch_available": false,
     "torch_version": "unknown",
     "torch_cuda_available": false,
@@ -32,9 +33,9 @@
   "backend_classifications": [
     "GPU_PROOF_BACKEND_UNKNOWN"
   ],
-  "classification": "GPU_PROOF_UNAVAILABLE",
+  "classification": "GPU_PROOF_CUDA_VISIBLE",
   "safe_for_model_download": false,
   "notes": [
-    "Sample fixture. Run studio gpu-proof to capture host evidence."
+    "Sample fixture. CUDA is visible, but tensor and backend readiness are still unproven."
   ]
 }

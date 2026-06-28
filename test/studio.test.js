@@ -137,6 +137,7 @@ test('studio command exposes gpu-proof help', () => {
 
   assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.match(result.stdout, /gpu-proof/);
+  assert.match(result.stdout, /--python <path>/);
   assert.match(result.stdout, /local GPU proof/);
 });
 

@@ -8,6 +8,8 @@ import { fileURLToPath } from 'url';
 import {
   buildGpuProof,
   classifyGpuProof,
+  parseCudaVersionFromNvidiaSmi,
+  parseNvidiaSmiCsv,
 } from '../scripts/capture-local-gpu-proof.js';
 import {
   classifyAdvisoryRecordForLocalGpu,
@@ -23,6 +25,17 @@ test('GPU proof classifies nvidia-smi unavailable as unavailable', () => {
   assert.equal(proof.classification, 'GPU_PROOF_UNAVAILABLE');
   assert.equal(classifyGpuProof(proof), 'GPU_PROOF_UNAVAILABLE');
   assert.equal(proof.safe_for_model_download, false);
+});
+
+test('GPU proof parses nvidia-smi CUDA version from table output', () => {
+  const cudaVersion = parseCudaVersionFromNvidiaSmi('NVIDIA-SMI 595.58.02 Driver Version: 595.97 CUDA Version: 13.2');
+  const parsed = parseNvidiaSmiCsv('NVIDIA GeForce RTX 5090, 595.97, 32607', cudaVersion);
+
+  assert.equal(cudaVersion, '13.2');
+  assert.equal(parsed.name, 'NVIDIA GeForce RTX 5090');
+  assert.equal(parsed.driver_version, '595.97');
+  assert.equal(parsed.cuda_version, '13.2');
+  assert.equal(parsed.memory_total_mib, 32607);
 });
 
 test('GPU proof classifies nvidia-smi CUDA metadata without torch as CUDA visible', () => {
@@ -57,6 +70,25 @@ test('GPU proof records TORCH_CUDA_MISSING when torch is installed without CUDA'
 
   assert.equal(proof.python.torch_cuda_status, 'TORCH_CUDA_MISSING');
   assert(proof.notes.includes('TORCH_CUDA_MISSING'));
+});
+
+test('GPU proof records selected Python command separately from sys executable', () => {
+  const proof = proofFixture({
+    pythonProbe: {
+      requested_executable: '/opt/reversa/bin/python',
+      executable: '/opt/reversa/bin/python3.12',
+      version: '3.12',
+      torch_available: false,
+      torch_version: 'unknown',
+      torch_cuda_available: false,
+      torch_cuda_version: 'unknown',
+      torch_device_name: 'unknown',
+      tensor_op_pass: false,
+    },
+  });
+
+  assert.equal(proof.python.requested_executable, '/opt/reversa/bin/python');
+  assert.equal(proof.python.executable, '/opt/reversa/bin/python3.12');
 });
 
 test('GPU proof classifies torch CUDA tensor op pass as tensor proof', () => {
