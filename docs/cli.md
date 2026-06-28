@@ -128,6 +128,7 @@ node ./bin/reversa.js studio export-fixtures \
   --out ./reversa-studio/fixtures
 
 node ./bin/reversa.js studio gpu-proof \
+  --python /path/to/venv/bin/python \
   --out /path/to/gpu-proof
 ```
 
@@ -136,7 +137,9 @@ Studio is an early local dashboard prototype for evidence, model metadata, and
 guarded workflow planning.
 
 The fixture command reads local JSONL/TSV files and writes display fixtures.
-The GPU proof command records passive Nvidia/CUDA/Python/backend evidence.
+The GPU proof command records passive Nvidia/CUDA/Python/backend evidence. The
+optional `--python` flag selects an existing interpreter, such as a controlled
+local PyTorch CUDA proof venv. The command itself does not install packages.
 Neither command acquires models, launches runtimes, patches binaries, connects
 to phones, or mutates projects.
 

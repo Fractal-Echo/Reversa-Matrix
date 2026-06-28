@@ -148,6 +148,40 @@ pip: /home/richtofen/.local/bin/pip3, 26.1.1
 nvcc: not detected in WSL PATH during this pass
 ```
 
+## 2026-06-27 PyTorch CUDA Tensor Proof
+
+Controlled venv:
+
+```text
+local/venvs/reversa-torch-cuda-proof
+```
+
+Proof:
+
+```text
+Python: 3.14.4
+PyTorch: 2.11.0+cu128
+PyTorch CUDA runtime: 12.8
+Device: NVIDIA GeForce RTX 5090
+Tensor op: 32x32 CUDA float32 matmul, result_0_0=32.0
+Classification: GPU_PROOF_TENSOR_OP_PASS
+```
+
+This proves a tiny local PyTorch CUDA tensor operation on the RTX 5090. It does
+not prove model availability, frame generation, upscaling pipelines, game
+runtime behavior, or phone/Nebula state.
+
+Adjacent hardware note, user-provided and not yet probed by Reversa:
+
+```text
+AMD HX 370 with Radeon 890M iGPU
+64 GB unified memory
+```
+
+Future lane: create a separate AMD iGPU/UMA proof path for Vulkan, DirectML,
+ONNX, or ROCm-style compatibility where applicable. Do not merge that evidence
+with the RTX 5090 CUDA tensor proof until it has its own reproducible probe.
+
 Current local training/eval artifact:
 
 ```text

@@ -4,6 +4,10 @@ import { existsSync } from 'fs';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import { dirname, isAbsolute, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
+import {
+  classifyAdvisoryRecordForLocalGpu,
+  summarizeJoinedRecords,
+} from './join-gpu-proof-with-advisory.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -216,16 +220,16 @@ export function buildSampleGpuProofFixture() {
       memory_total_mib: 32607,
     },
     python: {
-      requested_executable: 'python3',
-      executable: '/usr/bin/python3',
+      requested_executable: 'local/venvs/reversa-torch-cuda-proof/bin/python',
+      executable: 'local/venvs/reversa-torch-cuda-proof/bin/python',
       version: '3.14.4',
-      torch_available: false,
-      torch_version: 'unknown',
-      torch_cuda_available: false,
-      torch_cuda_version: 'unknown',
-      torch_device_name: 'unknown',
-      tensor_op_pass: false,
-      torch_cuda_status: 'TORCH_MISSING',
+      torch_available: true,
+      torch_version: '2.11.0+cu128',
+      torch_cuda_available: true,
+      torch_cuda_version: '12.8',
+      torch_device_name: 'NVIDIA GeForce RTX 5090',
+      tensor_op_pass: true,
+      torch_cuda_status: 'TORCH_CUDA_TENSOR_OP_PASS',
     },
     backends: {
       onnxruntime: 'unknown',
@@ -234,39 +238,40 @@ export function buildSampleGpuProofFixture() {
       ffmpeg: 'unknown',
       vapoursynth: 'unknown',
     },
-    backend_classifications: ['GPU_PROOF_BACKEND_UNKNOWN'],
-    classification: 'GPU_PROOF_CUDA_VISIBLE',
+    backend_classifications: ['GPU_PROOF_BACKEND_READY_CUDA'],
+    classification: 'GPU_PROOF_TENSOR_OP_PASS',
     safe_for_model_download: false,
-    notes: ['Sample fixture. CUDA is visible, but tensor and backend readiness are still unproven.'],
+    notes: ['Sample fixture. A tiny PyTorch CUDA tensor op passed; model artifacts and runtime pipelines remain gated.'],
   };
 }
 
 export function buildSampleLocalFitFixture(records, labelSummary = []) {
+  const proof = buildSampleGpuProofFixture();
+  const joined = records.map(record => classifyAdvisoryRecordForLocalGpu(record, proof));
+  const summary = summarizeJoinedRecords(joined);
   const labelCounts = Object.fromEntries(labelSummary.map(row => [row.label, Number(row.count) || 0]));
-  const cudaCount = labelCounts.CUDA_BACKEND_PRESENT ?? 0;
   const licenseBlocked = labelCounts.MODEL_LICENSE_UNKNOWN ?? 0;
-  const backendUnknown = records.filter(record => (record.backend ?? []).length === 0 || (record.backend ?? []).includes('unknown')).length;
   const deferredArtifacts = labelCounts.MODEL_METADATA_ONLY ?? 0;
-  const linuxUnproven = (labelCounts.LINUX_RUNTIME_UNKNOWN ?? 0) + (labelCounts.PROTON_COMPATIBLE_CANDIDATE ?? 0);
 
   return {
     schema_version: 1,
     generated_fixture: true,
     source_authority: false,
-    proof_classification: 'GPU_PROOF_CUDA_VISIBLE',
+    proof_classification: 'GPU_PROOF_TENSOR_OP_PASS',
     summary: {
       totalRecords: records.length,
-      readyCandidates: 0,
-      possibleButModelDeferred: deferredArtifacts,
-      cudaBackendPossible: cudaCount,
-      torchCudaMissing: 0,
+      readyCandidates: summary.readyCandidates,
+      possibleButModelDeferred: summary.possibleButModelDeferred,
+      cudaBackendPossible: summary.cudaBackendPossible,
+      torchCudaMissing: summary.torchCudaMissing,
       blockedByLicense: licenseBlocked,
-      blockedByMissingBackend: backendUnknown,
+      blockedByMissingBackend: summary.blockedByMissingBackend,
       deferredModelArtifacts: deferredArtifacts,
-      linuxProtonUnproven: linuxUnproven,
+      linuxProtonUnproven: summary.linuxProtonUnproven,
     },
     actions: [
-      { label: 'CUDA possible', status: 'candidate', count: cudaCount },
+      { label: 'Tensor proof candidate', status: 'candidate', count: summary.readyCandidates },
+      { label: 'CUDA possible', status: 'candidate', count: summary.cudaBackendPossible },
       { label: 'License review required', status: 'review', count: licenseBlocked },
       { label: 'Download deferred', status: 'review', count: deferredArtifacts },
       { label: 'Runtime test not run', status: 'blocked', count: records.length },
@@ -278,18 +283,45 @@ export function buildSampleLocalFitFixture(records, labelSummary = []) {
         const labels = record.labels ?? [];
         const backend = record.backend ?? [];
         const licenseReview = labels.includes('MODEL_LICENSE_UNKNOWN');
-        const cudaCandidate = backend.some(item => item === 'cuda' || item === 'pytorch')
-          || labels.some(label => /CUDA/.test(label));
+        const cudaCandidate = isCudaRecord(record);
+        const deferred = isModelDeferred(record);
+        const ready = isTensorProofReadyCandidate(record);
         return {
           id: record.record_id,
           source_project: record.source_project,
-          status: licenseReview ? 'review' : (cudaCandidate ? 'candidate' : 'review'),
+          status: licenseReview || deferred ? 'review' : (ready ? 'candidate' : 'review'),
           backend,
-          action: licenseReview ? 'License review required' : (cudaCandidate ? 'CUDA possible' : 'Backend review required'),
+          action: licenseReview
+            ? 'License review required'
+            : (deferred ? 'Download deferred' : (ready ? 'Tensor proof candidate' : (cudaCandidate ? 'CUDA possible' : 'Backend review required'))),
           source_authority: false,
         };
       }),
   };
+}
+
+function isCudaRecord(record) {
+  const labels = record.labels ?? [];
+  const backend = record.backend ?? [];
+  return backend.some(item => item === 'cuda' || item === 'pytorch')
+    || labels.some(label => /CUDA/.test(label));
+}
+
+function isModelDeferred(record) {
+  const labels = record.labels ?? [];
+  return labels.includes('MODEL_WEIGHT_DOWNLOAD_DEFERRED') || labels.includes('MODEL_METADATA_ONLY');
+}
+
+function isLicenseBlocked(record) {
+  const labels = record.labels ?? [];
+  return labels.includes('MODEL_LICENSE_UNKNOWN')
+    || (record.source_kind === 'model_card_metadata' && String(record.source_license ?? '').toUpperCase() === 'UNKNOWN');
+}
+
+function isTensorProofReadyCandidate(record) {
+  const backend = record.backend ?? [];
+  const backendUnknown = backend.length === 0 || backend.includes('unknown');
+  return isCudaRecord(record) && !isLicenseBlocked(record) && !isModelDeferred(record) && !backendUnknown;
 }
 
 function uiSafeLabels(labels) {

@@ -12,16 +12,16 @@
     "memory_total_mib": 32607
   },
   "python": {
-    "requested_executable": "python3",
-    "executable": "/usr/bin/python3",
+    "requested_executable": "local/venvs/reversa-torch-cuda-proof/bin/python",
+    "executable": "local/venvs/reversa-torch-cuda-proof/bin/python",
     "version": "3.14.4",
-    "torch_available": false,
-    "torch_version": "unknown",
-    "torch_cuda_available": false,
-    "torch_cuda_version": "unknown",
-    "torch_device_name": "unknown",
-    "tensor_op_pass": false,
-    "torch_cuda_status": "TORCH_MISSING"
+    "torch_available": true,
+    "torch_version": "2.11.0+cu128",
+    "torch_cuda_available": true,
+    "torch_cuda_version": "12.8",
+    "torch_device_name": "NVIDIA GeForce RTX 5090",
+    "tensor_op_pass": true,
+    "torch_cuda_status": "TORCH_CUDA_TENSOR_OP_PASS"
   },
   "backends": {
     "onnxruntime": "unknown",
@@ -31,11 +31,11 @@
     "vapoursynth": "unknown"
   },
   "backend_classifications": [
-    "GPU_PROOF_BACKEND_UNKNOWN"
+    "GPU_PROOF_BACKEND_READY_CUDA"
   ],
-  "classification": "GPU_PROOF_CUDA_VISIBLE",
+  "classification": "GPU_PROOF_TENSOR_OP_PASS",
   "safe_for_model_download": false,
   "notes": [
-    "Sample fixture. CUDA is visible, but tensor and backend readiness are still unproven."
+    "Sample fixture. A tiny PyTorch CUDA tensor op passed; model artifacts and runtime pipelines remain gated."
   ]
 }

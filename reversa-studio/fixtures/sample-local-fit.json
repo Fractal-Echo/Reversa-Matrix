@@ -2,23 +2,28 @@
   "schema_version": 1,
   "generated_fixture": true,
   "source_authority": false,
-  "proof_classification": "GPU_PROOF_CUDA_VISIBLE",
+  "proof_classification": "GPU_PROOF_TENSOR_OP_PASS",
   "summary": {
     "totalRecords": 774,
-    "readyCandidates": 0,
+    "readyCandidates": 124,
     "possibleButModelDeferred": 48,
-    "cudaBackendPossible": 122,
+    "cudaBackendPossible": 141,
     "torchCudaMissing": 0,
     "blockedByLicense": 32,
-    "blockedByMissingBackend": 396,
+    "blockedByMissingBackend": 518,
     "deferredModelArtifacts": 48,
-    "linuxProtonUnproven": 3
+    "linuxProtonUnproven": 2
   },
   "actions": [
     {
+      "label": "Tensor proof candidate",
+      "status": "candidate",
+      "count": 124
+    },
+    {
       "label": "CUDA possible",
       "status": "candidate",
-      "count": 122
+      "count": 141
     },
     {
       "label": "License review required",
@@ -84,7 +89,7 @@
         "cuda",
         "pytorch"
       ],
-      "action": "CUDA possible",
+      "action": "Tensor proof candidate",
       "source_authority": false
     },
     {
@@ -115,7 +120,7 @@
         "cuda",
         "pytorch"
       ],
-      "action": "CUDA possible",
+      "action": "Tensor proof candidate",
       "source_authority": false
     }
   ]

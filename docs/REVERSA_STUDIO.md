@@ -44,8 +44,11 @@ candidates. The proof lane records Nvidia metadata, CUDA visibility, existing
 PyTorch CUDA state, a tiny CUDA tensor result when PyTorch already supports it,
 and passive backend availability.
 
-The proof lane does not install packages, acquire model artifacts, launch games,
-launch graphics runtimes, connect to phones, or mutate projects.
+The proof command does not install packages, acquire model artifacts, launch
+games, launch graphics runtimes, connect to phones, or mutate projects. A
+separate controlled setup may install official PyTorch CUDA wheels into
+`local/venvs/reversa-torch-cuda-proof` only, then pass that interpreter with
+`--python` for tensor-op proof.
 
 ## What Version 01 Does Not Do
 
@@ -118,7 +121,9 @@ Without those facts, acceleration remains a candidate, not a proven backend.
 Use:
 
 ```bash
-node ./bin/reversa.js studio gpu-proof --out /path/to/gpu-proof
+node ./bin/reversa.js studio gpu-proof \
+  --python local/venvs/reversa-torch-cuda-proof/bin/python \
+  --out /path/to/gpu-proof
 ```
 
 Then join it with the advisory dataset:

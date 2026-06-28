@@ -38,6 +38,7 @@ levels are also reported as backend readiness evidence where applicable.
   "python": {
     "executable": "/usr/bin/python3",
     "version": "3.x",
+    "requested_executable": "local/venvs/reversa-torch-cuda-proof/bin/python",
     "torch_available": true,
     "torch_version": "0.0",
     "torch_cuda_available": true,
@@ -65,10 +66,42 @@ levels are also reported as backend readiness evidence where applicable.
 - `safe_for_model_download` is always `false` in this pass.
 - Generated GPU proof is local evidence.
 - Missing PyTorch does not fail the proof capture.
-- Reversa does not install PyTorch or any backend package.
+- The `studio gpu-proof` command does not install PyTorch or any backend
+  package.
 - Reversa does not acquire model artifacts.
 - Reversa does not launch games, graphics runtimes, phone tools, or Nebula.
 - Tiny tensor proof runs only when PyTorch already reports CUDA availability.
+
+## Controlled Local Venv Proof
+
+A separate operator-controlled proof lane may create an isolated venv under:
+
+```text
+local/venvs/reversa-torch-cuda-proof
+```
+
+That lane may install official PyTorch CUDA wheels into that venv only, then run
+a tiny deterministic tensor operation through:
+
+```bash
+node ./bin/reversa.js studio gpu-proof \
+  --python local/venvs/reversa-torch-cuda-proof/bin/python \
+  --out /path/to/gpu-proof
+```
+
+Allowed claim:
+
+```text
+Reversa Studio can verify that a local PyTorch CUDA tensor operation works on
+the RTX 5090.
+```
+
+Disallowed claims:
+
+- models are ready;
+- frame generation is active;
+- all CUDA models can run;
+- runtime pipelines have been tested.
 
 ## Advisory Fit
 
