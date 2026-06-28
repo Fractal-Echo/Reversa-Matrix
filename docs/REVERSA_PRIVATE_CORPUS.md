@@ -98,3 +98,22 @@ sha256sums.txt
 
 The private corpus is a memory substrate. It does not replace scanner truth,
 known-good frontier guards, or explicit runtime proof.
+
+## Search
+
+```bash
+node ./bin/reversa.js dataset private-corpus-search \
+  --corpus local/private-corpus/run-01 \
+  --query "NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS real_buffer_commits" \
+  --top 8 \
+  --out local/private-corpus/run-01/query-wayland-frontier
+```
+
+The search command is offline. It ranks existing chunks by query terms,
+retrieval tags, source authority, raw-proof status, and generated-artifact
+penalties. It writes:
+
+```text
+private-corpus-query-results.json
+private-corpus-query-results.md
+```

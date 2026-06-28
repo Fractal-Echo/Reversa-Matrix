@@ -15,6 +15,7 @@ import {
   syntheticNegativeRecords,
 } from '../scripts/build-gpu-upscale-framegen-dataset.js';
 import { buildPrivateCorpus } from '../scripts/build-private-corpus.js';
+import { queryPrivateCorpus } from '../scripts/query-private-corpus.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..');
@@ -292,6 +293,81 @@ test('dataset command exposes private-corpus help', () => {
   assert.match(result.stdout, /Do not\s+commit generated corpus outputs/);
 });
 
+test('private corpus search ranks source and raw proof above generated artifacts', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-private-corpus-search-'));
+  const corpusDir = join(root, 'corpus');
+  await mkdir(corpusDir, { recursive: true });
+
+  const records = [
+    corpusRecord({
+      id: 'a',
+      sourceId: 'raw_proof',
+      authorityClass: 'raw_proof',
+      sourceAuthority: true,
+      rawProof: true,
+      generated: false,
+      path: 'result.md',
+      text: 'NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS vkGetMemoryFdKHR=0 real_buffer_commits=2 sidecar-14',
+      tags: ['nebula', 'graphics', 'known_good'],
+    }),
+    corpusRecord({
+      id: 'b',
+      sourceId: 'generated_scan',
+      authorityClass: 'generated_artifact',
+      sourceAuthority: false,
+      rawProof: false,
+      generated: true,
+      path: 'report.json',
+      text: 'Generated report repeats NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS real_buffer_commits=2',
+      tags: ['nebula', 'graphics'],
+    }),
+    corpusRecord({
+      id: 'c',
+      sourceId: 'notes',
+      authorityClass: 'operator_note',
+      sourceAuthority: false,
+      rawProof: false,
+      generated: false,
+      path: 'note.md',
+      text: 'Wayland note needs corroboration.',
+      tags: ['nebula'],
+    }),
+  ];
+  await writeFile(join(corpusDir, 'private-corpus-records.jsonl'), records.map(record => JSON.stringify(record)).join('\n') + '\n', 'utf8');
+
+  const result = await queryPrivateCorpus({
+    corpus: corpusDir,
+    query: 'NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS real_buffer_commits',
+    top: 2,
+    out: join(root, 'query-out'),
+  });
+
+  assert.equal(result.returned, 2);
+  assert.equal(result.results[0].source_id, 'raw_proof');
+  assert.equal(result.results[0].source_authority, true);
+  assert.equal(result.results[0].raw_proof, true);
+  assert.equal(result.results[1].source_id, 'generated_scan');
+  assert.equal(result.results[1].generated_artifact, true);
+  assert(existsSync(join(root, 'query-out', 'private-corpus-query-results.json')));
+  assert(existsSync(join(root, 'query-out', 'private-corpus-query-results.md')));
+});
+
+test('dataset command exposes private-corpus-search help', () => {
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'dataset',
+    'private-corpus-search',
+    '--help',
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /private-corpus-search/);
+  assert.match(result.stdout, /does not mutate source files/);
+});
+
 function fakeReport(projectRoot, evidenceRows, patchCandidates = []) {
   return {
     scan: { project_root: projectRoot, profile: 'gpu_upscale_framegen' },
@@ -320,4 +396,38 @@ async function readJsonl(path) {
     .split(/\r?\n/)
     .filter(Boolean)
     .map(line => JSON.parse(line));
+}
+
+function corpusRecord({
+  id,
+  sourceId,
+  authorityClass,
+  sourceAuthority,
+  rawProof,
+  generated,
+  path,
+  text,
+  tags,
+}) {
+  return {
+    id,
+    record_id: id,
+    source_id: sourceId,
+    source_role: authorityClass,
+    authority_class: authorityClass,
+    source_authority: sourceAuthority,
+    raw_proof: rawProof,
+    generated_artifact: generated,
+    training_allowed: sourceAuthority && !generated,
+    retrieval_allowed: true,
+    relative_path: path,
+    chunk_index: 0,
+    chunk_count: 1,
+    line_start: 1,
+    line_end: 1,
+    content_sha256: `content-${id}`,
+    chunk_sha256: `chunk-${id}`,
+    retrieval_tags: tags,
+    text,
+  };
 }
