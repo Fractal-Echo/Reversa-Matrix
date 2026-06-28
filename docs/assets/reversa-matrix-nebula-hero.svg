@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1200 640">
+  <title id="title">Reversa-Matrix Nebula-style hero</title>
+  <desc id="desc">Nebula-inspired Reversa-Matrix hero with neon RM core, evidence orbit, mode panels, and cyberdeck frame.</desc>
+  <defs>
+    <linearGradient id="nebulaBg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#020407"/>
+      <stop offset="0.55" stop-color="#061018"/>
+      <stop offset="1" stop-color="#0d0508"/>
+    </linearGradient>
+    <linearGradient id="greenCyan" x1="0" x2="1">
+      <stop offset="0" stop-color="#61ff33"/>
+      <stop offset="1" stop-color="#00e7ff"/>
+    </linearGradient>
+    <linearGradient id="redCyan" x1="0" x2="1">
+      <stop offset="0" stop-color="#ff304f"/>
+      <stop offset="1" stop-color="#00e7ff"/>
+    </linearGradient>
+    <filter id="softGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="deepGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="10" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="grid" width="36" height="36" patternUnits="userSpaceOnUse">
+      <path d="M36 0H0V36" fill="none" stroke="#123041" stroke-width="1" opacity=".52"/>
+    </pattern>
+    <pattern id="matrixDots" width="18" height="18" patternUnits="userSpaceOnUse">
+      <circle cx="2" cy="2" r="1.2" fill="#00e7ff" opacity=".33"/>
+      <circle cx="11" cy="9" r="1" fill="#61ff33" opacity=".28"/>
+    </pattern>
+  </defs>
+
+  <rect width="1200" height="640" rx="30" fill="url(#nebulaBg)"/>
+  <rect width="1200" height="640" rx="30" fill="url(#grid)" opacity=".85"/>
+  <rect x="38" y="48" width="1124" height="544" rx="6" fill="#04090e" opacity=".58"/>
+  <path d="M88 84h250l44-44h436l44 44h250v362h-250l-44 44H382l-44-44H88z" fill="#071018" stroke="#244459" stroke-width="2.5"/>
+  <path d="M134 106h224m484 0h224" fill="none" stroke="#00e7ff" stroke-width="4" opacity=".92" filter="url(#softGlow)"/>
+  <path d="M132 470h210l34 34h448l34-34h210" fill="none" stroke="url(#redCyan)" stroke-width="5" filter="url(#softGlow)"/>
+
+  <g font-family="ui-monospace,Consolas,monospace" font-weight="800">
+    <text x="88" y="48" fill="#edf7ff" font-size="18" letter-spacing="3">FRACTAL-ECHO</text>
+    <text x="1002" y="48" fill="#ff304f" font-size="18" letter-spacing="2">RM11 PRO</text>
+    <text x="1088" y="72" fill="#96a5b6" font-size="12">PROOF MODE</text>
+  </g>
+
+  <g transform="translate(600 282)">
+    <ellipse rx="315" ry="154" fill="none" stroke="#00e7ff" stroke-width="1.5" opacity=".44" transform="rotate(-11)"/>
+    <ellipse rx="286" ry="132" fill="none" stroke="#61ff33" stroke-width="3" opacity=".78" transform="rotate(12)" filter="url(#softGlow)"/>
+    <ellipse rx="352" ry="172" fill="none" stroke="#ff304f" stroke-width="2" opacity=".62" transform="rotate(-19)"/>
+    <ellipse rx="236" ry="104" fill="url(#matrixDots)" opacity=".72" transform="rotate(7)"/>
+    <path d="M-296 24c80-64 168-88 264-72s168 58 252 28 142-8 192 52" fill="none" stroke="#61ff33" stroke-width="4" opacity=".88" filter="url(#deepGlow)"/>
+    <path d="M-238-34c68 32 132 42 194 30s116-52 178-46 122 42 178 92" fill="none" stroke="#00e7ff" stroke-width="3" opacity=".8" filter="url(#softGlow)"/>
+    <path d="M-300 70c80 34 158 32 234-6s148-58 216-32 124 64 182 68" fill="none" stroke="#ff304f" stroke-width="2" opacity=".74"/>
+    <circle cx="-238" cy="-16" r="9" fill="#071018" stroke="#61ff33" stroke-width="3" filter="url(#softGlow)"/>
+    <circle cx="246" cy="-66" r="8" fill="#071018" stroke="#00e7ff" stroke-width="3" filter="url(#softGlow)"/>
+    <circle cx="314" cy="84" r="8" fill="#071018" stroke="#ff304f" stroke-width="3" filter="url(#softGlow)"/>
+  </g>
+
+  <g transform="translate(456 164)">
+    <path d="M64 0h152l64 38v152l-64 38H64L0 190V38z" fill="#03110d" stroke="#61ff33" stroke-width="6" filter="url(#deepGlow)"/>
+    <path d="M32 190h184l64-38" fill="none" stroke="#00e7ff" stroke-width="4" opacity=".85"/>
+    <text x="50" y="151" fill="#61ff33" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="102" font-weight="950">R</text>
+    <text x="145" y="151" fill="#00e7ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="102" font-weight="950">M</text>
+  </g>
+
+  <g font-family="Inter,Segoe UI,Arial,sans-serif" text-anchor="middle">
+    <text x="600" y="414" fill="#edf7ff" font-size="56" font-weight="950" letter-spacing="7" textLength="730" lengthAdjust="spacingAndGlyphs">REVERSA-MATRIX</text>
+    <text x="600" y="454" fill="#00e7ff" font-size="20" font-weight="900" letter-spacing="9" textLength="640" lengthAdjust="spacingAndGlyphs">NEBULA STYLE / REVERSA CORE</text>
+  </g>
+
+  <g font-family="ui-monospace,Consolas,monospace" font-weight="800">
+    <g transform="translate(126 514)">
+      <path d="M0 0h264l24 24-24 78H0z" fill="#060d12" stroke="#61ff33" stroke-width="1.5"/>
+      <text x="30" y="36" fill="#61ff33" font-size="18" letter-spacing="2">EVIDENCE CORE</text>
+      <text x="30" y="72" fill="#edf7ff" font-size="16">json/jsonl truth</text>
+      <path d="M242 72l18 18 18-18" fill="none" stroke="#61ff33" stroke-width="3"/>
+    </g>
+    <g transform="translate(456 514)">
+      <path d="M0 0h264l24 24-24 78H0z" fill="#060d12" stroke="#00e7ff" stroke-width="1.5"/>
+      <text x="30" y="36" fill="#00e7ff" font-size="18" letter-spacing="2">FRONTIER GUARD</text>
+      <text x="30" y="72" fill="#edf7ff" font-size="16">known-good first</text>
+      <path d="M242 72l18 18 18-18" fill="none" stroke="#00e7ff" stroke-width="3"/>
+    </g>
+    <g transform="translate(786 514)">
+      <path d="M0 0h264l24 24-24 78H0z" fill="#060d12" stroke="#ff304f" stroke-width="1.5"/>
+      <text x="30" y="36" fill="#ff304f" font-size="18" letter-spacing="2">PATCH WIZARD</text>
+      <text x="30" y="72" fill="#edf7ff" font-size="16">review-only plans</text>
+      <path d="M242 72l18 18 18-18" fill="none" stroke="#ff304f" stroke-width="3"/>
+    </g>
+  </g>
+
+  <g font-family="ui-monospace,Consolas,monospace" font-size="16" font-weight="800">
+    <rect x="104" y="126" width="172" height="54" rx="4" fill="#06140d" stroke="#61ff33"/>
+    <text x="126" y="158" fill="#61ff33">CORE ONLINE</text>
+    <rect x="924" y="126" width="172" height="54" rx="4" fill="#16070b" stroke="#ff304f"/>
+    <text x="944" y="158" fill="#ff304f">GUARDED</text>
+    <rect x="496" y="76" width="208" height="44" rx="4" fill="#06131a" stroke="#00e7ff"/>
+    <text x="522" y="104" fill="#00e7ff">SOURCE TRUTH</text>
+  </g>
+</svg>

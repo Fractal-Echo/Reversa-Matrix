@@ -1,26 +1,54 @@
 <svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1000 620">
   <title id="title">Known-good frontier guard example</title>
-  <desc id="desc">Example shot showing Reversa preserving a known-good frontier above a newer lower failed run.</desc>
-  <rect width="1000" height="620" rx="22" fill="#030609"/>
-  <rect x="46" y="42" width="908" height="536" rx="14" fill="#07111a" stroke="#254a60" stroke-width="2"/>
-  <text x="82" y="100" fill="#edf7ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="36" font-weight="900">Known-Good Frontier Guard</text>
-  <text x="84" y="134" fill="#18e5ff" font-family="ui-monospace,Consolas,monospace" font-size="18">newer is not stronger / raw proof beats status-only</text>
+  <desc id="desc">Nebula-style frontier guard shot showing an older raw known-good proof outranking a newer lower failed run.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#020407"/>
+      <stop offset=".55" stop-color="#061018"/>
+      <stop offset="1" stop-color="#100609"/>
+    </linearGradient>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M30 0H0V30" fill="none" stroke="#123041" stroke-width="1" opacity=".55"/>
+    </pattern>
+  </defs>
+  <rect width="1000" height="620" rx="24" fill="url(#bg)"/>
+  <rect width="1000" height="620" rx="24" fill="url(#grid)"/>
+  <path d="M58 46h884v528H58z" fill="#071018" stroke="#244459" stroke-width="2.5"/>
+  <path d="M96 84h210m388 0h210" stroke="#00e7ff" stroke-width="4" filter="url(#glow)"/>
+  <text x="96" y="124" fill="#edf7ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="34" font-weight="950" letter-spacing="2">KNOWN-GOOD FRONTIER</text>
+  <text x="98" y="154" fill="#00e7ff" font-family="ui-monospace,Consolas,monospace" font-size="17" font-weight="800">raw proof beats recency / newer is not stronger</text>
+
   <g font-family="Inter,Segoe UI,Arial,sans-serif">
-    <rect x="94" y="190" width="335" height="240" rx="8" fill="#04110e" stroke="#65ff4d" stroke-width="2"/>
-    <text x="122" y="232" fill="#65ff4d" font-size="19" font-weight="900">HIGHEST KNOWN GOOD</text>
-    <text x="122" y="276" fill="#edf7ff" font-size="24" font-weight="800">WAYLAND REAL BUFFER PASS</text>
-    <text x="122" y="322" fill="#93a5b8" font-size="18">real_buffer_commits=2</text>
-    <text x="122" y="354" fill="#93a5b8" font-size="18">vkGetMemoryFdKHR=0</text>
-    <text x="122" y="386" fill="#93a5b8" font-size="18">sidecar-14 + sidecar-06</text>
-    <rect x="572" y="190" width="335" height="240" rx="8" fill="#14070b" stroke="#ff304f" stroke-width="2"/>
-    <text x="600" y="232" fill="#ff304f" font-size="19" font-weight="900">NEWER LOWER RUN</text>
-    <text x="600" y="276" fill="#edf7ff" font-size="24" font-weight="800">BELOW FRONTIER</text>
-    <text x="600" y="322" fill="#93a5b8" font-size="18">xserver_ready=no</text>
-    <text x="600" y="354" fill="#93a5b8" font-size="18">real_buffer_commits=0</text>
-    <text x="600" y="386" fill="#93a5b8" font-size="18">SIGBUS stayed fatal</text>
+    <path d="M96 198h330l24 24-24 206H96z" fill="#06100c" stroke="#61ff33" stroke-width="2"/>
+    <text x="126" y="242" fill="#61ff33" font-size="18" font-weight="950" letter-spacing="2">HIGHEST KNOWN GOOD</text>
+    <text x="126" y="286" fill="#edf7ff" font-size="24" font-weight="900" textLength="286" lengthAdjust="spacingAndGlyphs">WAYLAND REAL BUFFER PASS</text>
+    <text x="126" y="330" fill="#96a5b6" font-size="18">real_buffer_commits=2</text>
+    <text x="126" y="362" fill="#96a5b6" font-size="18">vkGetMemoryFdKHR=0</text>
+    <text x="126" y="394" fill="#96a5b6" font-size="18">sidecar-14 + sidecar-06</text>
+
+    <path d="M550 198h330l24 24-24 206H550z" fill="#12070b" stroke="#ff304f" stroke-width="2"/>
+    <text x="580" y="242" fill="#ff304f" font-size="18" font-weight="950" letter-spacing="2">NEWER LOWER RUN</text>
+    <text x="580" y="286" fill="#edf7ff" font-size="25" font-weight="900">REGRESSION DETECTED</text>
+    <text x="580" y="330" fill="#96a5b6" font-size="18">xserver_ready=no</text>
+    <text x="580" y="362" fill="#96a5b6" font-size="18">real_buffer_commits=0</text>
+    <text x="580" y="394" fill="#96a5b6" font-size="18">SIGBUS stayed fatal</text>
   </g>
-  <path d="M445 305h93" stroke="#18e5ff" stroke-width="5"/>
-  <path d="M526 289l28 16-28 16z" fill="#18e5ff"/>
-  <rect x="154" y="476" width="692" height="54" rx="8" fill="#0c1724" stroke="#ffc857"/>
-  <text x="180" y="510" fill="#ffc857" font-family="ui-monospace,Consolas,monospace" font-size="21">REGRESSION_BELOW_KNOWN_GOOD_FRONTIER -> recover exact working harness</text>
+
+  <path d="M464 310h72" stroke="#00e7ff" stroke-width="5" filter="url(#glow)"/>
+  <path d="M522 292l32 18-32 18z" fill="#00e7ff" filter="url(#glow)"/>
+  <circle cx="500" cy="310" r="58" fill="none" stroke="#61ff33" stroke-width="2" opacity=".48"/>
+  <circle cx="500" cy="310" r="38" fill="none" stroke="#ff304f" stroke-width="2" opacity=".48"/>
+
+  <g font-family="ui-monospace,Consolas,monospace" font-size="18" font-weight="800">
+    <path d="M126 482h748l28 28-28 50H126z" fill="#04090e" stroke="#00e7ff" stroke-width="1.5"/>
+    <text x="156" y="520" fill="#61ff33">REGRESSION BELOW FRONTIER</text>
+    <text x="552" y="520" fill="#ff304f">RECOVER EXACT HARNESS</text>
+  </g>
 </svg>

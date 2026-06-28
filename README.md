@@ -5,7 +5,7 @@ Reversa-Matrix is a local evidence scanner, contradiction detector, and guarded 
 [![Docs](https://img.shields.io/badge/DOCS-Reversa--Matrix-009c3b?style=for-the-badge&logo=material-for-mkdocs&logoColor=white&labelColor=2d2d2d)](https://fractal-echo.github.io/Reversa-Matrix/)
 
 <p align="center">
-  <img src="docs/assets/reversa-matrix-hero-v3.svg" alt="Reversa-Matrix RM monogram" width="900">
+  <img src="docs/assets/reversa-matrix-nebula-hero.svg" alt="Reversa-Matrix Nebula-style hero" width="900">
 </p>
 
 It scans repositories, extracted project trees, config folders, logs, runtime notes, and agent instructions. It writes structured reports that help a human or coding agent see what is known, what conflicts, what needs proof, and what should not be patched yet.

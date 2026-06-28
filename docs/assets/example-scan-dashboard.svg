@@ -1,46 +1,56 @@
 <svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1000 620">
   <title id="title">Reversa scan dashboard example</title>
-  <desc id="desc">Example dashboard shot showing findings, contradictions, patch candidates, and evidence output.</desc>
+  <desc id="desc">Nebula-style Reversa dashboard shot showing findings, contradictions, patch candidates, and evidence output.</desc>
   <defs>
-    <linearGradient id="bg" x1="0" x2="1">
-      <stop offset="0" stop-color="#030609"/>
-      <stop offset="1" stop-color="#0b1722"/>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#020407"/>
+      <stop offset=".58" stop-color="#061018"/>
+      <stop offset="1" stop-color="#0d0508"/>
     </linearGradient>
-    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
-      <path d="M28 0H0V28" fill="none" stroke="#183449" stroke-width="1" opacity="0.45"/>
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <pattern id="grid" width="30" height="30" patternUnits="userSpaceOnUse">
+      <path d="M30 0H0V30" fill="none" stroke="#123041" stroke-width="1" opacity=".55"/>
     </pattern>
   </defs>
-  <rect width="1000" height="620" rx="22" fill="url(#bg)"/>
-  <rect width="1000" height="620" rx="22" fill="url(#grid)"/>
-  <rect x="34" y="32" width="932" height="556" rx="14" fill="#07111a" stroke="#254a60" stroke-width="2"/>
-  <text x="64" y="82" fill="#edf7ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="36" font-weight="900">Scan Report</text>
-  <text x="66" y="116" fill="#18e5ff" font-family="ui-monospace,Consolas,monospace" font-size="18">profile=power_tdp_runtime output=reversa_out</text>
-  <g font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="800">
-    <rect x="64" y="154" width="200" height="110" rx="8" fill="#0c1724" stroke="#65ff4d"/>
-    <text x="84" y="190" fill="#93a5b8" font-size="16">Findings</text>
-    <text x="84" y="238" fill="#65ff4d" font-size="46">731</text>
-    <rect x="286" y="154" width="200" height="110" rx="8" fill="#0c1724" stroke="#18e5ff"/>
-    <text x="306" y="190" fill="#93a5b8" font-size="16">Contradictions</text>
-    <text x="306" y="238" fill="#18e5ff" font-size="46">0</text>
-    <rect x="508" y="154" width="200" height="110" rx="8" fill="#0c1724" stroke="#ffc857"/>
-    <text x="528" y="190" fill="#93a5b8" font-size="16">Patch Candidates</text>
-    <text x="528" y="238" fill="#ffc857" font-size="46">0</text>
-    <rect x="730" y="154" width="170" height="110" rx="8" fill="#0c1724" stroke="#ff304f"/>
-    <text x="750" y="190" fill="#93a5b8" font-size="16">Severity</text>
-    <text x="750" y="238" fill="#ff304f" font-size="38">HIGH</text>
+  <rect width="1000" height="620" rx="24" fill="url(#bg)"/>
+  <rect width="1000" height="620" rx="24" fill="url(#grid)"/>
+  <path d="M54 52h236l32-32h356l32 32h236v516H54z" fill="#071018" stroke="#244459" stroke-width="2.5"/>
+  <path d="M92 88h206m404 0h206" stroke="#00e7ff" stroke-width="4" filter="url(#glow)"/>
+  <text x="92" y="124" fill="#edf7ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="34" font-weight="950" letter-spacing="2">SCAN DASHBOARD</text>
+  <text x="94" y="154" fill="#61ff33" font-family="ui-monospace,Consolas,monospace" font-size="17" font-weight="800">profile=power_tdp_runtime source=json/jsonl</text>
+  <text x="804" y="124" fill="#ff304f" font-family="ui-monospace,Consolas,monospace" font-size="18" font-weight="800">GUARDED</text>
+
+  <g font-family="Inter,Segoe UI,Arial,sans-serif" font-weight="900">
+    <path d="M92 196h178l20 20-20 92H92z" fill="#06100c" stroke="#61ff33"/>
+    <text x="116" y="232" fill="#61ff33" font-size="16" letter-spacing="2">FINDINGS</text>
+    <text x="116" y="286" fill="#edf7ff" font-size="48">731</text>
+    <path d="M308 196h178l20 20-20 92H308z" fill="#061019" stroke="#00e7ff"/>
+    <text x="332" y="232" fill="#00e7ff" font-size="16" letter-spacing="2">CONFLICTS</text>
+    <text x="332" y="286" fill="#edf7ff" font-size="48">0</text>
+    <path d="M524 196h178l20 20-20 92H524z" fill="#12070b" stroke="#ff304f"/>
+    <text x="548" y="232" fill="#ff304f" font-size="16" letter-spacing="2">PATCHES</text>
+    <text x="548" y="286" fill="#edf7ff" font-size="48">0</text>
+    <path d="M740 196h168l20 20-20 92H740z" fill="#090f13" stroke="#244459"/>
+    <text x="764" y="232" fill="#96a5b6" font-size="16" letter-spacing="2">SEVERITY</text>
+    <text x="764" y="286" fill="#61ff33" font-size="36">READY</text>
   </g>
-  <g font-family="ui-monospace,Consolas,monospace" font-size="19">
-    <rect x="64" y="304" width="405" height="214" rx="8" fill="#04090e" stroke="#1f3448"/>
-    <text x="86" y="342" fill="#65ff4d">TDP_BACKEND_RYZENADJ</text>
-    <text x="86" y="378" fill="#18e5ff">GAME_PROFILE_STEAM_APPID</text>
-    <text x="86" y="414" fill="#ffc857">STABLE_SAMPLE_HYSTERESIS</text>
-    <text x="86" y="450" fill="#edf7ff">MUTATION_REQUIRES_APPROVAL</text>
-    <text x="86" y="486" fill="#93a5b8">RUNTIME_PROOF_MISSING</text>
-    <rect x="512" y="304" width="388" height="214" rx="8" fill="#04090e" stroke="#1f3448"/>
-    <text x="534" y="342" fill="#edf7ff">report.json</text>
-    <text x="534" y="378" fill="#edf7ff">evidence.jsonl</text>
-    <text x="534" y="414" fill="#edf7ff">summary.md</text>
-    <text x="534" y="450" fill="#edf7ff">agent_handoff/</text>
-    <text x="534" y="486" fill="#65ff4d">dashboard.html</text>
+
+  <g font-family="ui-monospace,Consolas,monospace" font-size="18" font-weight="800">
+    <path d="M92 350h392v144H92z" fill="#04090e" stroke="#244459"/>
+    <text x="116" y="386" fill="#61ff33">TDP_BACKEND_RYZENADJ</text>
+    <text x="116" y="420" fill="#00e7ff">GAME_PROFILE_STEAM_APPID</text>
+    <text x="116" y="454" fill="#ff304f">MUTATION_REQUIRES_APPROVAL</text>
+    <path d="M532 350h376v144H532z" fill="#04090e" stroke="#244459"/>
+    <text x="558" y="386" fill="#edf7ff">report.json</text>
+    <text x="558" y="420" fill="#edf7ff">evidence.jsonl</text>
+    <text x="558" y="454" fill="#61ff33">agent_handoff/</text>
   </g>
+
+  <path d="M92 536h310l22 18h300l22-18h162" stroke="#00e7ff" stroke-width="4" fill="none" filter="url(#glow)"/>
 </svg>

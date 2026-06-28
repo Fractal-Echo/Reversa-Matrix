@@ -1,6 +1,6 @@
 # Reversa-Matrix
 
-![Reversa-Matrix RM monogram](assets/reversa-matrix-hero-v3.svg)
+![Reversa-Matrix Nebula-style hero](assets/reversa-matrix-nebula-hero.svg)
 
 Reversa-Matrix is an AI evidence, contradiction, and guarded patch-intelligence engine.
 

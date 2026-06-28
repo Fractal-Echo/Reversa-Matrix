@@ -7,9 +7,10 @@
   },
   "type": "module",
   "scripts": {
+    "check:assets": "node scripts/check-svg-assets.js",
     "check:public-clean": "node scripts/check-public-clean.js",
     "clean:generated": "node scripts/prune-generated-artifacts.js",
-    "test": "npm run check:public-clean && node --test test/*.test.js"
+    "test": "npm run check:public-clean && npm run check:assets && node --test test/*.test.js"
   },
   "keywords": [
     "reverse-engineering",
@@ -58,5 +59,8 @@
     "inquirer": "^9.2.0",
     "ora": "^7.0.1",
     "semver": "^7.6.0"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2"
   }
 }
