@@ -184,6 +184,28 @@ Critical rule:
 - Reversa should classify this condition as
   `REGRESSION_BELOW_KNOWN_GOOD_FRONTIER`.
 
+## Anland/Xwayland Responsiveness Rule
+
+Stage 18/19 evidence moved the current Anland question from "is the producer
+missing?" to "why do clients hang?"
+
+Known evidence:
+
+- Anland/KDE/KWin/Xwayland producer processes can be alive.
+- `/run/user/1000/wayland-0` and `/tmp/.X11-unix/X0` socket proof can exist.
+- Xauthority proof can exist.
+- `glxinfo -B`, software GLX, `xdpyinfo`, or `vulkaninfo --summary` can still
+  hang under bounded probes.
+
+Reversa should classify this as:
+
+```text
+anland_xwayland.classification=producer_alive_client_dead
+```
+
+Do not regress to missing-Anland assumptions unless producer or socket evidence
+is actually absent.
+
 ## GPU OC 1230MHz KernelSU Module Audit
 
 Current audit proof from 2026-06-27:

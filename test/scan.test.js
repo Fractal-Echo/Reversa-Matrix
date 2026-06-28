@@ -925,6 +925,121 @@ test('known good frontier profile promotes raw counts above status-only', async 
   assert(!report.contradictions.some(item => item.title === 'STATUS_PROOF_REQUIRES_RAW_LOG_RECOVERY'));
 });
 
+test('anland xwayland profile classifies producer alive with hung clients', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-anland-client-hang-'));
+  await writeFile(join(root, 'stage19-forensics-output.txt'), [
+    '160 /bin/bash /usr/local/bin/startanland-kde.sh',
+    '247 dbus-run-session startplasma-wayland',
+    '276 /usr/bin/kwin_wayland_wrapper --xwayland',
+    '277 /usr/bin/kwin_wayland --socket wayland-0 --xwayland-display :0',
+    'Gold Gold /run/user/1000/wayland-0 socket:[123]',
+    'Gold Gold /tmp/.X11-unix/X0 socket:[124]',
+    'XAUTHORITY=/run/user/1000/xauth_ycUGEE',
+    'MIT-MAGIC-COOKIE-1',
+    'XDPYINFO_GOLD_RC=124',
+    'GLXINFO_GOLD_RC=124',
+    'VULKANINFO_SUMMARY_RC=124',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'anland_xwayland_responsiveness',
+  });
+
+  assertEvidence(report, 'anland_xwayland_classification', 'anland_xwayland.classification=producer_alive_client_dead');
+  assertEvidence(report, 'anland_xwayland_classification', 'anland_xwayland.classification=x11_client_hang');
+  assertEvidence(report, 'anland_xwayland_classification', 'anland_xwayland.classification=glx_hang');
+  assertEvidence(report, 'anland_xwayland_classification', 'anland_xwayland.classification=vulkan_loader_bad');
+  assert.equal(report.patch_candidates.length, 0);
+});
+
+test('anland xwayland profile classifies missing display socket', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-anland-socket-missing-'));
+  await writeFile(join(root, 'result.md'), [
+    '/usr/local/bin/startanland-kde.sh running',
+    'kwin_wayland --xwayland',
+    '/run/user/1000/wayland-0: No such file or directory',
+    '/tmp/.X11-unix/X0: No such file or directory',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'anland_xwayland_responsiveness',
+  });
+
+  assertEvidence(report, 'anland_xwayland_classification', 'anland_xwayland.classification=socket_missing');
+  assertNoEvidence(report, ['anland_xwayland_classification'], 'anland_xwayland.classification=producer_alive_client_dead');
+  assert.equal(report.patch_candidates.length, 0);
+});
+
+test('anland xwayland profile classifies bad display authority', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-anland-display-bad-'));
+  await writeFile(join(root, 'display.log'), [
+    'kwin_wayland --socket wayland-0 --xwayland-display :0',
+    '/run/user/1000/wayland-0 socket:[123]',
+    '/tmp/.X11-unix/X0 socket:[124]',
+    'DISPLAY=:99',
+    'Error: unable to open display :99',
+    'No protocol specified',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'anland_xwayland_responsiveness',
+  });
+
+  assertEvidence(report, 'anland_xwayland_classification', 'anland_xwayland.classification=env_leakage');
+  assertEvidence(report, 'anland_xwayland_classification', 'anland_xwayland.classification=socket_present_auth_bad');
+  assert.equal(report.patch_candidates.length, 0);
+});
+
+test('anland xwayland profile classifies bad Vulkan loader separately', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-anland-vulkan-bad-'));
+  await writeFile(join(root, 'vulkan.log'), [
+    'kwin_wayland --socket wayland-0 --xwayland-display :0',
+    '/tmp/.X11-unix/X0 socket:[124]',
+    'VK_ICD_FILENAMES=/bad/freedreno_icd.json',
+    'ERROR_INCOMPATIBLE_DRIVER',
+    'VULKANINFO_SUMMARY_RC=1',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'anland_xwayland_responsiveness',
+  });
+
+  assertEvidence(report, 'anland_xwayland_classification', 'anland_xwayland.classification=vulkan_loader_bad');
+  assertNoEvidence(report, ['anland_xwayland_classification'], 'anland_xwayland.classification=socket_missing');
+  assert.equal(report.patch_candidates.length, 0);
+});
+
+test('anland xwayland profile recognizes known-good responsive pass', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-anland-known-good-'));
+  await writeFile(join(root, 'known-good.md'), [
+    '/usr/local/bin/startanland-kde.sh running',
+    'kwin_wayland --socket wayland-0 --xwayland-display :0',
+    '/run/user/1000/wayland-0 socket:[123]',
+    '/tmp/.X11-unix/X0 socket:[124]',
+    'NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS',
+    'preflight_ready',
+    'real_buffer_commits=2',
+    'vkGetMemoryFdKHR_failures=0',
+    'GLXINFO_GOLD_RC=0',
+    'OpenGL renderer string: Adreno KGSL',
+    'VULKANINFO_SUMMARY_RC=0',
+    'Vulkan Instance Version: 1.3',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'anland_xwayland_responsiveness',
+  });
+
+  assertEvidence(report, 'anland_xwayland_classification', 'anland_xwayland.classification=known_good_match');
+  assertNoEvidence(report, ['anland_xwayland_classification'], 'anland_xwayland.classification=producer_alive_client_dead');
+  assert.equal(report.patch_candidates.length, 0);
+});
+
 test('decoded media evidence profile reads JSONL proof without patch candidates', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-decoded-media-'));
   await writeFile(join(root, 'decoded-media-manifest.jsonl'), [

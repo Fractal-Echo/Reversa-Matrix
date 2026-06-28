@@ -67,6 +67,7 @@ nav:
   - Agent And Engine Use: engines.md
   - Semantic Policy Contradictions: semantic-policy-contradictions.md
   - Known-Good Frontier Guard: KNOWN_GOOD_FRONTIER_GUARD.md
+  - Anland Xwayland Responsiveness: ANLAND_XWAYLAND_RESPONSIVENESS.md
   - GPU Upscale And Framegen Evidence: GPU_UPSCALE_FRAMEGEN_EVIDENCE.md
   - GPU Upscale And Framegen Dataset: GPU_UPSCALE_FRAMEGEN_DATASET.md
   - Reversa Studio: REVERSA_STUDIO.md
