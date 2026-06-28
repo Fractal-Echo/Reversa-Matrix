@@ -1497,6 +1497,63 @@ test('semantic policy profile ignores documentation examples without hiding acti
   assert(!report.contradictions.some(item => item.category === 'semantic_policy_contradiction'));
 });
 
+test('semantic policy profile ignores schema, sample, analyzer, and copyright content policy noise', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-semantic-content-noise-'));
+  await mkdir(join(root, 'dotnet', 'samples', 'Plugin'), { recursive: true });
+  await mkdir(join(root, 'docs', 'decisions'), { recursive: true });
+  await mkdir(join(root, 'prompt_template_samples', 'WriterPlugin'), { recursive: true });
+  await mkdir(join(root, 'python', 'tests', 'unit'), { recursive: true });
+  await mkdir(join(root, 'python', 'semantic_kernel', 'agents'), { recursive: true });
+  await writeFile(join(root, 'AGENTS.md'), [
+    'This pass is read-only.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, '.editorconfig'), [
+    '[*.cs]',
+    'dotnet_diagnostic.CA2227.severity = none # Change to be read-only by removing the property setter',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'dotnet', 'samples', 'Plugin', 'messages-openapi.yml'), [
+    'description: The unique identifier for an entity. Read-only.',
+    'otherDescription: Request for user approval of the generated document.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'docs', 'decisions', '0030-branching-strategy.md'), [
+    'Developers create a branch, make changes, submit a pull request, and merge back to main.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'prompt_template_samples', 'WriterPlugin', 'skprompt.txt'), [
+    'Only reply the correction, the improvements and nothing else, do not write explanations.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'python', 'semantic_kernel', 'agents', 'approval.py'), [
+    '# Check if MCP tool approval is required',
+    '# Explicitly allow all domains for this plugin',
+    'approval_required = True',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'python', 'tests', 'unit', 'test_kernel.py'), [
+    '# Copyright (c) Microsoft. All rights reserved.',
+    'def test_kernel():',
+    '    assert True',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'semantic_policy',
+  });
+
+  assertEvidence(report, 'read_only', 'semantic_policy.read_only.workspace=read_only');
+  assertNoEvidence(report, ['write_allowed', 'source_patch_allowed'], 'patch_allowed');
+  assertNoEvidence(report, ['proprietary_reference_only'], 'semantic_policy.proprietary_reference_only.proprietary_source=reference_only');
+  assert(
+    !report.contradictions.some(item => item.title.includes('Read-only policy conflicts')),
+    'content/schema read-only prose should not collide with AGENTS.md task policy'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Approval-required policy conflicts')),
+    'sample app approval prose should not become agent approval policy'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Reference-only or do-not-copy policy conflicts')),
+    'copyright headers should not become proprietary reference-only policy'
+  );
+});
+
 test('semantic policy profile separates tester adb limits from device action bans', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-semantic-runtime-notes-'));
   await mkdir(join(root, 'app', 'src', 'main', 'java', 'example'), { recursive: true });
@@ -1640,6 +1697,116 @@ test('scanner scopes sectioned config assignments before contradiction grouping'
   assert(
     !report.contradictions.some(item => item.title.includes('Conflicting definitions for installed')),
     'same lowercase key in separate config sections should not conflict globally'
+  );
+});
+
+test('scanner scopes package config files by directory and section', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-package-config-scope-'));
+  await mkdir(join(root, 'dotnet', 'samples'), { recursive: true });
+  await mkdir(join(root, 'python', 'samples'), { recursive: true });
+  await writeFile(join(root, '.editorconfig'), [
+    '[*.cs]',
+    'dotnet_diagnostic.CA1031.severity = warning',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'dotnet', 'samples', '.editorconfig'), [
+    '[*.cs]',
+    'dotnet_diagnostic.CA1031.severity = none',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'pyproject.toml'), [
+    '[project]',
+    'name = "root-package"',
+    '',
+    '[tool.ruff]',
+    'target-version = "py311"',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'python', 'samples', 'pyproject.toml'), [
+    '[project]',
+    'name = "sample-package"',
+    '',
+    '[tool.ruff]',
+    'target-version = "py310"',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'semantic_policy',
+  });
+
+  assertEvidence(report, 'build_variables', 'config.root.glob_cs.dotnet_diagnostic.CA1031.severity=warning');
+  assertEvidence(report, 'build_variables', 'config.dotnet/samples.glob_cs.dotnet_diagnostic.CA1031.severity=none');
+  assertEvidence(report, 'build_variables', 'config.root.project.name=root-package');
+  assertEvidence(report, 'build_variables', 'config.python/samples.project.name=sample-package');
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for dotnet_diagnostic.CA1031.severity')),
+    'same analyzer key in nested .editorconfig files should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for name')),
+    'same pyproject project.name in separate package roots should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for tool.ruff.target-version')),
+    'same ruff key in separate pyproject roots should not conflict globally'
+  );
+});
+
+test('scanner does not treat prompt role syntax as source paths', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-prompt-role-paths-'));
+  await writeFile(join(root, 'agent.js'), [
+    '// The transcript has system/developer and system/user/assistant layers.',
+    'const runtimeDirs = ["system/bin", "system/xbin", "vendor/bin"];',
+    'const p = "vendor/lib64/libmissing_prompt_role_test.so";',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'semantic_policy',
+  });
+
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/developer');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/user/assistant');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/bin');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/xbin');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:vendor/bin');
+  assertEvidence(report, 'invalid_paths', 'referenced_path_missing:vendor/lib64/libmissing_prompt_role_test.so');
+});
+
+test('scanner treats GitHub Actions run-block assignments as local state', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-workflow-run-blocks-'));
+  await mkdir(join(root, '.github', 'workflows'), { recursive: true });
+  await writeFile(join(root, '.github', 'workflows', 'ci.yml'), [
+    'name: ci',
+    'on: pull_request',
+    'jobs:',
+    '  test:',
+    '    runs-on: ubuntu-latest',
+    '    if: github.event.discussion.category.name == \'Ideas\' || github.event.discussion.category.name == \'Q&A\'',
+    '    steps:',
+    '      - name: collect projects',
+    '        run: |',
+    '          csproj_files=()',
+    '          for file in ${{ steps.changed-files.outputs.added_modified }}; do',
+    '            dir="./$file"',
+    '            dir=$(echo ${dir%/*})',
+    '          done',
+    '          csproj_files=$(find ./ -type f -name "*.slnx" | tr \'\\n\' \' \')',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'semantic_policy',
+  });
+
+  assertEvidence(report, 'local_code_assignments', 'csproj_files=()');
+  assertEvidence(report, 'local_code_assignments', 'dir=./$file');
+  assertNoEvidence(report, ['build_variables', 'local_code_assignments'], 'github.event.discussion.category.name=');
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for csproj_files')),
+    'shell locals inside workflow run blocks should not become durable config contradictions'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for dir')),
+    'loop locals inside workflow run blocks should not become durable config contradictions'
   );
 });
 
