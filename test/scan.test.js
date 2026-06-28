@@ -127,6 +127,12 @@ test('scanner keeps live placeholder work but ignores scanner vocabulary and ref
   await writeFile(join(root, 'docs', 'summary.md'), 'TODO: replace copied summary assumption\n', 'utf8');
   await writeFile(join(root, 'docs', 'intentional.md'), '- Remaining candidate: the intentional migration TODO in `src/migration.py`\n', 'utf8');
   await writeFile(join(root, 'docs', 'facts.md'), '- Nebula assets and nested WIP repos:\n', 'utf8');
+  await writeFile(join(root, 'docs', 'release-status.md'), [
+    '# OrangeFox Recovery WIP',
+    'This recovery lane is WIP only. Do not flash it as a usable recovery release.',
+    '| GSI / ROM flow | WIP / reports |',
+    '- Clear warning if WIP.',
+  ].join('\n'), 'utf8');
   await writeFile(join(root, 'agents', 'reviewer', 'references', 'confidence.md'), '- Old comment or TODO that may not reflect current state\n', 'utf8');
 
   const report = await scanProject({
@@ -143,10 +149,12 @@ test('scanner keeps live placeholder work but ignores scanner vocabulary and ref
   assert(!report.patch_candidates.some(item => item.target_file === 'lib/scan/profiles.js'));
   assert(!report.patch_candidates.some(item => item.target_file.startsWith('test/')));
   assert(!report.patch_candidates.some(item => item.target_file.startsWith('docs/upstreams/')));
+  assert(!report.patch_candidates.some(item => item.target_file === 'docs/release-status.md'));
   assert(!report.patch_candidates.some(item => item.target_file.startsWith('agents/reviewer/references/')));
   assertNoExtractedText(report, "riskyLeftovers: ['TODO'");
   assertNoExtractedText(report, 'unresolved TODO marker');
   assertNoExtractedText(report, 'nested WIP repos');
+  assertNoExtractedText(report, 'This recovery lane is WIP only');
 });
 
 test('scanner avoids comment and profile false positives for fstab-like code lines', async () => {
@@ -533,6 +541,7 @@ test('scanner keeps vendored dependency placeholders out of patch candidates', a
   await mkdir(join(root, 'include', 'imgui'), { recursive: true });
   await mkdir(join(root, '.agents', 'skills', 'reversa-reviewer', 'references'), { recursive: true });
   await mkdir(join(root, 'thirdparty', 'toml11', 'docs'), { recursive: true });
+  await mkdir(join(root, 'producers', 'weston_v1', 'weston', 'clients'), { recursive: true });
   await mkdir(join(root, 'src'), { recursive: true });
   await writeFile(join(root, '.gitignore'), '# FAKE - F# Make\n', 'utf8');
   await writeFile(join(root, 'BO3-Transformed', '.agents', 'skills', 'reversa-reviewer', 'references', 'confidence-rules.md'), [
@@ -562,6 +571,9 @@ test('scanner keeps vendored dependency placeholders out of patch candidates', a
   await writeFile(join(root, 'include', 'imgui', 'imgui.cpp'), '// TODO: upstream docking note\n', 'utf8');
   await writeFile(join(root, '.agents', 'skills', 'reversa-reviewer', 'references', 'confidence-rules.md'), '- TODO: reviewer reference note\n', 'utf8');
   await writeFile(join(root, 'thirdparty', 'toml11', 'docs', 'config.toml'), '# TODO: upstream parser docs\n', 'utf8');
+  await writeFile(join(root, 'producers', 'weston_v1', 'weston', 'clients', 'simple-egl.c'), [
+    '/* TODO: upstream Weston sample note */',
+  ].join('\n'), 'utf8');
   await writeFile(join(root, 'src', 'owned.js'), '// TODO: replace copied runtime assumption with verified evidence\n', 'utf8');
 
   const report = await scanProject({
@@ -583,6 +595,24 @@ test('scanner keeps vendored dependency placeholders out of patch candidates', a
   assert(!report.patch_candidates.some(item => item.target_file.startsWith('include/imgui/')));
   assert(!report.patch_candidates.some(item => item.target_file.startsWith('.agents/')));
   assert(!report.patch_candidates.some(item => item.target_file.startsWith('thirdparty/')));
+  assert(!report.patch_candidates.some(item => item.target_file.startsWith('producers/weston_v1/')));
+});
+
+test('scanner keeps third-party runtime engine TODO evidence out of patch candidates', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-third-party-runtime-'));
+  const box64Root = join(root, 'box64');
+  await mkdir(join(box64Root, 'src'), { recursive: true });
+  await writeFile(join(box64Root, 'src', 'core.c'), [
+    '// TODO: upstream dynarec improvement note',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: box64Root,
+    profile: 'child_libpath',
+  });
+
+  assertEvidence(report, 'todo_fixme_stub_markers', 'placeholder_marker:TODO');
+  assert(!report.patch_candidates.some(item => item.target_file === 'src/core.c'));
 });
 
 test('scanner scopes submodule paths, wrapper locals, and command-line definitions out of contradictions', async () => {
@@ -1807,6 +1837,166 @@ test('scanner treats code constants and object fields as local implementation st
   );
 });
 
+test('scanner keeps extensionless runtime script probe variables out of global contradictions', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-runtime-script-probes-'));
+  await mkdir(join(root, 'app', 'src', 'main', 'assets', 'linux-runtime', 'bin'), { recursive: true });
+  await writeFile(join(root, 'app', 'src', 'main', 'assets', 'linux-runtime', 'bin', 'waylandie-status'), [
+    '#!/system/bin/sh',
+    'ABSTRACT_OK=false',
+    'TCP_OK=false',
+    'export WAYLAND_DISPLAY="waylandie"',
+    'if [ -S "$XDG_RUNTIME_DIR/wayland-0" ]; then',
+    '  ABSTRACT_OK=true',
+    'fi',
+    'if nc -z 127.0.0.1 7890; then',
+    '  TCP_OK=true',
+    'fi',
+    'export WAYLAND_DISPLAY="$WAYLAND_DISPLAY"',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'app', 'src', 'main', 'assets', 'linux-runtime', 'bin', 'waylandie-install-driver'), [
+    '#!/system/bin/sh',
+    'FILE=""',
+    'for candidate in "$@"; do',
+    '  FILE="$candidate"',
+    'done',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'child_libpath',
+  });
+
+  assertEvidence(report, 'build_variables', 'ABSTRACT_OK=false');
+  assertEvidence(report, 'build_variables', 'ABSTRACT_OK=true');
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for ABSTRACT_OK')),
+    'probe booleans in runtime scripts should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for TCP_OK')),
+    'probe booleans in runtime scripts should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for FILE')),
+    'loop-local script variables should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for WAYLAND_DISPLAY')),
+    'self-referential exports should not create durable definition contradictions'
+  );
+});
+
+test('scanner treats Android.mk module variables as scoped recipe state', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-android-mk-scope-'));
+  await mkdir(join(root, 'android'), { recursive: true });
+  await writeFile(join(root, 'android', 'Android.mk'), [
+    'LOCAL_PATH := $(call my-dir)',
+    'LOCAL_SHARED_LIBRARIES := libc libdl libdrm',
+    'ifeq ($(shell test $(PLATFORM_SDK_VERSION) -ge 30; echo $$?), 0)',
+    'MESA_LIBGBM_NAME := libgbm_mesa',
+    'else',
+    'MESA_LIBGBM_NAME := libgbm',
+    'endif',
+    'define mesa3d-lib',
+    'include $(CLEAR_VARS)',
+    'LOCAL_SHARED_LIBRARIES := $(__MY_SHARED_LIBRARIES)',
+    'LOCAL_MULTILIB := first',
+    'include $(BUILD_PREBUILT)',
+    'endef',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'nebula_vulkan_loader',
+  });
+
+  assertEvidence(report, 'build_variables', 'LOCAL_PATH=$(call my-dir)');
+  assertEvidence(report, 'build_variables', 'LOCAL_SHARED_LIBRARIES=libc libdl libdrm');
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for LOCAL_PATH')),
+    'Android.mk module locals should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for LOCAL_SHARED_LIBRARIES')),
+    'Android.mk module locals should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for MESA_LIBGBM_NAME')),
+    'conditional Android.mk recipe values should not conflict without a known-good fact'
+  );
+});
+
+test('scanner treats CI matrices and generated build outputs as scoped evidence', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-ci-generated-scope-'));
+  await mkdir(join(root, 'src', 'freedreno', 'ci'), { recursive: true });
+  await mkdir(join(root, 'src', 'freedreno', 'drm-shim'), { recursive: true });
+  await mkdir(join(root, 'src', 'freedreno', 'registers'), { recursive: true });
+  await mkdir(join(root, 'docs', 'ci'), { recursive: true });
+  await mkdir(join(root, 'system'), { recursive: true });
+  await writeFile(join(root, 'src', 'freedreno', 'ci', 'deqp-freedreno-a618.toml'), [
+    '[deqp.gles31]',
+    'deqp = "/deqp-gles/modules/gles31/deqp-gles31"',
+    'profile = "gpu"',
+    '',
+    '[deqp.gles3]',
+    'deqp = "/deqp-gles/modules/gles3/deqp-gles3"',
+    'profile = "quick_gl"',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'docs', 'ci', 'uri-caching.conf'), [
+    'access_by_lua_block {',
+    '  ngx.var.proxy_authorization = ngx.var.http_authorization;',
+    '  ngx.var.proxy_authorization = "Basic " .. auth64;',
+    '}',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'src', 'freedreno', 'drm-shim', 'README.md'), [
+    'Run with `LD_PRELOAD=$prefix/lib/libfreedreno_noop_drm_shim.so`.',
+    'Another driver can use `LD_PRELOAD=$prefix/lib/libv3d_noop_drm_shim.so`.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'src', 'freedreno', 'registers', 'adreno_pm4.xml'), [
+    '<register name="A" description="first counter" />',
+    '<register name="B" description="second counter" />',
+    '<value STATE_BLOCK="0x6" STATE_TYPE="0x2" />',
+    '<value STATE_BLOCK="0x7" STATE_TYPE="0x1" />',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'system', 'box64.conf.cmake'), '# generated box64 config template\n', 'utf8');
+  await writeFile(join(root, 'CMakeLists.txt'), [
+    'configure_file(system/box64.conf.cmake system/box64.conf)',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'nebula_vulkan_loader',
+  });
+
+  assertEvidence(report, 'build_variables', 'deqp=/deqp-gles/modules/gles31/deqp-gles31');
+  assertExtractedText(report, 'ngx.var.proxy_authorization = ngx.var.http_authorization;');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/box64.conf');
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for deqp')),
+    'CI matrix variants should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for profile')),
+    'CI matrix profiles should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for ngx.var.proxy_authorization')),
+    'docs/ci runtime config examples should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for LD_PRELOAD')),
+    'README usage examples should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for description')),
+    'XML metadata attributes should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for STATE_BLOCK')),
+    'XML register data should not conflict globally'
+  );
+});
+
 test('scanner scopes sectioned config assignments before contradiction grouping', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-sectioned-config-'));
   await writeFile(join(root, 'config.toml'), [
@@ -1934,6 +2124,101 @@ test('scanner does not treat prompt role syntax as source paths', async () => {
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:vendor/bin');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/interfaces/graphics/common/');
   assertEvidence(report, 'invalid_paths', 'referenced_path_missing:vendor/lib64/libmissing_prompt_role_test.so');
+});
+
+test('scanner ignores external platform header references while keeping real missing blobs', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-external-platform-paths-'));
+  await mkdir(join(root, 'src'), { recursive: true });
+  await mkdir(join(root, 'Android', 'app', 'src', 'main', 'res', 'values'), { recursive: true });
+  await writeFile(join(root, 'src', 'anw_hidden.h'), [
+    '/* framework/native libs/nativebase + system/core libcutils are external AOSP references. */',
+    '/* perform() ops / API ids (AOSP system/window.h) */',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'src', 'gpuvis_trace_utils.h'), [
+    '// From kernel/trace/trace.h',
+    '// We rely on hardware/drivers implementing the platform contract.',
+    '// Location: hardware/interfaces/graphics/common/1.2/',
+    '/* See system/graphics.h and system/graphics-base.h. */',
+    '/* Values are defined in hardware/libhardware/include/gralloc.h. */',
+    '/* See system/radio_metadata.h for the opaque radio metadata structure. */',
+    '/* A vendor/tool supplier may have multiple tool IDs. */',
+    '/* Returns the actual device vendor/manufacturer. */',
+    '/* Information about hardware/rasterization vertex layout. */',
+    '/* Dimensions are passed to firmware/hardware. */',
+    'const char* missing = "vendor/lib64/libmissing_external_ref_test.so";',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'Android', 'app', 'src', 'main', 'res', 'values', 'strings.xml'), [
+    '<resources>',
+    '  <string name="feat_hardware_title">Full hardware/GPU access</string>',
+    '</resources>',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'nebula_vulkan_loader',
+  });
+
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/core');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/window.h');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/graphics.h');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/graphics-base.h');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/radio_metadata.h');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:kernel/trace/trace.h');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/drivers');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/interfaces/graphics/common/1.2/');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/libhardware/include/gralloc.h');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:vendor/tool');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:vendor/manufacturer');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/rasterization');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:firmware/hardware');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/GPU');
+  assertEvidence(report, 'invalid_paths', 'referenced_path_missing:vendor/lib64/libmissing_external_ref_test.so');
+});
+
+test('runtime profiles keep patch context and target init paths out of missing-source checks', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-runtime-path-scope-'));
+  await mkdir(join(root, 'Documentation', 'resources', 'kernel-patches'), { recursive: true });
+  await mkdir(join(root, 'vendor', 'etc', 'init'), { recursive: true });
+  await mkdir(join(root, 'src'), { recursive: true });
+  await mkdir(join(root, 'src', 'gallium', 'drivers', 'vc4', 'kernel'), { recursive: true });
+  await writeFile(join(root, 'Documentation', 'resources', 'kernel-patches', 'cgroup.patch'), [
+    'diff --git a/kernel/cgroup/cgroup.c b/kernel/cgroup/cgroup.c',
+    '--- a/kernel/cgroup/cgroup.c',
+    '+++ b/kernel/cgroup/cgroup.c',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'vendor', 'etc', 'init', 'init.droidspaces.rc'), [
+    'service droidspacesd /vendor/bin/droidspaces daemon --foreground',
+    'service droidspaces_autoboot /vendor/bin/droidspaces_autoboot.sh',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'src', 'mount.c'), [
+    '/* Everything else is blocked: kernel/, vm/, fs/, dev/, abi/, debug/. */',
+    '/* Android: /dev/block/loopN; recovery/desktop: /dev/loopN */',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'src', 'gallium', 'drivers', 'vc4', 'vc4_cl.h'), [
+    '#include "kernel/vc4_packet.h"',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'src', 'gallium', 'drivers', 'vc4', 'kernel', 'vc4_packet.h'), [
+    'enum vc4_packet { VC4_PACKET_HALT = 0 };',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'src', 'intel_perf.c'), [
+    'min_file = "device/tile0/gt0/freq0/min_freq";',
+    'max_file = "device/tile0/gt0/freq0/max_freq";',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'child_libpath',
+  });
+
+  assertEvidence(report, 'init_rc_services', 'init_service:droidspacesd->/vendor/bin/droidspaces');
+  assertNoEvidence(report, ['invalid_paths', 'missing_files'], 'referenced_path_missing:kernel/cgroup/cgroup.c');
+  assertNoEvidence(report, ['invalid_paths', 'missing_files'], 'referenced_path_missing:/vendor/bin/droidspaces');
+  assertNoEvidence(report, ['invalid_paths', 'missing_files'], 'referenced_path_missing:/vendor/bin/droidspaces_autoboot.sh');
+  assertNoEvidence(report, ['invalid_paths', 'missing_files'], 'referenced_path_missing:kernel/');
+  assertNoEvidence(report, ['invalid_paths', 'missing_files'], 'referenced_path_missing:recovery/desktop');
+  assertNoEvidence(report, ['invalid_paths', 'missing_files'], 'referenced_path_missing:kernel/vc4_packet.h');
+  assertNoEvidence(report, ['invalid_paths', 'missing_files'], 'referenced_path_missing:device/tile0/gt0/freq0/min_freq');
+  assertNoEvidence(report, ['invalid_paths', 'missing_files'], 'referenced_path_missing:device/tile0/gt0/freq0/max_freq');
 });
 
 test('scanner treats GitHub Actions run-block assignments as local state', async () => {
