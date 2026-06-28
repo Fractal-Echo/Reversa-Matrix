@@ -1555,6 +1555,80 @@ test('semantic policy profile ignores documentation examples without hiding acti
   assert(!report.contradictions.some(item => item.category === 'semantic_policy_contradiction'));
 });
 
+test('semantic policy profile ignores historical recovery evidence and release-body command examples', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-semantic-recovery-history-'));
+  await mkdir(join(root, 'docs', 'orangefox-port'), { recursive: true });
+  await mkdir(join(root, '.github', 'workflows'), { recursive: true });
+  await writeFile(join(root, 'AGENTS.md'), [
+    'No phone actions. No adb install or reboot.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'docs', 'orangefox-port', 'result.md'), [
+    '- `fastboot boot OrangeFox.img`: FAIL, `Bad Buffer Size`.',
+    '- `fastboot flash recovery_a OrangeFox.img`: PASS.',
+    '- Booted recovery by `adb reboot recovery`.',
+    'Concrete inference: `fastboot boot` is a poor validation path for this image type.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, '.github', 'workflows', 'release.yml'), [
+    'name: release',
+    'on: workflow_dispatch',
+    'jobs:',
+    '  build:',
+    '    runs-on: ubuntu-latest',
+    '    steps:',
+    '      - name: release body',
+    '        with:',
+    '          body: |',
+    '            adb push OrangeFox.img /sdcard/recovery.img',
+    '            adb shell dd if=/sdcard/recovery.img of=/dev/block/bootdevice/by-name/recovery_a',
+    '            adb reboot recovery',
+    '      - name: active run command',
+    '        run: |',
+    '          adb install active.apk',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'semantic_policy',
+  });
+
+  assertEvidence(report, 'device_action_forbidden', 'semantic_policy.device_action_forbidden.device=device_actions_forbidden');
+  assertEvidence(report, 'device_action_allowed', 'semantic_policy.device_action_allowed.device=device_actions_allowed');
+  assertExtractedText(report, 'adb install active.apk');
+  assertNoPolicyExtractedText(report, 'fastboot flash recovery_a OrangeFox.img');
+  assertNoPolicyExtractedText(report, 'adb shell dd if=/sdcard/recovery.img');
+});
+
+test('semantic policy profile treats Android runtime config as implementation, not operator policy', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-semantic-runtime-config-'));
+  await mkdir(join(root, 'recovery', 'root', 'vendor', 'etc', 'init'), { recursive: true });
+  await mkdir(join(root, 'recovery', 'root', 'vendor', 'etc', 'vintf', 'manifest'), { recursive: true });
+  await writeFile(join(root, 'AGENTS.md'), [
+    'Proprietary source is reference-only. Do not copy restricted source.',
+    'No phone actions. No adb install or reboot.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'recovery', 'root', 'vendor', 'etc', 'init', 'touchscreen.rc'), [
+    '# copied from prebuilt/android16/vendor/etc/init.',
+    'on post-fs-data',
+    '    chmod 666 /dev/thp',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'recovery', 'root', 'vendor', 'etc', 'vintf', 'manifest', 'keymint.xml'), [
+    '<!-- Live keymint manifest is copied from prebuilt/android16/vendor/etc/vintf/manifest. -->',
+    '<manifest version="1.0" type="device" />',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'semantic_policy',
+  });
+
+  assertEvidence(report, 'proprietary_reference_only', 'semantic_policy.proprietary_reference_only.proprietary_source=reference_only');
+  assertEvidence(report, 'device_action_forbidden', 'semantic_policy.device_action_forbidden.device=device_actions_forbidden');
+  assertNoEvidence(report, ['source_authority'], 'semantic_policy.source_authority.source=authoritative_or_vendored');
+  assertNoEvidence(report, ['device_action_allowed'], 'semantic_policy.device_action_allowed.device=device_actions_allowed');
+  assertNoEvidence(report, ['destructive_action'], 'semantic_policy.destructive_action.host_or_device_state=mutates_destructively');
+  assert(!report.contradictions.some(item => item.category === 'semantic_policy_contradiction'));
+});
+
 test('semantic policy profile ignores schema, sample, analyzer, and copyright content policy noise', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-semantic-content-noise-'));
   await mkdir(join(root, 'dotnet', 'samples', 'Plugin'), { recursive: true });
@@ -2967,5 +3041,20 @@ function assertNoExtractedText(report, textIncludes) {
   assert(
     !report.evidence.some(item => item.extracted_text.includes(textIncludes)),
     `expected no evidence extracted text including ${textIncludes}`
+  );
+}
+
+function assertExtractedText(report, textIncludes) {
+  assert(
+    report.evidence.some(item => item.extracted_text.includes(textIncludes)),
+    `expected evidence extracted text including ${textIncludes}`
+  );
+}
+
+function assertNoPolicyExtractedText(report, textIncludes) {
+  const policyCategories = new Set(['device_action_allowed', 'destructive_action', 'source_authority']);
+  assert(
+    !report.evidence.some(item => policyCategories.has(item.category) && item.extracted_text.includes(textIncludes)),
+    `expected no policy evidence extracted text including ${textIncludes}`
   );
 }
