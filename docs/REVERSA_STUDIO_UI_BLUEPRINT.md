@@ -80,8 +80,10 @@ Use plain labels:
 - "Redistribution not decided"
 - "CUDA proof missing"
 - "Linux/Proton not proven"
-- "TDP write deferred"
+- "Read-only proof"
+- "Write deferred"
 - "Approval required"
+- "Runtime test later"
 - "Patch cannot be applied"
 - "Review-only package"
 - "Next safe action"
@@ -181,14 +183,11 @@ Backend Readiness:
 
 Power / TDP:
 
-- detected power backends
-- device profile
-- game profile source
-- performance mode
-- battery cap
-- stable sample / hysteresis
-- mutation guard
-- next controlled test
+- Host Power Proof: CPU, GPU, battery present, AC state, Windows power scheme, WSL authority warning
+- Backend Discovery: ryzenadj, HHD, ACPI call, SMU, powerprofilesctl, powercfg
+- Policy Matrix: game profile candidate, battery policy candidate, AC policy candidate, approval required, write deferred
+- Action Gate: TDP write deferred, runtime proof required, rollback required, user approval required
+- Legacy research summary: device profile, game profile source, performance mode, stable sample / hysteresis, mutation guard
 
 Model Library:
 

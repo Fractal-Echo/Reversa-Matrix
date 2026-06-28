@@ -49,6 +49,7 @@ Reversa-Matrix scans a source tree and emits structured evidence:
 - a local agent scaffold that owns memory, typed tools, policy, and reports
 - an early local Reversa Studio dashboard prototype for evidence, model
   metadata, and guarded workflow planning
+- read-only Power/TDP backend proof and approval-gated policy proposals
 
 The core rule is simple:
 
@@ -197,6 +198,7 @@ That safety boundary matters because Reversa-Matrix is meant for kernel, recover
 - [GUI Dashboard](gui.md)
 - [Reversa Studio](REVERSA_STUDIO.md)
 - [Reversa Studio UI Blueprint](REVERSA_STUDIO_UI_BLUEPRINT.md)
+- [Reversa Studio Power TDP Proof](REVERSA_STUDIO_POWER_TDP_PROOF.md)
 - [Platform scope](platforms.md)
 - [RM11Pro Fast-Test Facts](RM11PRO_FAST_TEST_FACTS.md)
 - [Workspace Troubleshooting Facts](WORKSPACE_TROUBLESHOOTING_FACTS.md)

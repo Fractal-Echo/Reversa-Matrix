@@ -94,9 +94,25 @@
 
       <section class="panel" id="panel-power" data-panel-view="power">
         <div class="section-head">
-          <p class="eyebrow">Power / TDP Research</p>
-          <h2>Handheld Runtime Lane</h2>
-          <p>Power backends, device profiles, game matching, and mutation guards stay read-only until controlled proof exists.</p>
+          <p class="eyebrow">Power / TDP Proof</p>
+          <h2>Read-Only Policy Matrix</h2>
+          <p>Power backends, device profiles, game matching, and mutation guards stay proposal-only until approval and runtime proof exist.</p>
+        </div>
+        <div class="band">
+          <h3>Host Power Proof</h3>
+          <div class="card-grid" id="power-proof-cards"></div>
+        </div>
+        <div class="band">
+          <h3>Backend Discovery</h3>
+          <div class="card-grid" id="power-backend-discovery"></div>
+        </div>
+        <div class="band">
+          <h3>Policy Matrix</h3>
+          <div class="metric-grid" id="power-policy-matrix"></div>
+        </div>
+        <div class="band">
+          <h3>Action Gate</h3>
+          <div class="label-cloud" id="power-action-gates"></div>
         </div>
         <div class="metric-grid" id="power-tdp-summary"></div>
         <div class="card-grid" id="power-tdp-cards"></div>

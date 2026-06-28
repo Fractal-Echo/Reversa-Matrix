@@ -134,6 +134,9 @@ node ./bin/reversa.js studio gpu-proof \
 node ./bin/reversa.js studio amd-proof \
   --out /path/to/amd-proof
 
+node ./bin/reversa.js studio power-proof \
+  --out /path/to/power-proof
+
 node ./bin/reversa.js studio amd-join \
   --proof /path/to/amd-proof/amd-uma-proof.json \
   --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
@@ -145,6 +148,11 @@ node ./bin/reversa.js studio backend-matrix \
   --amd-proof /path/to/amd-proof/amd-uma-proof.json \
   --onnx-directml-proof /path/to/onnx-directml-proof/amd-uma-proof.json \
   --out /path/to/backend-matrix
+
+node scripts/build-power-tdp-policy-matrix.js \
+  --proof /path/to/power-proof/power-tdp-proof.json \
+  --dataset /path/to/power-tdp-runtime-advisory.jsonl \
+  --out /path/to/power-policy-matrix
 ```
 
 Exports small local JSON fixtures for the Reversa Studio prototype. Reversa
@@ -158,15 +166,19 @@ Radeon 890M / UMA systems. The optional `--python` flag selects an existing
 interpreter, such as a controlled local PyTorch CUDA or DirectML proof venv. If
 `onnxruntime-directml` and `onnx` are present, AMD proof also runs a tiny local
 ONNX Add graph with memory pattern disabled and sequential execution. The
-backend matrix joins those local proof files with advisory rows and classifies
+Power proof command records read-only CPU/GPU, battery/AC, power profile, and
+backend discovery evidence. The Power/TDP policy matrix joins that proof with
+advisory rows and emits proposal-only action gates. The backend matrix joins GPU
+proof files with advisory rows and classifies
 CUDA, DirectML, ONNX DirectML, Vulkan NCNN, and TensorRT gates. The commands
 themselves do not install packages. None of the Studio commands acquire models,
 launch runtimes, patch binaries, connect to phones, or mutate projects.
 
 The static Studio prototype also includes a Power/TDP panel backed by local
-fixture JSON. It displays detected power backends, device profiles, game profile
-sources, battery caps, hysteresis guards, mutation guards, and deferred-control
-labels. It has no TDP write, service install, or handheld-daemon install path.
+fixture JSON. It displays host proof, detected power backends, policy matrix
+counts, game profile candidates, battery/AC policy candidates, approval gates,
+and deferred-control labels. It has no TDP write, service install, power-plan
+mutation, or handheld-daemon install path.
 
 ---
 

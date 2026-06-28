@@ -1,0 +1,151 @@
+{
+  "schema_version": 1,
+  "source_authority": false,
+  "generated_artifact": true,
+  "proposal_only": true,
+  "proof_path": "fixture/power-tdp-proof.json",
+  "dataset_path": "fixture/power-tdp-runtime-advisory.jsonl",
+  "proof_classification": "POWER_PROOF_RYZENADJ_PRESENT",
+  "backend_summary": [
+    {
+      "backend": "ryzenadj",
+      "status": "present",
+      "write_capable": true,
+      "policy": "BACKEND_PRESENT_NOT_TESTED"
+    },
+    {
+      "backend": "hhd",
+      "status": "missing",
+      "write_capable": true,
+      "policy": "BACKEND_MISSING"
+    },
+    {
+      "backend": "powercfg",
+      "status": "present",
+      "write_capable": false,
+      "policy": "BACKEND_PRESENT_NOT_TESTED"
+    }
+  ],
+  "summary": {
+    "schema_version": 1,
+    "source_authority": false,
+    "generated_artifact": true,
+    "proposal_only": true,
+    "total_records": 4,
+    "proof_classification": "POWER_PROOF_RYZENADJ_PRESENT",
+    "write_allowed": false,
+    "tdp_write_performed": false,
+    "runtime_test_performed": false,
+    "detected_backends": 2,
+    "approval_required": 2,
+    "write_deferred": 3,
+    "runtime_proof_required": 3,
+    "game_profile_candidates": 1,
+    "battery_policy_candidates": 1,
+    "ac_policy_candidates": 1,
+    "wsl_not_authority": 4,
+    "action_gates_total": 8
+  },
+  "action_gates": [
+    {
+      "gate": "Snapshot current power state",
+      "required": true,
+      "status": "required_before_write"
+    },
+    {
+      "gate": "Identify device",
+      "required": true,
+      "status": "partially_satisfied_read_only"
+    },
+    {
+      "gate": "Confirm backend",
+      "required": true,
+      "status": "partially_satisfied_read_only"
+    },
+    {
+      "gate": "Confirm AC/battery",
+      "required": true,
+      "status": "partially_satisfied_read_only"
+    },
+    {
+      "gate": "Confirm min/default/max TDP",
+      "required": true,
+      "status": "required_before_write"
+    },
+    {
+      "gate": "Confirm rollback command",
+      "required": true,
+      "status": "required_before_write"
+    },
+    {
+      "gate": "Confirm no game/anti-cheat risk",
+      "required": true,
+      "status": "required_before_write"
+    },
+    {
+      "gate": "User approval required before any write",
+      "required": true,
+      "status": "required_before_write"
+    }
+  ],
+  "rows": [
+    {
+      "schema_version": 1,
+      "source_authority": false,
+      "generated_artifact": true,
+      "proposal_only": true,
+      "write_allowed": false,
+      "record_id": "power_tdp_0001",
+      "source_project": "luisho24/AutoTDP",
+      "claim": "TDP_BACKEND_RYZENADJ",
+      "labels": [
+        "power_tdp_backend",
+        "mutation_guard"
+      ],
+      "categories": [
+        "READ_ONLY_SAFE",
+        "WRITE_DEFERRED",
+        "APPROVAL_REQUIRED",
+        "RUNTIME_PROOF_REQUIRED",
+        "BACKEND_PRESENT_NOT_TESTED",
+        "WSL_NOT_AUTHORITY"
+      ],
+      "backend": "ryzenadj",
+      "backend_status": "present",
+      "recommended_policy": "Proposal only: approval, rollback, AC/battery, and runtime proof required before any write.",
+      "required_gates": [
+        "Confirm backend",
+        "Confirm rollback command",
+        "User approval required before any write"
+      ],
+      "text": "ryzenadj path/help evidence only."
+    },
+    {
+      "schema_version": 1,
+      "source_authority": false,
+      "generated_artifact": true,
+      "proposal_only": true,
+      "write_allowed": false,
+      "record_id": "power_tdp_0002",
+      "source_project": "luisho24/AutoTDP",
+      "claim": "GAME_PROFILE_STEAM_APPID",
+      "labels": [
+        "game_profile",
+        "steam"
+      ],
+      "categories": [
+        "READ_ONLY_SAFE",
+        "RUNTIME_PROOF_REQUIRED",
+        "GAME_PROFILE_CANDIDATE",
+        "WSL_NOT_AUTHORITY"
+      ],
+      "backend": null,
+      "backend_status": "not_applicable",
+      "recommended_policy": "Proposal only: select as a game profile candidate after runtime and safety proof.",
+      "required_gates": [
+        "Confirm no game/anti-cheat risk"
+      ],
+      "text": "Steam AppID is a game-profile candidate key."
+    }
+  ]
+}

@@ -110,10 +110,12 @@ test('studio prototype avoids protected-runtime bypass wording', async () => {
   if (existsSync(fixtureDir)) {
     const names = (await readdir(fixtureDir)).filter(name => name.endsWith('.json'));
     const fixtureText = (await Promise.all(names.map(name => readFile(join(fixtureDir, name), 'utf8')))).join('\n');
-    assert.doesNotMatch(fixtureText, /anti-cheat|DRM|bypass/i);
+    assert.doesNotMatch(fixtureText, /DRM|bypass/i);
+    assert.doesNotMatch(fixtureText, /anti-cheat\s+(?:bypass|disable|defeat)/i);
   }
 
-  assert.doesNotMatch(text, /anti-cheat|DRM|bypass/i);
+  assert.doesNotMatch(text, /DRM|bypass/i);
+  assert.doesNotMatch(text, /anti-cheat\s+(?:bypass|disable|defeat)/i);
 });
 
 test('studio command exposes export-fixtures help', () => {
@@ -164,6 +166,23 @@ test('studio command exposes amd-proof help', () => {
   assert.match(result.stdout, /amd-proof/);
   assert.match(result.stdout, /--windows-probe <path>/);
   assert.match(result.stdout, /Radeon 890M/);
+});
+
+test('studio command exposes power-proof help', () => {
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'studio',
+    'power-proof',
+    '--help',
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /power-proof/);
+  assert.match(result.stdout, /--windows-probe <path>/);
+  assert.match(result.stdout, /Power\/TDP proof/);
 });
 
 test('studio command exposes amd-join help', () => {

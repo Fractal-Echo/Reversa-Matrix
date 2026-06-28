@@ -8,6 +8,8 @@ const state = {
   amdLocalFit: null,
   backendMatrix: null,
   powerTdp: null,
+  powerProof: null,
+  powerPolicy: null,
 };
 
 const textureSteps = [
@@ -23,7 +25,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireNavigation();
   wireAdvancedToggle();
   try {
-    const [project, library, dossier, gpuProof, localFit, amdProof, amdLocalFit, backendMatrix, powerTdp] = await Promise.all([
+    const [project, library, dossier, gpuProof, localFit, amdProof, amdLocalFit, backendMatrix, powerTdp, powerProof, powerPolicy] = await Promise.all([
       loadJson('fixtures/sample-project.json'),
       loadJson('fixtures/sample-model-library.json'),
       loadJson('fixtures/sample-patch-dossier.json'),
@@ -33,6 +35,8 @@ document.addEventListener('DOMContentLoaded', async () => {
       loadJson('fixtures/sample-amd-local-fit.json'),
       loadJson('fixtures/sample-backend-matrix.json'),
       loadJson('fixtures/sample-power-tdp.json'),
+      loadJson('fixtures/sample-power-tdp-proof.json'),
+      loadJson('fixtures/sample-power-policy-matrix.json'),
     ]);
     state.project = project;
     state.library = library;
@@ -43,6 +47,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     state.amdLocalFit = amdLocalFit;
     state.backendMatrix = backendMatrix;
     state.powerTdp = powerTdp;
+    state.powerProof = powerProof;
+    state.powerPolicy = powerPolicy;
     renderAll();
   } catch (error) {
     renderError(error);
@@ -160,6 +166,8 @@ function renderAmdProof() {
 
 function renderPowerTdp() {
   const lane = state.powerTdp;
+  const proof = state.powerProof;
+  const policy = state.powerPolicy;
   const summary = lane.summary;
   document.getElementById('power-tdp-summary').innerHTML = [
     metric('Backends', summary.backendsDetected),
@@ -168,6 +176,30 @@ function renderPowerTdp() {
     metric('Mutation Guards', summary.mutationGuards),
     metric('Runtime Proofs', summary.runtimeProofs),
   ].join('');
+
+  document.getElementById('power-proof-cards').innerHTML = [
+    proofCard('Host Power Proof', `${proof.cpu.name} / ${proof.platform.os}`, proof.proof.read_only ? 'Safe' : 'Blocked'),
+    proofCard('Battery / AC', `battery=${String(proof.power.battery_present)} ac=${proof.power.ac_online === null ? 'unknown' : String(proof.power.ac_online)}`, proof.power.battery_present ? 'Review' : 'Candidate'),
+    proofCard('Windows Power Scheme', proof.power.windows_power_scheme ?? 'not visible', proof.power.windows_power_scheme ? 'Review' : 'Candidate'),
+    proofCard('WSL Authority', proof.platform.is_wsl ? 'WSL_NOT_AUTHORITY' : 'host authority', proof.platform.is_wsl ? 'Review' : 'Safe'),
+  ].join('');
+
+  document.getElementById('power-backend-discovery').innerHTML = Object.entries(proof.tdp_backends).map(([backend, status]) => (
+    proofCard(backend, status, status === 'present' ? 'Review' : 'Candidate')
+  )).join('');
+
+  document.getElementById('power-policy-matrix').innerHTML = [
+    metric('Game Profile', policy.summary.game_profile_candidates),
+    metric('Battery Policy', policy.summary.battery_policy_candidates),
+    metric('AC Policy', policy.summary.ac_policy_candidates),
+    metric('Approval', policy.summary.approval_required),
+    metric('Write Deferred', policy.summary.write_deferred),
+    metric('Runtime Later', policy.summary.runtime_proof_required),
+  ].join('');
+
+  document.getElementById('power-action-gates').innerHTML = policy.action_gates.map(gate => (
+    `<span class="label is-disabled">${escapeHtml(gate.gate)}: ${escapeHtml(gate.status)}</span>`
+  )).join('');
 
   document.getElementById('power-tdp-cards').innerHTML = lane.cards.map(card => `
     <article class="card">

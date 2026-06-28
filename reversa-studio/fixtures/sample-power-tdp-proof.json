@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "timestamp": "fixture",
+  "host": "rm11pro-dev-host",
+  "platform": {
+    "os": "wsl",
+    "kernel": "Linux microsoft-standard-WSL2",
+    "machine": "x86_64",
+    "is_wsl": true
+  },
+  "cpu": {
+    "name": "AMD Ryzen AI 9 HX 370 w/ Radeon 890M",
+    "vendor": "AMD",
+    "cores": 12,
+    "threads": 24
+  },
+  "gpu": {
+    "nvidia_visible": true,
+    "amd_visible": true,
+    "radeon_890m_visible": true,
+    "adapters": [
+      {
+        "name": "NVIDIA GeForce RTX 5090",
+        "driver_version": "fixture",
+        "pnp_device_id": null
+      },
+      {
+        "name": "AMD Radeon(TM) 890M Graphics",
+        "driver_version": "fixture",
+        "pnp_device_id": null
+      }
+    ]
+  },
+  "power": {
+    "battery_present": true,
+    "ac_online": true,
+    "battery_percent": 90,
+    "power_profile": "Balanced",
+    "windows_power_scheme": "Balanced",
+    "linux_power_profile": null
+  },
+  "tdp_backends": {
+    "ryzenadj": "present",
+    "hhd": "missing",
+    "acpi_call": "missing",
+    "smu": "unknown",
+    "powerprofilesctl": "missing",
+    "powercfg": "present"
+  },
+  "proof": {
+    "read_only": true,
+    "write_capable_backend_seen": true,
+    "tdp_write_performed": false,
+    "runtime_test_performed": false
+  },
+  "classification": "POWER_PROOF_RYZENADJ_PRESENT",
+  "source_authority": false,
+  "generated_artifact": true,
+  "notes": [
+    "Read-only proof capture only; no TDP writes, service changes, runtime launches, or power-plan mutations were performed.",
+    "WSL_NOT_AUTHORITY: WSL can observe host-visible evidence, but it is not the final power-control authority.",
+    "Write-capable backend seen; all writes remain deferred behind approval gates."
+  ]
+}

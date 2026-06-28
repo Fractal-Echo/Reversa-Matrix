@@ -26,7 +26,7 @@ Implemented today:
 - `gui`: build an offline `dashboard.html` from existing scan or compare output.
 - `agent`: create local run scaffolds, memory templates, safe command proposals, review-only patch plans, model eval reports, and read-only ADB evidence snapshots.
 - `dataset`: build bounded advisory datasets from existing evidence.
-- `studio`: export local Reversa Studio fixtures and capture passive GPU/backend proof files.
+- `studio`: export local Reversa Studio fixtures and capture passive GPU/AMD/Power proof files.
 - `nebula`: read-only host bridge for Nebula active-module evidence.
 - compatibility helpers: `install`, `update`, `uninstall`, `add-agent`, `add-engine`, `patterns`, and `export-diagrams`.
 
@@ -173,6 +173,11 @@ Capture passive local GPU proof for Reversa Studio:
 ```bash
 node ./bin/reversa.js studio gpu-proof --out /path/to/gpu-proof
 node ./bin/reversa.js studio amd-proof --out /path/to/amd-proof
+node ./bin/reversa.js studio power-proof --out /path/to/power-proof
+node scripts/build-power-tdp-policy-matrix.js \
+  --proof /path/to/power-proof/power-tdp-proof.json \
+  --dataset /path/to/power-tdp-runtime-advisory.jsonl \
+  --out /path/to/power-policy-matrix
 ```
 
 Read Nebula status through the read-only companion bridge:
@@ -255,7 +260,7 @@ Use `generic_source_tree` when you are not sure where to start.
 
 `scan`, `compare`, and `gui` are read-only against the inspected project tree.
 
-Power/TDP profiles detect mutation-capable surfaces such as TDP writes, service changes, ACPI calls, SMU/ALIB paths, charge controls, and plugin moves. They do not execute those surfaces.
+Power/TDP profiles and Studio proof capture detect mutation-capable surfaces such as TDP writes, service changes, ACPI calls, SMU/ALIB paths, charge controls, and plugin moves. They do not execute those surfaces. Reversa Studio can capture read-only backend evidence and build approval-gated policy proposals with writes deferred.
 
 Some commands intentionally write Reversa-owned artifacts when explicitly invoked:
 

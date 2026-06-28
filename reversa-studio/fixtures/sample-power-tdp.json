@@ -82,8 +82,8 @@
     }
   ],
   "placeholders": [
-    "TDP write deferred",
-    "Proof required",
+    "Read-only proof",
+    "Write deferred",
     "Approval required",
     "Runtime test later"
   ]

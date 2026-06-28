@@ -73,6 +73,7 @@ nav:
   - Reversa Studio UI Blueprint: REVERSA_STUDIO_UI_BLUEPRINT.md
   - Reversa Studio 5090 Proof: REVERSA_STUDIO_5090_PROOF.md
   - Reversa Studio AMD UMA Proof: REVERSA_STUDIO_AMD_UMA_PROOF.md
+  - Reversa Studio Power TDP Proof: REVERSA_STUDIO_POWER_TDP_PROOF.md
   - Reversa Studio Backend Readiness Matrix: REVERSA_STUDIO_BACKEND_READINESS_MATRIX.md
   - Nebula Companion Link: NEBULA_COMPANION_LINK.md
   - Reversa Agent Runtime: REVERSA_AGENT_RUNTIME.md

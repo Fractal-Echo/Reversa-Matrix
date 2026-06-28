@@ -34,6 +34,7 @@ The focus is mechanism over guesswork:
 - refuses unsafe EXE patch plans;
 - refuses unsupported Linux/Proton claims;
 - keeps unknown provenance research-only and blocks redistribution decisions until reviewed.
+- captures read-only Power/TDP proof and builds proposal-only policy matrices.
 
 Version 01 may show proposed workflow steps, but every future patch,
 reinjection, or runtime-adjacent action stays proposal-only.
@@ -83,21 +84,36 @@ node ./bin/reversa.js studio amd-join \
 
 ## Power/TDP Research Lane
 
-Reversa Studio also has a read-only Power/TDP panel for handheld and laptop
-power-control research. It displays detected backends, device profiles, game
-profile sources, performance modes, battery caps, stable-sample/hysteresis
-guards, mutation guards, and the next controlled-test status.
+Reversa Studio has a read-only Power/TDP proof lane for handheld and laptop
+power-control research. It captures CPU/GPU, battery/AC, power-profile, and
+backend discovery evidence, then builds approval-gated policy proposals from the
+Power/TDP advisory dataset.
 
-This lane is metadata only. It can show `TDP_BACKEND_RYZENADJ`,
-`TDP_BACKEND_HHD_PLUGIN`, `TDP_BACKEND_ACPI_CALL`, `TDP_BACKEND_SMU`,
-`GAME_PROFILE_STEAM_APPID`, `GAME_PROFILE_EXECUTABLE`,
-`GAME_PROFILE_WINE_PROTON`, `DEVICE_PROFILE_PRESENT`,
-`DEVICE_AUTODETECT_DMI`, `PLUGIN_CONFLICT_DETECTED`,
-`MUTATION_REQUIRES_APPROVAL`, and `RUNTIME_PROOF_MISSING`.
+Use:
 
-The UI has no apply buttons. Placeholder labels such as "TDP write deferred",
-"Proof required", "Approval required", and "Runtime test later" are deliberate
-blocked states.
+```bash
+node ./bin/reversa.js studio power-proof \
+  --out /path/to/power-proof
+
+node scripts/build-power-tdp-policy-matrix.js \
+  --proof /path/to/power-proof/power-tdp-proof.json \
+  --dataset /path/to/power-tdp-runtime-advisory.jsonl \
+  --out /path/to/power-policy-matrix
+```
+
+The proof lane can report `ryzenadj`, HHD, ACPI call, SMU, `powerprofilesctl`,
+and `powercfg` visibility. Path/version/help evidence is proof of visibility,
+not permission to write. The policy matrix classifies game profile candidates,
+battery policy candidates, AC policy candidates, backend-present-not-tested
+rows, write-deferred rows, runtime-proof-required rows, and approval-required
+rows.
+
+The UI has no Apply, Run, Write, service, or power-plan mutation button.
+Disabled labels such as "Read-only proof", "Write deferred", "Approval
+required", and "Runtime test later" are deliberate blocked states.
+
+See [Reversa Studio Power TDP Proof](REVERSA_STUDIO_POWER_TDP_PROOF.md) for the
+proof contract.
 
 ## Backend Readiness Matrix
 
