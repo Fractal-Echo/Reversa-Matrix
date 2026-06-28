@@ -1,76 +1,10 @@
 # Reversa-Matrix
 
-Reversa-Matrix is an AI evidence, contradiction, and guarded patch-intelligence engine.
-
-It turns messy repositories, logs, runtime traces, device reports, and agent instructions into:
-
-- traceable findings;
-- contradiction maps;
-- project memory/frontiers;
-- guarded patch dossiers;
-- review-only patch diffs;
-- agent-ready operating rules.
-
-It is built to stop regressions, stale assumptions, and AI amnesia during complex engineering work.
+Reversa-Matrix is a local evidence scanner, contradiction detector, and guarded patch-planning toolkit for complicated engineering projects.
 
 [![Docs](https://img.shields.io/badge/DOCS-Reversa--Matrix-009c3b?style=for-the-badge&logo=material-for-mkdocs&logoColor=white&labelColor=2d2d2d)](https://fractal-echo.github.io/Reversa-Matrix/)
 
-Reversa-Matrix is an evidence-first research assistant for real code trees: Android recovery and kernels, Linux userspace and graphics stacks, Windows services and drivers, build systems, generated files, copied constants, known-good facts, contradictions, guarded patch plans, and agent handoff.
-
-It is built toward a local Jarvis-style engineering cockpit: memory, evidence, contradiction detection, local model evals, safe command plans, and guarded patch proposals that help a human operator move faster without losing the proof trail.
-
-Reversa-Matrix may name upstream ecosystems such as Android, OrangeFox, TWRP,
-Gamescope, Xwayland, Mesa, Wine, Proton, DXVK, Special K, ReShade, 3DMigoto,
-WayLandIE, DroidSpaces, or Anland in profiles and reports. Those names describe
-classifier targets and evidence domains; they do not mean those projects are
-bundled, owned, or endorsed by Reversa-Matrix.
-
-New direction: Reversa can also run a local agent scaffold. The model is not the
-agent; Reversa owns memory, typed tools, policy, evidence, and patch gates.
-
----
-
-## What Reversa Is Now
-
-- An AI evidence engine for codebases, devices, runtimes, games, and agent workflows.
-- A contradiction detector for stale claims, policy drift, unsafe command plans, and copied constants.
-- A guarded patch-intelligence layer that writes review artifacts before any source change.
-- A project-memory and frontier tracker for long-running engineering work.
-- A local model/eval lane for 5090/vLLM-backed advisory reasoning, with deterministic scanner truth preserved.
-- A domain profile system for Android, Linux, Windows, games, containers, Vulkan/Wayland, kernels, and agent tooling.
-
-## What Reversa Is Not
-
-- It is not an autonomous unrestricted patcher.
-- It is not a flashing, rooting, rebooting, or module-install tool.
-- It is not a bypass, piracy, malware, or exploit-delivery system.
-- It does not treat model output as proof.
-- It does not replace human approval for destructive, device-mutating, or source-mutating actions.
-- It does not bundle, own, or imply endorsement by upstream projects it scans or references.
-
----
-
-## Requirements
-
-- Node.js 18.20.2 or newer
-- npm
-- Git
-- A source tree, config folder, log bundle, or extracted project to inspect
-
-Optional tools depend on what you are researching. Reversa-Matrix does not bundle ADB, compilers, SDKs, debuggers, platform drivers, game files, or device flashing tools.
-
----
-
-## What It Does
-
-Reversa-Matrix scans source trees and produces:
-
-- structured findings with file and line references
-- contradiction groups across source claims and known-good facts
-- patch candidates that require review
-- compare reports between current and reference trees
-- an offline dashboard for guided review
-- JSON/JSONL handoff bundles for Codex and other agents
+It scans repositories, extracted project trees, config folders, logs, runtime notes, and agent instructions. It writes structured reports that help a human or coding agent see what is known, what conflicts, what needs proof, and what should not be patched yet.
 
 Core rule:
 
@@ -79,22 +13,46 @@ HTML is a view.
 JSON and JSONL are the source of truth.
 ```
 
----
+## Current Scope
 
-## Platform Direction
+Implemented today:
 
-| Area | What Reversa-Matrix should understand |
-|---|---|
-| Android | recovery trees, kernels, BoardConfig, fstab, init rc, vendor blobs, device facts |
-| Linux | containers, systemd, userspace graphics, compositor stacks, kernel/userland boundaries |
-| Windows | services, drivers, PE metadata, registry assumptions, MSBuild/Visual Studio trees |
-| Games | PCGamingWiki-style fixes, modding runtimes, graphics wrappers, widescreen/framegen evidence, Vulkan loader state, private co-op stability evidence |
-| Cross-platform | C/C++/Rust/Java/Kotlin/Python/JS projects, generated artifacts, build scripts, copied constants |
-| Agent workflows | Claude/Codex settings, CLAUDE.md/AGENTS.md, hooks, skills, subagents, MCP, plugins, command approvals, generated artifacts |
+- `scan`: read a tree and emit findings, contradictions, patch candidates, known-good comparisons, and agent handoff files.
+- `compare`: compare two trees and classify safe/risky import candidates.
+- `gui`: build an offline `dashboard.html` from existing scan or compare output.
+- `agent`: create local run scaffolds, memory templates, safe command proposals, review-only patch plans, model eval reports, and read-only ADB evidence snapshots.
+- `dataset`: build bounded advisory datasets from existing evidence.
+- `studio`: export local Reversa Studio fixtures and capture passive GPU/backend proof files.
+- `nebula`: read-only host bridge for Nebula active-module evidence.
+- compatibility helpers: `install`, `update`, `uninstall`, `add-agent`, `add-engine`, `patterns`, and `export-diagrams`.
 
-Current strongest lanes: Android recovery evidence mapping with known-good comparison and tree compare mode; modern Claude/Codex workflow audits; provider-gateway audits; Windows service/driver/registry/MSBuild evidence; and PC gaming runtime profiles that classify PCGamingWiki-style fixes, wrappers, widescreen/framegen state, Vulkan loader facts, Linux/Proton paths, and offline/private patch evidence without performing patching or bypass workflows.
+Reversa-Matrix is designed for evidence-heavy work across:
 
----
+- Android recovery and kernel trees.
+- Linux containers and userspace graphics stacks.
+- Windows services, drivers, registry assumptions, PE metadata, and MSBuild trees.
+- PC game compatibility evidence, wrappers, Vulkan loader state, widescreen/frame-generation notes, and private/offline patch dossiers.
+- Claude/Codex-style agent workflows, settings, hooks, skills, subagents, MCP, plugins, and approval policies.
+- Generic C/C++/Rust/Java/Kotlin/Python/JavaScript projects with copied constants, generated artifacts, and stale assumptions.
+
+## What It Is Not
+
+- Not an autonomous unrestricted patcher.
+- Not a flashing, rooting, rebooting, or module-install tool.
+- Not a DRM, anti-cheat, ownership, or competitive-bypass tool.
+- Not proof just because a model said something.
+- Not an endorsement or bundled copy of upstream projects named in profiles or reports.
+
+Profiles may mention projects or ecosystems such as Android, OrangeFox, TWRP, Gamescope, Xwayland, Mesa, Wine, Proton, DXVK, Special K, ReShade, 3DMigoto, WayLandIE, DroidSpaces, Anland, Cupscale, Flowframes, or PCGamingWiki-style data. Those names describe evidence domains only.
+
+## Requirements
+
+- Node.js 18.20.2 or newer.
+- npm.
+- Git.
+- A local tree, log folder, config bundle, or extracted project to inspect.
+
+Optional commands depend on your task. Reversa-Matrix does not bundle ADB, compilers, SDKs, debuggers, platform drivers, game files, model weights, or device flashing tools.
 
 ## Quick Start
 
@@ -106,9 +64,11 @@ npm test
 node ./bin/reversa.js scan --help
 ```
 
-Default scans honor git ignore rules so private scratch folders and generated
-outputs do not pollute live-source evidence. Add `--include-ignored` when you
-want a forensic sweep.
+List profiles:
+
+```bash
+node ./bin/reversa.js scan --profiles
+```
 
 Run the included Android recovery fixture:
 
@@ -120,32 +80,13 @@ node ./bin/reversa.js scan \
   --out reversa_out
 ```
 
-Open the dashboard:
+Open the offline dashboard:
 
 ```bash
 node ./bin/reversa.js gui --out reversa_out
 ```
 
-When installed as a package, the equivalent form is:
-
-```bash
-npx reversa scan --help
-npx reversa gui --out reversa_out
-```
-
-Inside this cloned repository, `node ./bin/reversa.js ...` is the most explicit local command.
-
----
-
-## How To Use It
-
-List available profiles:
-
-```bash
-node ./bin/reversa.js scan --profiles
-```
-
-Scan any tree with the generic profile:
+Run a generic scan on any local tree:
 
 ```bash
 node ./bin/reversa.js scan \
@@ -154,25 +95,20 @@ node ./bin/reversa.js scan \
   --out reversa_out
 ```
 
-Scan the included game runtime fixture:
+By default, scans honor git ignore rules. Use `--include-ignored` only when ignored files are part of the evidence you intentionally want to inspect.
+
+## Common Commands
+
+Scan a Claude/Codex-style workflow tree:
 
 ```bash
 node ./bin/reversa.js scan \
-  --project-root ./test/fixtures/bo3-runtime-diagnostics \
-  --profile rm11pro_gaming_runtime \
-  --out reversa_game_out
-```
-
-Scan a modern Claude/Codex/agent workflow tree:
-
-```bash
-node ./bin/reversa.js scan \
-  --project-root ./test/fixtures/agentic-toolchain \
+  --project-root /path/to/agent-project \
   --profile claude_code_modern \
-  --out reversa_agentic_out
+  --out reversa_agent_out
 ```
 
-Scan a Claude/Codex provider-gateway or launcher tree:
+Scan the included provider-gateway fixture:
 
 ```bash
 node ./bin/reversa.js scan \
@@ -181,72 +117,14 @@ node ./bin/reversa.js scan \
   --out reversa_gateway_out
 ```
 
-Scan agent instructions for semantic policy contradictions:
+Scan the included game/runtime fixture:
 
 ```bash
 node ./bin/reversa.js scan \
-  --project-root ./test/fixtures/semantic-policy \
-  --profile semantic_policy \
-  --out reversa_policy_out
+  --project-root ./test/fixtures/bo3-runtime-diagnostics \
+  --profile rm11pro_gaming_runtime \
+  --out reversa_game_out
 ```
-
-Open a dashboard for any scan output:
-
-```bash
-node ./bin/reversa.js gui --out reversa_game_out
-```
-
-Build the local GPU upscale/frame-generation advisory dataset:
-
-```bash
-node ./bin/reversa.js dataset gpu-upscale-framegen \
-  --cupscale-scan /path/to/cupscale-scan \
-  --flowframes-scan /path/to/flowframes-scan \
-  --hf-index /path/to/HF_MODEL_METADATA_INDEX.tsv \
-  --out /path/to/gpu-advisory-dataset
-```
-
-The dataset builder writes JSONL splits and summaries. It does not download
-model weights, launch runtimes, patch binaries, or mutate scanned projects.
-
-Export local fixtures for the first Reversa Studio prototype:
-
-```bash
-node ./bin/reversa.js studio export-fixtures \
-  --dataset /path/to/gpu-advisory-dataset \
-  --out ./reversa-studio/fixtures
-
-node ./bin/reversa.js studio gpu-proof \
-  --out /path/to/gpu-proof
-
-node ./bin/reversa.js studio amd-proof \
-  --out /path/to/amd-proof
-
-node ./bin/reversa.js studio amd-join \
-  --proof /path/to/amd-proof/amd-uma-proof.json \
-  --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
-  --out /path/to/amd-local-fit
-
-node ./bin/reversa.js studio backend-matrix \
-  --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
-  --cuda-proof /path/to/gpu-proof/gpu-proof.json \
-  --amd-proof /path/to/amd-proof/amd-uma-proof.json \
-  --onnx-directml-proof /path/to/onnx-directml-proof/amd-uma-proof.json \
-  --out /path/to/backend-matrix
-```
-
-Reversa Studio is an early local dashboard prototype for evidence, model
-metadata, and guarded workflow planning. It reads committed fixture JSON only
-and does not acquire models, launch runtimes, patch binaries, or mutate scanned
-projects.
-
-Reversa Studio can capture local GPU proof and use it to rank advisory
-candidates. The 5090 proof lane records Nvidia/CUDA/Python/backend evidence. The
-AMD proof lane records HX 370 / Radeon 890M / UMA, DirectX 12, DirectML
-candidate, ONNX Runtime DirectML tiny-op proof when available, Vulkan, and
-OpenCL evidence. The backend matrix combines those proof files with advisory
-rows and separates controlled-test candidates from license, artifact, hash, and
-runtime blocks. Model acquisition stays disabled by default.
 
 Compare two trees:
 
@@ -258,209 +136,34 @@ node ./bin/reversa.js compare \
   --out reversa_compare_out
 ```
 
-The scanner reads the target tree and writes reports to `--out`. It does not edit the inspected tree.
-
----
-
-## Local Agent Runtime
-
-Initialize local evidence memory:
+Create a review-only patch dossier from an existing scan:
 
 ```bash
-node ./bin/reversa.js agent init-memory
+node ./bin/reversa.js agent patch-plan \
+  --project-root /path/to/tree \
+  --scan-out reversa_out \
+  --candidate <patch-candidate-id> \
+  --out .reversa/patch-plans/<case-id>
 ```
 
-Check local prerequisites without requiring a model server:
+Capture passive local GPU proof for Reversa Studio:
 
 ```bash
-node ./bin/reversa.js agent doctor --no-network
+node ./bin/reversa.js studio gpu-proof --out /path/to/gpu-proof
+node ./bin/reversa.js studio amd-proof --out /path/to/amd-proof
 ```
 
-List models from a local OpenAI-compatible endpoint:
+Read Nebula status through the read-only companion bridge:
 
 ```bash
-node ./bin/reversa.js agent models --base-url http://127.0.0.1:8000/v1
+node ./bin/reversa.js nebula status \
+  --adb <adb-serial> \
+  --out local/nebula-status
 ```
-
-Capture a read-only phone-safe snapshot:
-
-```bash
-node ./bin/reversa.js agent snapshot \
-  --serial <adb-serial> \
-  --out .reversa/snapshots/rm11-latest
-```
-
-Create an auditable scan/report run from existing evidence:
-
-```bash
-node ./bin/reversa.js agent run \
-  --mode phone-safe \
-  --goal "Inspect supplied Nebula evidence for Vulkan loader contradictions. Do not patch." \
-  --evidence-file /path/to/PHONE_REVERSA_CONFLICT_SCAN.md \
-  --evidence-dir /path/to/raw-snapshot
-```
-
-Replay a saved run without relying on chat history:
-
-```bash
-node ./bin/reversa.js agent replay \
-  --run .reversa/runs/<run-id> \
-  --out .reversa/runs/<run-id>-replay
-```
-
-The first scaffold writes `.reversa/runs/<run-id>/` with `prompt.md`,
-`plan.md`, `tool_calls.jsonl`, `evidence.jsonl`, `contradictions.yaml`,
-`PHONE_REVERSA_AGENT_REPORT.md`, `artifacts/evidence_files.sha256`,
-`artifacts/evidence_manifest.json`, and `artifacts/policy.json`. Replay writes
-`artifacts/replay_source.json` so the reproduced run points back to the source
-run and manifest. If a saved SHA-256 no longer matches the evidence file,
-replay stops instead of producing a stale report.
-
-See:
-
-- [Reversa Agent Runtime](docs/REVERSA_AGENT_RUNTIME.md)
-- [Reversa Local 5090 Plan](docs/REVERSA_LOCAL_5090_PLAN.md)
-- [Reversa Tool Policy](docs/REVERSA_TOOL_POLICY.md)
-
----
-
-## Profiles You Can Test
-
-```text
-generic_source_tree
-agentic_toolchain
-claude_code_modern
-claude_code
-codex_agent
-agent_workflow
-agentic_gateway
-semantic_policy
-windows_system
-windows_compat
-android_recovery
-orangefox
-twrp
-android_kernel
-kernel
-gki_kernel
-userspace_graphics
-linux_container
-gamescope
-game_modding
-pcgamingwiki_runtime
-widescreen_framegen_runtime
-game_exe_patch_runtime
-gpu_upscale_framegen
-graphics_wrapper
-vulkan_loader
-bo3_zombies_diagnostics
-render_enhancement_plugin
-rm11pro_gaming_runtime
-```
-
-Use `generic_source_tree` when you are not sure which profile fits yet.
-
-For Claude/Codex-style projects, start with `claude_code_modern`. It classifies
-CLAUDE.md/AGENTS.md memory, settings scopes, hooks, skills, slash commands,
-subagents, MCP/plugin surfaces, approval/sandbox claims, generated artifacts,
-stale-agent references, and active-first frontier guards. Use `agentic_toolchain`
-as the broader compatibility sweep, and use `agentic_gateway` when the repo
-contains provider catalogs, Claude/Codex launchers, Anthropic Messages/OpenAI
-Responses adapters, smoke matrices, messaging bridges, or secret-redaction code.
-Pair these with `templates/engines/CLAUDE_CODEX_REVERSA_PATTERNS.md`.
-
-Use `semantic_policy` when a repo has AGENTS/CLAUDE/SKILL files, memories,
-handoffs, hooks, or project docs that may disagree about approvals, destructive
-commands, device access, network access, write-forbidden rules, source patching,
-commits, pushes, sandboxing, attribution, proprietary-source handling, or stale agents. It
-normalizes policy claims before comparing them, so "ask before destructive" and
-"skip approvals" become a clear contradiction instead of two loose keywords.
-`windows_compat` is an alias for `windows_system`; `kernel` is an alias for
-`android_kernel`.
-
-For PC game compatibility work, start with `pcgamingwiki_runtime` for game data,
-store/version, video, input, audio, network, API, middleware, Wine, Proton, and
-Linux notes. Use `widescreen_framegen_runtime` for Flawless Widescreen,
-ultrawide/FOV/HUD, DLSSG/FSR FG/XeFG/LSFG, and Windows-vs-Linux framegen
-separation. Use `game_exe_patch_runtime` only for hash-guarded offline/private
-patch manifests with rollback and Linux/Proton validation evidence. Use
-`gpu_upscale_framegen` for Cupscale, Flowframes, RIFE/DAIN/FLAVR, Real-ESRGAN,
-SwinIR, NCNN/Vulkan, PyTorch/CUDA, TensorRT, ONNX Runtime, DirectML,
-FFmpeg/VapourSynth/ImageMagick, model provenance/hash/license guards, and
-generated-artifact self-reference boundaries.
-
-Print or write that reusable checklist from the CLI:
-
-```bash
-node ./bin/reversa.js patterns --pattern claude-codex
-node ./bin/reversa.js patterns --pattern claude-codex --out CLAUDE_CODEX_REVERSA_PATTERNS.md
-```
-
----
-
-## Reversa-Matrix Console Preview
-
-`reversa gui` writes an offline `dashboard.html` over existing scan or compare outputs.
-
-The console identity uses a dark evidence-lab layout with a subtle source-tree grid, evidence nodes, contradiction paths, and patch candidate routing. The same lightweight SVG/CSS motif appears in generated scan reports and the dashboard, with animation disabled cleanly when reduced motion is requested.
-
-Tagline:
-
-```text
-AI evidence, contradiction, and guarded patch-intelligence engine.
-```
-
-```text
-Reversa-Matrix Dashboard
-+-- Overview
-+-- Setup checklist
-+-- Scan metadata
-+-- Findings
-+-- Contradictions
-+-- Patch candidates
-+-- Known-good comparison
-+-- Risky assumptions
-+-- Commands
-+-- Tree inventory
-+-- Agent handoff
-+-- Compare results
-```
-
-The dashboard includes search, severity/confidence/category filters, expandable evidence, file/line references, copy buttons for commands, helper text, and a separate warning section for destructive commands if they appear in imported artifacts.
-
----
-
-## Evidence You Can Inspect
-
-Every scan writes machine-readable and human-readable artifacts:
-
-- `report.json`: complete structured report
-- `evidence.jsonl`: one evidence item per line
-- `summary.md`: concise Markdown summary
-- `report.html`: standalone scan report
-- `dashboard.html`: browser dashboard generated by `reversa gui`
-- `agent_handoff/`: focused JSON/Markdown files for follow-up work
-
-Current game/runtime categories include frame timing, render hook surfaces, texture injection pipeline, HDR pipeline, API translation layer, Vulkan loader state, mobile Linux runtime, graphics wrapper chains, and safety-boundary findings.
-
----
-
-## Compare Mode
-
-```bash
-node ./bin/reversa.js compare \
-  --left /path/to/current/tree \
-  --right /path/to/reference/tree \
-  --profile android_recovery \
-  --known-good examples/known_good_rm11pro_nx809j.json \
-  --out reversa_compare_out
-```
-
-Compare mode classifies differences and import candidates. It does not copy, patch, flash, or modify either tree.
-
----
 
 ## Outputs
+
+Default scan output:
 
 ```text
 reversa_out/
@@ -468,10 +171,10 @@ reversa_out/
 +-- evidence.jsonl
 +-- summary.md
 +-- report.html
-+-- dashboard.html
 +-- agent_handoff/
     +-- summary.md
     +-- findings.json
+    +-- evidence.jsonl
     +-- contradictions.json
     +-- patch_candidates.json
     +-- commands_to_run.md
@@ -481,7 +184,14 @@ reversa_out/
     +-- tree_inventory.json
 ```
 
-For compare output:
+Dashboard output:
+
+```text
+reversa_out/
++-- dashboard.html
+```
+
+Compare output:
 
 ```text
 reversa_compare_out/
@@ -495,39 +205,53 @@ reversa_compare_out/
     +-- risky_import_candidates.json
 ```
 
----
+Use `dashboard.html` for browsing. Use `report.json`, `evidence.jsonl`, and `agent_handoff/` for automation and follow-up agent work.
 
-## Plain-English Concepts
+## Profiles
 
-- A source tree is the folder of code and artifacts you want to inspect.
-- A finding is one evidence-backed observation.
-- A contradiction is a conflict between claims.
-- A patch candidate is a proposed fix direction, not an automatic edit.
-- Known-good facts are observations from real testing or trusted references.
-- Evidence IDs let agents cite and track the same claim across scans.
-- Destructive commands are separated because OS/device research can break real systems.
+The authoritative list is generated by:
 
----
+```bash
+node ./bin/reversa.js scan --profiles
+```
 
-## Safety
+Current profile families include:
 
-Scan and compare are read-only against the target tree. Reversa-Matrix does not add destructive device workflows.
+- Generic source: `generic_source_tree`.
+- Agent workflows: `agentic_toolchain`, `claude_code_modern`, `claude_code`, `codex_agent`, `agent_workflow`, `ai_coding_surface`, `claude_matrix`, `semantic_policy`.
+- Provider gateways: `agentic_gateway`.
+- Android/recovery/kernel: `android_recovery`, `orangefox`, `orangefox_sync_tool`, `twrp`, `android_kernel`, `kernel`, `gki_kernel`.
+- Linux graphics/container: `userspace_graphics`, `linux_container`, `gamescope`, `child_libpath`, `nebula_child_libpath`, `nebula_gamescope`, `nebula_vulkan_loader`, `known_good_frontier`, `nebula_frontier_guard`, `frontier_guard`.
+- Windows: `windows_system`, `windows_compat`.
+- Game/runtime: `game_modding`, `pcgamingwiki_runtime`, `widescreen_framegen_runtime`, `game_exe_patch_runtime`, `graphics_wrapper`, `vulkan_loader`, `bo3_zombies_diagnostics`, `render_enhancement_plugin`, `rm11pro_gaming_runtime`.
+- GPU/upscale/frame generation: `gpu_upscale_framegen`, `upscale_runtime`, `framegen_runtime`, `game_upscale`, `flowframes`, `cupscale`.
 
-Game runtime profiles are also read-only. They may flag anti-cheat, DRM, cheat, public-match, or ownership-evasion terms as hard review boundaries, but they do not implement bypasses or competitive advantage behavior.
+Use `generic_source_tree` when you are not sure where to start.
 
-If imported output contains risky commands, the GUI isolates them under:
+## Safety Model
+
+`scan`, `compare`, and `gui` are read-only against the inspected project tree.
+
+Some commands intentionally write Reversa-owned artifacts when explicitly invoked:
+
+- `agent init-memory` writes `.reversa/memory` templates.
+- `agent run`, `agent replay`, `agent snapshot`, `agent command-plan`, and `agent patch-plan` write output bundles under the requested output path.
+- `dataset` and `studio` commands write generated datasets, fixtures, or proof files under the requested output path.
+- compatibility commands such as `install`, `update`, and `uninstall` manage Reversa-created compatibility files.
+
+The Nebula bridge is read-only by design. It does not install APKs, stage modules, reboot, launch graphics runtimes, or write `/data/adb`.
+
+Game/runtime profiles are evidence classifiers. They may flag DRM, anti-cheat, cheat, public-match, ownership, or bypass language as review boundaries, but they do not implement bypass behavior.
+
+If imported evidence contains risky commands, the dashboard separates them under:
 
 ```text
 DESTRUCTIVE / HUMAN REVIEW REQUIRED / BACKUP REQUIRED
 ```
 
-Normal validation commands should stay read-only: `grep`, `find`, `test -f`, `sha256sum`, local `node` checks, and similar inspection commands.
-
----
-
 ## Agent Handoff
 
-Codex agents should start with:
+For follow-up work, start with:
 
 1. `agent_handoff/summary.md`
 2. `agent_handoff/findings.json`
@@ -538,49 +262,42 @@ Codex agents should start with:
 7. `agent_handoff/risky_assumptions.json`
 8. `agent_handoff/tree_inventory.json`
 
-The dashboard is for browsing. The handoff bundle is for continuation.
+The dashboard is for human review. The JSON and JSONL files are for reproducible continuation.
 
----
-
-## Future Goals
-
-- Runtime compatibility matrix for Windows desktop, Linux, and RM11Pro-style mobile Linux gaming profiles
-- More render enhancement evidence around frame pacing, HDR, texture replacement, and API translation
-- Broader Windows service, driver, PE metadata, and registry-profile support
-- Stronger Linux graphics and container diagnostics for Vulkan, Mesa, Wine, Proton, box64, and related stacks
-- More guided reports that turn evidence into reviewable next steps without hiding uncertainty
-
----
-
-## Deeper Docs
+## Documentation
 
 - [Docs home](docs/index.md)
 - [Installation](docs/instalacao.md)
 - [First scan](docs/uso.md)
 - [CLI](docs/cli.md)
 - [GUI Dashboard](docs/gui.md)
+- [Reversa Agent Runtime](docs/REVERSA_AGENT_RUNTIME.md)
 - [Reversa Studio](docs/REVERSA_STUDIO.md)
+- [Nebula Companion Link](docs/NEBULA_COMPANION_LINK.md)
+- [Known-Good Frontier Guard](docs/KNOWN_GOOD_FRONTIER_GUARD.md)
+- [Semantic Policy Contradictions](docs/semantic-policy-contradictions.md)
 - [Platform scope](docs/platforms.md)
 - [Evidence pipeline](docs/pipeline.md)
 - [Generated outputs](docs/saidas/index.md)
-- [Original Reversa compatibility](docs/original-reversa-compatibility.md)
 
----
-
-## Build Docs Locally
+Build the docs locally:
 
 ```bash
 python3 -m pip install --user --break-system-packages -r docs/requirements.txt
-python3 -m mkdocs build --strict
+PATH="$HOME/.local/bin:$PATH" mkdocs build --strict
 ```
 
-This installs MkDocs and Material for MkDocs into the user Python site and writes the built site to `site/`. The `site/` folder is ignored by Git.
+The built site is written to `site/`.
 
----
+## Roadmap
 
-## Compatibility Note
+Planned work is tracked as docs, tests, and profile additions before it is advertised as working behavior. Current open directions include:
 
-The `reversa install`, agent teams, and `_reversa_sdd/` workflows remain available for compatibility. Reversa-Matrix is centered on cross-platform evidence mapping, scanner outputs, dashboards, compare mode, and agent handoff.
+- More evidence profiles for Linux graphics/container runtime boundaries.
+- More Windows driver/service/install metadata coverage.
+- Stronger game compatibility evidence around frame pacing, HDR, texture replacement, wrapper chains, and Linux/Proton validation.
+- A more complete Reversa Studio UI fed by local JSON evidence.
+- Better local-model advisory evaluation while keeping scanner output deterministic.
 
 ## License
 
