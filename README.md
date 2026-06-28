@@ -168,6 +168,17 @@ node ./bin/reversa.js agent patch-plan \
   --out .reversa/patch-plans/<case-id>
 ```
 
+Promote Telegram project notes only when backed by source, logs, hashes, or
+decoded file/video evidence:
+
+```bash
+node ./bin/reversa.js dataset telegram-promotion \
+  --claims /path/to/telegram/normalized/claims.jsonl \
+  --corroborator /path/to/repo-or-raw-proof \
+  --artifact-manifest /path/to/hashed-files-videos.jsonl \
+  --out /path/to/telegram-promotion-gate
+```
+
 Capture passive local GPU proof for Reversa Studio:
 
 ```bash
