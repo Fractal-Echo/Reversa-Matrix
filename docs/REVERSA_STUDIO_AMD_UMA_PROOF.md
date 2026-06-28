@@ -154,23 +154,26 @@ Possible AMD fit classes include:
 - `AMD_VULKAN_NCNN_POSSIBLE`
 - `AMD_OPENCL_POSSIBLE`
 - `AMD_HIP_ROCM_UNKNOWN`
-- `AMD_MODEL_LICENSE_BLOCKED`
-- `AMD_MODEL_WEIGHT_DEFERRED`
+- `AMD_REDISTRIBUTION_UNDECIDED`
+- `AMD_PROVENANCE_UNKNOWN`
+- `AMD_RESEARCH_ARTIFACT_DEFERRED`
+- `AMD_RESEARCH_HASH_MISSING`
 - `AMD_RUNTIME_NOT_READY`
 - `AMD_WINDOWS_ONLY_REVIEW`
 - `AMD_LINUX_PROTON_UNPROVEN`
 - `NOT_AMD_RELEVANT`
 
-Unknown licenses, deferred model artifacts, candidate-only DirectML, and missing
-backend runtime evidence block readiness. Linux and Proton remain unproven until
-direct runtime evidence exists.
+Sparse redistribution metadata marks redistribution as not decided; it does not
+block research classification. Deferred artifacts, missing hashes,
+candidate-only DirectML, and missing backend runtime evidence remain review
+signals. Linux and Proton remain unproven until direct runtime evidence exists.
 
 ## Backend Matrix Role
 
 The backend readiness matrix consumes AMD proof for DirectML visibility and ONNX
 Runtime DirectML tiny-op status. Passing ONNX Runtime DirectML proof may promote
-eligible ONNX/DirectML rows to `BACKEND_READY_FOR_CONTROLLED_TEST`.
+eligible ONNX/DirectML rows to `RESEARCH_READY_FOR_CONTROLLED_TEST`.
 
-Vulkan visibility remains `BACKEND_CANDIDATE` until Vulkan NCNN runtime proof
+Vulkan visibility remains `RESEARCH_BACKEND_CANDIDATE` until Vulkan NCNN runtime proof
 exists. HIP/ROCm visibility remains advisory until a direct backend proof lane
 exists.

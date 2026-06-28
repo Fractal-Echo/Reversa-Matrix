@@ -43,28 +43,28 @@ Outputs:
 
 | Level | Meaning |
 | --- | --- |
-| `BACKEND_UNAVAILABLE` | No relevant backend was detected or proven. |
-| `BACKEND_VISIBLE` | Host visibility exists, but no import or tiny-op proof exists. |
-| `BACKEND_IMPORT_PROVEN` | A backend import/provider is visible. |
-| `BACKEND_TINY_OP_PROVEN` | A tiny local operation proved backend mechanics. |
-| `BACKEND_CANDIDATE` | The row is relevant, but runtime proof is incomplete. |
-| `BACKEND_BLOCKED_LICENSE` | License review blocks further promotion. |
-| `BACKEND_BLOCKED_ARTIFACT` | Artifact acquisition or metadata-only status blocks promotion. |
-| `BACKEND_BLOCKED_HASH` | Hash or provenance proof is missing. |
-| `BACKEND_BLOCKED_RUNTIME` | Backend-specific runtime proof is missing. |
-| `BACKEND_READY_FOR_CONTROLLED_TEST` | Eligible for a controlled test plan only. |
-| `BACKEND_READY_FOR_RECOMMENDATION` | Reserved for future fully proven rows. |
+| `RESEARCH_METADATA_ONLY` | The row is metadata only and remains research evidence. |
+| `RESEARCH_PROVENANCE_UNKNOWN` | Source identity or provenance is missing. |
+| `RESEARCH_ARTIFACT_DEFERRED` | Artifact acquisition is intentionally deferred. |
+| `RESEARCH_HASH_MISSING` | Hash proof must be captured before execution. |
+| `RESEARCH_BACKEND_PROVEN` | Backend import or tiny-op proof exists. |
+| `RESEARCH_BACKEND_CANDIDATE` | Backend is plausible, but runtime proof is incomplete. |
+| `RESEARCH_READY_FOR_CONTROLLED_TEST` | Eligible for a controlled research test plan only. |
+| `RESEARCH_RUNTIME_UNPROVEN` | Backend-specific runtime proof is missing. |
+| `RESEARCH_REVIEW_REQUIRED` | Human review is required before promotion. |
 
 ## Backend Rules
 
-- CUDA tiny-op proof can unlock `BACKEND_READY_FOR_CONTROLLED_TEST` for eligible
+- CUDA tiny-op proof can unlock `RESEARCH_READY_FOR_CONTROLLED_TEST` for eligible
   CUDA rows.
 - DirectML or ONNX Runtime DirectML tiny-op proof can unlock controlled-test
   planning for eligible DirectML/ONNX rows.
+- Sparse license metadata does not block research classification.
+- Redistribution stays not decided until explicit approval.
 - Vulkan visibility does not prove Vulkan NCNN runtime readiness.
 - CUDA proof does not prove TensorRT readiness.
-- Metadata-only model rows remain blocked until license, artifact, hash, and
-  provenance gates are cleared.
+- Metadata-only model rows can remain research-only while artifact and hash
+  collection are deferred.
 - Generated Reversa evidence is never an authority record by itself.
 
 ## Studio Fixture

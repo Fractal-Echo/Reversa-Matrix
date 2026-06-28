@@ -115,20 +115,25 @@ Possible fit classes include:
 - `LOCAL_5090_POSSIBLE_BUT_MODEL_DEFERRED`
 - `CUDA_BACKEND_POSSIBLE`
 - `TORCH_CUDA_MISSING`
-- `MODEL_LICENSE_BLOCKED`
+- `REDISTRIBUTION_UNDECIDED`
+- `PROVENANCE_UNKNOWN`
+- `RESEARCH_HASH_MISSING`
+- `RESEARCH_ARTIFACT_DEFERRED`
 - `MODEL_WEIGHT_DOWNLOAD_DEFERRED`
 - `BACKEND_UNKNOWN`
 - `NOT_GPU_RELEVANT`
 - `WINDOWS_ONLY_REVIEW`
 - `LINUX_PROTON_UNPROVEN`
 
-Unknown licenses and deferred model artifacts block readiness. A CUDA candidate
-is only marked possible when proof shows CUDA visibility or a passing CUDA tensor
-operation.
+Sparse redistribution metadata does not block research classification. It means
+redistribution is not decided and no model artifacts should be committed into
+Reversa. Provenance, artifact presence/deferment, hash capture, and backend
+proof decide whether a candidate can move toward controlled testing.
 
 ## Backend Matrix Role
 
 The backend readiness matrix consumes `gpu-proof.json` as the CUDA proof input.
 `GPU_PROOF_TENSOR_OP_PASS` may promote eligible CUDA rows to
-`BACKEND_READY_FOR_CONTROLLED_TEST`, but it does not prove TensorRT, Vulkan NCNN,
-model artifact suitability, Linux runtime behavior, or production readiness.
+`RESEARCH_READY_FOR_CONTROLLED_TEST`, but it does not prove TensorRT, Vulkan
+NCNN, model artifact suitability, Linux runtime behavior, redistribution
+approval, or production readiness.

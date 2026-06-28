@@ -110,19 +110,19 @@ test('AMD proof promotes ONNX Runtime DirectML tiny op fixture', () => {
   assert.equal(proof.python.onnxruntime_tiny_model.source_authority, false);
 });
 
-test('AMD advisory join blocks unknown-license model from ready status', () => {
+test('AMD advisory join treats unknown license as redistribution undecided', () => {
   const joined = classifyAdvisoryRecordForAmdProof(advisoryRecord({
     labels: ['MODEL_LICENSE_UNKNOWN', 'MODEL_WEIGHT_DOWNLOAD_DEFERRED', 'DIRECTML_BACKEND_PRESENT'],
     backend: ['directml'],
     source_license: 'UNKNOWN',
   }), amdProofFixture());
 
-  assert(joined.classifications.includes('AMD_MODEL_LICENSE_BLOCKED'));
-  assert(!joined.classifications.includes('AMD_890M_READY_CANDIDATE'));
+  assert(joined.classifications.includes('AMD_REDISTRIBUTION_UNDECIDED'));
+  assert(!joined.classifications.includes('AMD_PROVENANCE_UNKNOWN'));
   assert.equal(joined.safe_for_model_download, false);
 });
 
-test('AMD ONNX DirectML provider import alone does not mark unknown-license model ready', () => {
+test('AMD ONNX DirectML provider import alone keeps unknown redistribution in review', () => {
   const joined = classifyAdvisoryRecordForAmdProof(advisoryRecord({
     labels: ['MODEL_LICENSE_UNKNOWN', 'ONNX_BACKEND_PRESENT'],
     backend: ['onnx'],
@@ -142,7 +142,7 @@ test('AMD ONNX DirectML provider import alone does not mark unknown-license mode
     },
   }));
 
-  assert(joined.classifications.includes('AMD_MODEL_LICENSE_BLOCKED'));
+  assert(joined.classifications.includes('AMD_REDISTRIBUTION_UNDECIDED'));
   assert(!joined.classifications.includes('AMD_890M_READY_CANDIDATE'));
   assert(!joined.classifications.includes('AMD_ONNX_DIRECTML_POSSIBLE'));
 });

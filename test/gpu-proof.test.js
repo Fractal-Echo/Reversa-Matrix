@@ -113,7 +113,7 @@ test('GPU proof classifies torch CUDA tensor op pass as tensor proof', () => {
   assert(proof.backend_classifications.includes('GPU_PROOF_BACKEND_READY_ONNX'));
 });
 
-test('advisory join does not mark unknown-license model ready', () => {
+test('advisory join treats unknown license as redistribution undecided', () => {
   const proof = tensorProof();
   const joined = classifyAdvisoryRecordForLocalGpu(advisoryRecord({
     labels: ['MODEL_LICENSE_UNKNOWN', 'MODEL_WEIGHT_DOWNLOAD_DEFERRED', 'CUDA_BACKEND_PRESENT'],
@@ -123,8 +123,8 @@ test('advisory join does not mark unknown-license model ready', () => {
 
   assert.equal(joined.source_authority, false);
   assert.equal(joined.safe_for_model_download, false);
-  assert(joined.classifications.includes('MODEL_LICENSE_BLOCKED'));
-  assert(!joined.classifications.includes('LOCAL_5090_READY_CANDIDATE'));
+  assert(joined.classifications.includes('REDISTRIBUTION_UNDECIDED'));
+  assert(joined.classifications.includes('LOCAL_5090_READY_CANDIDATE'));
 });
 
 test('advisory join marks CUDA possible only when proof supports CUDA', () => {

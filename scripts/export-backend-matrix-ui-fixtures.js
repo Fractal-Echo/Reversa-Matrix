@@ -19,7 +19,7 @@ export async function exportBackendMatrixUiFixtures(options) {
     outDir,
     totalRecords: fixture.summary.totalRecords,
     readyForControlledTest: fixture.summary.readyForControlledTest,
-    blockedRuntime: fixture.summary.blockedRuntime,
+    runtimeProofMissing: fixture.summary.runtimeProofMissing,
   };
 }
 
@@ -36,6 +36,7 @@ export function buildBackendMatrixFixture(matrix) {
       status: readinessStatus(row.readiness_level),
       backend: row.backend_candidates ?? [],
       readiness_level: row.readiness_level,
+      research_classifications: row.research_classifications ?? [],
       hard_blocks: row.hard_blocks ?? [],
       soft_warnings: row.soft_warnings ?? [],
       action: sanitizeUiText(row.recommended_next_action),
@@ -57,10 +58,13 @@ export function buildBackendMatrixFixture(matrix) {
       onnxDirectmlCandidates: Number(summary.onnxDirectmlCandidates) || 0,
       vulkanNcnnCandidates: Number(summary.vulkanNcnnCandidates) || 0,
       tensorrtCandidates: Number(summary.tensorrtCandidates) || 0,
-      blockedLicense: Number(summary.blockedLicense) || 0,
-      blockedArtifact: Number(summary.blockedArtifact) || 0,
-      blockedHash: Number(summary.blockedHash) || 0,
-      blockedRuntime: Number(summary.blockedRuntime) || 0,
+      provenanceUnknown: Number(summary.provenanceUnknown) || 0,
+      artifactDeferred: Number(summary.artifactDeferred) || 0,
+      hashMissing: Number(summary.hashMissing) || 0,
+      runtimeProofMissing: Number(summary.runtimeProofMissing) || 0,
+      redistributionNotDecided: Number(summary.redistributionNotDecided) || 0,
+      backendProven: Number(summary.backendProven) || 0,
+      backendCandidate: Number(summary.backendCandidate) || 0,
     },
     proof: {
       cuda: proof.cuda?.status ?? 'BACKEND_UNAVAILABLE',
@@ -72,19 +76,20 @@ export function buildBackendMatrixFixture(matrix) {
     gates: [
       { label: 'Controlled test only', status: summary.readyForControlledTest > 0 ? 'Review' : 'Blocked', count: summary.readyForControlledTest ?? 0 },
       { label: 'Recommendation ready', status: summary.readyForRecommendation > 0 ? 'Review' : 'Safe', count: summary.readyForRecommendation ?? 0 },
-      { label: 'License blocked', status: summary.blockedLicense > 0 ? 'Blocked' : 'Safe', count: summary.blockedLicense ?? 0 },
-      { label: 'Artifact blocked', status: summary.blockedArtifact > 0 ? 'Blocked' : 'Safe', count: summary.blockedArtifact ?? 0 },
-      { label: 'Hash blocked', status: summary.blockedHash > 0 ? 'Blocked' : 'Safe', count: summary.blockedHash ?? 0 },
-      { label: 'Runtime blocked', status: summary.blockedRuntime > 0 ? 'Blocked' : 'Safe', count: summary.blockedRuntime ?? 0 },
+      { label: 'Provenance unknown', status: summary.provenanceUnknown > 0 ? 'Review' : 'Safe', count: summary.provenanceUnknown ?? 0 },
+      { label: 'Artifact deferred', status: summary.artifactDeferred > 0 ? 'Review' : 'Safe', count: summary.artifactDeferred ?? 0 },
+      { label: 'Hash missing', status: summary.hashMissing > 0 ? 'Review' : 'Safe', count: summary.hashMissing ?? 0 },
+      { label: 'Runtime proof missing', status: summary.runtimeProofMissing > 0 ? 'Review' : 'Safe', count: summary.runtimeProofMissing ?? 0 },
+      { label: 'Redistribution not decided', status: summary.redistributionNotDecided > 0 ? 'Review' : 'Safe', count: summary.redistributionNotDecided ?? 0 },
     ],
     rows: topRows,
   };
 }
 
 function readinessStatus(level) {
-  if (level === 'BACKEND_READY_FOR_CONTROLLED_TEST') return 'Review';
-  if (level === 'BACKEND_READY_FOR_RECOMMENDATION') return 'Safe';
-  if (String(level).startsWith('BACKEND_BLOCKED')) return 'Blocked';
+  if (level === 'RESEARCH_READY_FOR_CONTROLLED_TEST') return 'Review';
+  if (level === 'RESEARCH_BACKEND_PROVEN') return 'Safe';
+  if (level === 'RESEARCH_PROVENANCE_UNKNOWN' || level === 'RESEARCH_RUNTIME_UNPROVEN') return 'Review';
   return 'Candidate';
 }
 

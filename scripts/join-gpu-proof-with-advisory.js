@@ -29,7 +29,7 @@ export function classifyAdvisoryRecordForLocalGpu(record, proof) {
   const backends = new Set(record.backend ?? []);
   const classifications = [];
   const gpuRelevant = isGpuRelevant(record);
-  const licenseBlocked = labels.has('MODEL_LICENSE_UNKNOWN')
+  const redistributionUndecided = labels.has('MODEL_LICENSE_UNKNOWN')
     || (record.source_kind === 'model_card_metadata' && String(record.source_license ?? '').toUpperCase() === 'UNKNOWN');
   const modelDeferred = labels.has('MODEL_WEIGHT_DOWNLOAD_DEFERRED') || labels.has('MODEL_METADATA_ONLY');
   const backendUnknown = backends.size === 0 || backends.has('unknown');
@@ -44,8 +44,10 @@ export function classifyAdvisoryRecordForLocalGpu(record, proof) {
   if (!gpuRelevant) classifications.push('NOT_GPU_RELEVANT');
   if (labels.has('WINDOWS_ONLY_RUNTIME')) classifications.push('WINDOWS_ONLY_REVIEW');
   if (labels.has('PROTON_COMPATIBLE_CANDIDATE') || labels.has('LINUX_RUNTIME_UNKNOWN')) classifications.push('LINUX_PROTON_UNPROVEN');
-  if (licenseBlocked) classifications.push('MODEL_LICENSE_BLOCKED');
-  if (labels.has('MODEL_WEIGHT_DOWNLOAD_DEFERRED')) classifications.push('MODEL_WEIGHT_DOWNLOAD_DEFERRED');
+  if (redistributionUndecided) classifications.push('REDISTRIBUTION_UNDECIDED');
+  if (labels.has('MODEL_PROVENANCE_MISSING')) classifications.push('PROVENANCE_UNKNOWN');
+  if (labels.has('MODEL_WEIGHT_DOWNLOAD_DEFERRED')) classifications.push('RESEARCH_ARTIFACT_DEFERRED');
+  if (labels.has('MODEL_HASH_MISSING')) classifications.push('RESEARCH_HASH_MISSING');
   if ((backendUnknown || backendMissing) && gpuRelevant) classifications.push('BACKEND_UNKNOWN');
 
   if (cudaCandidate) {
@@ -63,7 +65,7 @@ export function classifyAdvisoryRecordForLocalGpu(record, proof) {
     (ncnnCandidate && proof?.backends?.ncnn === 'present')
   );
 
-  if (gpuRelevant && backendReady && !licenseBlocked && !modelDeferred && !backendUnknown) {
+  if (gpuRelevant && backendReady && !backendUnknown && !labels.has('MODEL_PROVENANCE_MISSING')) {
     classifications.push('LOCAL_5090_READY_CANDIDATE');
   } else if (gpuRelevant && proofSupportsCuda(proof) && modelDeferred) {
     classifications.push('LOCAL_5090_POSSIBLE_BUT_MODEL_DEFERRED');
@@ -102,9 +104,11 @@ export function summarizeJoinedRecords(joined) {
     possibleButModelDeferred: counts.LOCAL_5090_POSSIBLE_BUT_MODEL_DEFERRED ?? 0,
     cudaBackendPossible: counts.CUDA_BACKEND_POSSIBLE ?? 0,
     torchCudaMissing: counts.TORCH_CUDA_MISSING ?? 0,
-    blockedByLicense: counts.MODEL_LICENSE_BLOCKED ?? 0,
+    redistributionNotDecided: counts.REDISTRIBUTION_UNDECIDED ?? 0,
+    provenanceUnknown: counts.PROVENANCE_UNKNOWN ?? 0,
+    hashMissing: counts.RESEARCH_HASH_MISSING ?? 0,
     blockedByMissingBackend: counts.BACKEND_UNKNOWN ?? 0,
-    deferredModelArtifacts: counts.MODEL_WEIGHT_DOWNLOAD_DEFERRED ?? 0,
+    deferredModelArtifacts: counts.RESEARCH_ARTIFACT_DEFERRED ?? 0,
     linuxProtonUnproven: counts.LINUX_PROTON_UNPROVEN ?? 0,
     windowsOnlyReview: counts.WINDOWS_ONLY_REVIEW ?? 0,
     counts,
@@ -128,8 +132,10 @@ function proofSupportsCuda(proof) {
 
 function choosePrimaryClassification(classifications) {
   const priority = [
-    'MODEL_LICENSE_BLOCKED',
-    'MODEL_WEIGHT_DOWNLOAD_DEFERRED',
+    'PROVENANCE_UNKNOWN',
+    'REDISTRIBUTION_UNDECIDED',
+    'RESEARCH_ARTIFACT_DEFERRED',
+    'RESEARCH_HASH_MISSING',
     'LOCAL_5090_READY_CANDIDATE',
     'LOCAL_5090_POSSIBLE_BUT_MODEL_DEFERRED',
     'CUDA_BACKEND_POSSIBLE',
@@ -144,8 +150,10 @@ function choosePrimaryClassification(classifications) {
 
 function recommendLocalFitAction(classifications) {
   const set = new Set(classifications);
-  if (set.has('MODEL_LICENSE_BLOCKED')) return 'Review license metadata before any package planning.';
-  if (set.has('MODEL_WEIGHT_DOWNLOAD_DEFERRED')) return 'Keep model artifact acquisition deferred.';
+  if (set.has('PROVENANCE_UNKNOWN')) return 'Record model provenance before controlled testing.';
+  if (set.has('REDISTRIBUTION_UNDECIDED')) return 'Research-only candidate; redistribution is not decided.';
+  if (set.has('RESEARCH_HASH_MISSING')) return 'Capture model artifact hash before execution.';
+  if (set.has('RESEARCH_ARTIFACT_DEFERRED')) return 'Keep model artifact acquisition deferred.';
   if (set.has('TORCH_CUDA_MISSING')) return 'Capture CUDA/PyTorch proof before treating this as locally accelerated.';
   if (set.has('BACKEND_UNKNOWN')) return 'Identify backend and required runtime proof.';
   if (set.has('LOCAL_5090_READY_CANDIDATE')) return 'Candidate is ready for planning evidence review only.';
@@ -178,7 +186,9 @@ function renderLocalFitMarkdown(summary, proof) {
     `- Possible but model deferred: ${summary.possibleButModelDeferred}`,
     `- CUDA backend possible: ${summary.cudaBackendPossible}`,
     `- Torch CUDA missing: ${summary.torchCudaMissing}`,
-    `- Blocked by license: ${summary.blockedByLicense}`,
+    `- Redistribution not decided: ${summary.redistributionNotDecided}`,
+    `- Provenance unknown: ${summary.provenanceUnknown}`,
+    `- Hash missing: ${summary.hashMissing}`,
     `- Blocked by missing backend: ${summary.blockedByMissingBackend}`,
     `- Deferred model artifacts: ${summary.deferredModelArtifacts}`,
     `- Linux/Proton unproven: ${summary.linuxProtonUnproven}`,

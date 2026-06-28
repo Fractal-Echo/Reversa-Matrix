@@ -247,7 +247,7 @@ export function recordsFromHfIndex(rows, options) {
     ]);
     const backend = backendFromHf(row.likely_backend, row.model_files, row.framework_tags);
     const risk = [];
-    if (labels.includes('MODEL_LICENSE_UNKNOWN')) risk.push('license_unknown');
+    if (labels.includes('MODEL_LICENSE_UNKNOWN')) risk.push('redistribution_not_decided');
     if (!row.likely_backend || row.likely_backend === 'unknown') risk.push('backend_unknown');
     if (!row.model_files || row.model_files === '.gitattributes') risk.push('sparse_metadata');
     const evidenceText = shortEvidence(`HF model ${row.model_id}; family=${row.query_family}; license=${row.license || 'UNKNOWN'}; backend=${row.likely_backend || 'unknown'}; files=${row.model_files || 'none'}`);
@@ -480,7 +480,7 @@ function runtimeFromText(text, labels = []) {
 
 function riskFromLabels(labels, text = '') {
   const risk = [];
-  if (labels.includes('MODEL_LICENSE_UNKNOWN')) risk.push('license_unknown');
+  if (labels.includes('MODEL_LICENSE_UNKNOWN')) risk.push('redistribution_not_decided');
   if (labels.includes('MODEL_HASH_MISSING')) risk.push('model_hash_missing');
   if (labels.includes('MODEL_PROVENANCE_MISSING')) risk.push('model_provenance_missing');
   if (labels.includes('CUDA_CLAIM_UNVERIFIED')) risk.push('unverified_cuda_claim');
@@ -509,7 +509,7 @@ function recommendedActionFromLabels(labels) {
   if (labels.includes('GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY')) return 'Trace this record back to original source or raw proof before using it as authority.';
   if (labels.includes('GAME_PATCH_UNSAFE')) return 'Keep as review-only until hash, backup, rollback, version, and signature proof exists.';
   if (labels.includes('CUDA_CLAIM_UNVERIFIED')) return 'Require direct CUDA host/runtime proof before promoting acceleration claims.';
-  if (labels.includes('MODEL_LICENSE_UNKNOWN')) return 'Keep model metadata deferred until license and provenance are reviewed.';
+  if (labels.includes('MODEL_LICENSE_UNKNOWN')) return 'Keep as research-only metadata until provenance and redistribution status are reviewed.';
   return 'Use as advisory classification evidence only.';
 }
 

@@ -12,7 +12,7 @@ const state = {
 const textureSteps = [
   ['Dump Source', 'Review source capture path and ownership before preparing manifests.'],
   ['Texture Manifest', 'Require names, hashes, dimensions, and target package scope.'],
-  ['Upscale Model', 'Keep model choice blocked until license and hash proof are present.'],
+  ['Upscale Model', 'Keep model choice research-only until provenance and hash proof are present.'],
   ['Preview Compare', 'Record before/after evidence without mutating runtime files.'],
   ['Reinject Package', 'Proposal-only until rollback bundle exists.'],
   ['Rollback Bundle', 'Backups and hashes are mandatory before future apply work.'],
@@ -106,7 +106,9 @@ function renderGpuProof() {
   document.getElementById('local-fit-summary').innerHTML = [
     metric('Ready Candidates', summary.readyCandidates),
     metric('CUDA Possible', summary.cudaBackendPossible),
-    metric('License Review', summary.blockedByLicense),
+    metric('Redistribution', summary.redistributionNotDecided),
+    metric('Provenance', summary.provenanceUnknown),
+    metric('Hash Needed', summary.hashMissing),
     metric('Missing Backend', summary.blockedByMissingBackend),
     metric('Deferred Artifacts', summary.deferredModelArtifacts),
     metric('Linux Candidate', summary.linuxProtonUnproven),
@@ -144,6 +146,7 @@ function renderAmdProof() {
     metric('ONNX DirectML', summary.onnxDirectmlPossible),
     metric('Vulkan NCNN', summary.vulkanNcnnPossible),
     metric('OpenCL Possible', summary.openclPossible),
+    metric('Redistribution', summary.redistributionNotDecided),
     metric('Runtime Needed', summary.runtimeNotReady),
   ].join('');
   document.getElementById('amd-fit-actions').innerHTML = localFit.actions.map(action => (
@@ -203,9 +206,9 @@ function renderModels() {
   const list = document.getElementById('model-list');
   list.innerHTML = state.library.models.map(model => `
     <article class="model">
-      ${chip(model.licenseStatus === 'warning' ? 'Review' : 'Candidate')}
+      ${chip(model.redistributionStatus === 'not_decided' ? 'Review' : 'Candidate')}
       <h3>${escapeHtml(model.id)}</h3>
-      <p>${escapeHtml(model.source)}. License: ${escapeHtml(model.license)}. Hash status: ${escapeHtml(model.hashStatus)}.</p>
+      <p>${escapeHtml(model.source)}. Redistribution: ${escapeHtml(model.redistributionStatus)}. Hash status: ${escapeHtml(model.hashStatus)}.</p>
       <div class="model__meta">
         <span>Backend: ${escapeHtml(model.backend.join(', ') || 'unknown')}</span>
         <span>VRAM: ${escapeHtml(model.vramEstimate)}</span>
@@ -254,6 +257,11 @@ function renderBackendReadinessMatrix() {
     metric('ONNX DML', summary.onnxDirectmlCandidates),
     metric('Vulkan NCNN', summary.vulkanNcnnCandidates),
     metric('TensorRT', summary.tensorrtCandidates),
+    metric('Provenance', summary.provenanceUnknown),
+    metric('Artifact', summary.artifactDeferred),
+    metric('Hash Needed', summary.hashMissing),
+    metric('Runtime Proof', summary.runtimeProofMissing),
+    metric('Redistribution', summary.redistributionNotDecided),
   ].join('');
 
   document.getElementById('backend-readiness-proof').innerHTML = Object.entries(matrix.proof).map(([backend, status]) => (
@@ -276,6 +284,7 @@ function renderBackendReadinessMatrix() {
       <div class="advanced">
         hard_blocks=${escapeHtml(row.hard_blocks.join(', ') || 'none')}
         soft_warnings=${escapeHtml(row.soft_warnings.join(', ') || 'none')}
+        research=${escapeHtml((row.research_classifications ?? []).join(', ') || 'none')}
         labels=${escapeHtml(row.labels.join(', ') || 'none')}
       </div>
     </article>

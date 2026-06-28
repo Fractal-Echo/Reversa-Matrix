@@ -58,13 +58,13 @@ test('studio generated fixtures remain display artifacts, not source authority',
   assert.equal(amdLocalFit.source_authority, false);
 });
 
-test('studio model library warns on unknown-license models', () => {
+test('studio model library marks unknown redistribution as research review', () => {
   const library = buildModelLibrary(sampleRecords(), sampleLabelSummary());
   const unknown = library.models.find(model => model.license === 'UNKNOWN');
 
-  assert(unknown, 'expected unknown-license model fixture');
-  assert.equal(unknown.licenseStatus, 'warning');
-  assert.equal(unknown.acquisitionStatus, 'deferred_license_review');
+  assert(unknown, 'expected unknown-redistribution model fixture');
+  assert.equal(unknown.redistributionStatus, 'not_decided');
+  assert.equal(unknown.acquisitionStatus, 'research_only_redistribution_not_decided');
 });
 
 test('studio patch dossier blocks EXE patch proposal without hash proof', () => {
@@ -253,7 +253,7 @@ function sampleRecords() {
       labels: ['MODEL_METADATA_ONLY', 'MODEL_LICENSE_UNKNOWN', 'MODEL_HASH_MISSING'],
       backend: ['cuda'],
       required_proof: ['model_hash', 'model_license'],
-      recommended_action: 'Review license and hash before package planning.',
+      recommended_action: 'Review provenance and hash before controlled research testing.',
     }),
     advisoryRecord({
       record_id: 'model-reviewed-license',

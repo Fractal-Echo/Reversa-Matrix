@@ -23,11 +23,11 @@ test('backend matrix marks CUDA tiny-op proof as controlled-test ready only', ()
   }), proofSummary());
 
   assert.equal(row.cuda_status, 'BACKEND_TINY_OP_PROVEN');
-  assert.equal(row.readiness_level, 'BACKEND_READY_FOR_CONTROLLED_TEST');
+  assert.equal(row.readiness_level, 'RESEARCH_READY_FOR_CONTROLLED_TEST');
   assert(row.soft_warnings.includes('CONTROLLED_TEST_ONLY_NOT_RECOMMENDATION'));
 });
 
-test('backend matrix blocks unknown-license model metadata before runtime readiness', () => {
+test('backend matrix treats unknown license as redistribution undecided, not a research blocker', () => {
   const row = classifyBackendReadiness(record({
     record_id: 'unknown-license-model',
     source_kind: 'model_card_metadata',
@@ -36,12 +36,13 @@ test('backend matrix blocks unknown-license model metadata before runtime readin
     backend: ['directml'],
   }), proofSummary());
 
-  assert.equal(row.license_status, 'BLOCKED_LICENSE');
-  assert.equal(row.readiness_level, 'BACKEND_BLOCKED_LICENSE');
-  assert(row.hard_blocks.includes('LICENSE_REVIEW_REQUIRED'));
+  assert.equal(row.redistribution_status, 'REDISTRIBUTION_NOT_DECIDED');
+  assert.equal(row.readiness_level, 'RESEARCH_READY_FOR_CONTROLLED_TEST');
+  assert(row.research_classifications.includes('RESEARCH_READY_FOR_CONTROLLED_TEST'));
+  assert(row.soft_warnings.includes('REDISTRIBUTION_NOT_DECIDED'));
 });
 
-test('backend matrix keeps metadata-only model artifacts blocked', () => {
+test('backend matrix keeps metadata-only rows research-only with deferred artifacts', () => {
   const row = classifyBackendReadiness(record({
     record_id: 'metadata-only-model',
     source_kind: 'model_card_metadata',
@@ -50,11 +51,12 @@ test('backend matrix keeps metadata-only model artifacts blocked', () => {
     backend: ['directml'],
   }), proofSummary());
 
-  assert.equal(row.artifact_status, 'BLOCKED_ARTIFACT');
-  assert.equal(row.readiness_level, 'BACKEND_BLOCKED_ARTIFACT');
+  assert.equal(row.artifact_status, 'ARTIFACT_DEFERRED');
+  assert(row.research_classifications.includes('RESEARCH_ARTIFACT_DEFERRED'));
+  assert.equal(row.readiness_level, 'RESEARCH_READY_FOR_CONTROLLED_TEST');
 });
 
-test('backend matrix keeps missing hash rows blocked', () => {
+test('backend matrix records missing hash without blocking research classification', () => {
   const row = classifyBackendReadiness(record({
     record_id: 'hash-missing-model',
     source_kind: 'model_card_metadata',
@@ -63,8 +65,9 @@ test('backend matrix keeps missing hash rows blocked', () => {
     backend: ['onnx'],
   }), proofSummary());
 
-  assert.equal(row.hash_status, 'BLOCKED_HASH');
-  assert.equal(row.readiness_level, 'BACKEND_BLOCKED_HASH');
+  assert.equal(row.hash_status, 'HASH_MISSING');
+  assert(row.research_classifications.includes('RESEARCH_HASH_MISSING'));
+  assert.equal(row.readiness_level, 'RESEARCH_READY_FOR_CONTROLLED_TEST');
 });
 
 test('backend matrix treats Vulkan visible as candidate, not ready', () => {
@@ -77,7 +80,7 @@ test('backend matrix treats Vulkan visible as candidate, not ready', () => {
   }), proofSummary());
 
   assert.equal(row.vulkan_ncnn_status, 'BACKEND_CANDIDATE');
-  assert.equal(row.readiness_level, 'BACKEND_CANDIDATE');
+  assert.equal(row.readiness_level, 'RESEARCH_BACKEND_CANDIDATE');
 });
 
 test('backend matrix blocks TensorRT until TensorRT runtime proof exists', () => {
@@ -90,7 +93,7 @@ test('backend matrix blocks TensorRT until TensorRT runtime proof exists', () =>
   }), proofSummary());
 
   assert.equal(row.tensorrt_status, 'BACKEND_BLOCKED_RUNTIME');
-  assert.equal(row.readiness_level, 'BACKEND_BLOCKED_RUNTIME');
+  assert.equal(row.readiness_level, 'RESEARCH_RUNTIME_UNPROVEN');
 });
 
 test('backend matrix builder writes generated matrix artifacts', async () => {
@@ -118,9 +121,9 @@ test('backend matrix builder writes generated matrix artifacts', async () => {
   });
 
   assert.equal(result.summary.totalRecords, 3);
-  assert.equal(result.summary.readyForControlledTest, 1);
+  assert.equal(result.summary.readyForControlledTest, 2);
   assert.equal(result.summary.vulkanNcnnCandidates, 1);
-  assert.equal(result.summary.blockedLicense, 1);
+  assert.equal(result.summary.redistributionNotDecided, 1);
   assert.equal(JSON.parse(await readFile(join(out, 'backend-readiness-matrix.json'), 'utf8')).source_authority, false);
   assert.match(await readFile(join(out, 'backend-readiness-matrix.md'), 'utf8'), /Vulkan visibility does not prove Vulkan NCNN runtime readiness/);
 });
@@ -141,9 +144,10 @@ test('backend matrix UI fixture is generated evidence and display-safe', async (
         source_project: 'synthetic',
         labels: ['MODEL_WEIGHT_DOWNLOAD_DEFERRED', 'CUDA_BACKEND_PRESENT'],
         backend_candidates: ['cuda'],
-        readiness_level: 'BACKEND_BLOCKED_ARTIFACT',
-        hard_blocks: ['ARTIFACT_ACQUISITION_DEFERRED'],
-        soft_warnings: ['SOURCE_AUTHORITY_REVIEW'],
+        readiness_level: 'RESEARCH_READY_FOR_CONTROLLED_TEST',
+        research_classifications: ['RESEARCH_READY_FOR_CONTROLLED_TEST', 'RESEARCH_ARTIFACT_DEFERRED'],
+        hard_blocks: [],
+        soft_warnings: ['SOURCE_AUTHORITY_REVIEW', 'ARTIFACT_DEFERRED'],
         recommended_next_action: 'Keep model weight download deferred.',
       },
     ],

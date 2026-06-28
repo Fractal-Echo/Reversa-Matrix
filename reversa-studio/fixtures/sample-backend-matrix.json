@@ -5,17 +5,20 @@
   "title": "Backend Readiness Matrix",
   "summary": {
     "totalRecords": 774,
-    "readyForControlledTest": 100,
+    "readyForControlledTest": 123,
     "readyForRecommendation": 0,
     "cudaCandidates": 141,
     "directmlCandidates": 1,
     "onnxDirectmlCandidates": 7,
     "vulkanNcnnCandidates": 255,
     "tensorrtCandidates": 1,
-    "blockedLicense": 32,
-    "blockedArtifact": 48,
-    "blockedHash": 307,
-    "blockedRuntime": 0
+    "provenanceUnknown": 377,
+    "artifactDeferred": 48,
+    "hashMissing": 307,
+    "runtimeProofMissing": 1,
+    "redistributionNotDecided": 32,
+    "backendProven": 148,
+    "backendCandidate": 255
   },
   "proof": {
     "cuda": "BACKEND_TINY_OP_PROVEN",
@@ -28,7 +31,7 @@
     {
       "label": "Controlled test only",
       "status": "Review",
-      "count": 100
+      "count": 123
     },
     {
       "label": "Recommendation ready",
@@ -36,44 +39,54 @@
       "count": 0
     },
     {
-      "label": "License blocked",
-      "status": "Blocked",
-      "count": 32
+      "label": "Provenance unknown",
+      "status": "Review",
+      "count": 377
     },
     {
-      "label": "Artifact blocked",
-      "status": "Blocked",
+      "label": "Artifact deferred",
+      "status": "Review",
       "count": 48
     },
     {
-      "label": "Hash blocked",
-      "status": "Blocked",
+      "label": "Hash missing",
+      "status": "Review",
       "count": 307
     },
     {
-      "label": "Runtime blocked",
-      "status": "Safe",
-      "count": 0
+      "label": "Runtime proof missing",
+      "status": "Review",
+      "count": 1
+    },
+    {
+      "label": "Redistribution not decided",
+      "status": "Review",
+      "count": 32
     }
   ],
   "rows": [
     {
       "id": "gpuadvisory_02599791bb2a73ab",
       "source_project": "flowframes",
-      "status": "Blocked",
+      "status": "Review",
       "backend": [
         "vulkan_ncnn"
       ],
-      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "readiness_level": "RESEARCH_PROVENANCE_UNKNOWN",
+      "research_classifications": [
+        "RESEARCH_PROVENANCE_UNKNOWN",
+        "RESEARCH_HASH_MISSING",
+        "RESEARCH_BACKEND_CANDIDATE"
+      ],
       "hard_blocks": [
-        "HASH_REQUIRED_BEFORE_USE",
-        "PROVENANCE_REQUIRED_BEFORE_USE"
+        "PROVENANCE_REQUIRED_BEFORE_CONTROLLED_TEST"
       ],
       "soft_warnings": [
+        "HASH_CAPTURE_REQUIRED_BEFORE_EXECUTION",
         "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
         "SOURCE_AUTHORITY_REVIEW"
       ],
-      "action": "Capture hash and provenance proof before ranking this higher.",
+      "action": "Record source identity and provenance before controlled testing.",
       "labels": [
         "CANDIDATE_VULKAN_NCNN",
         "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
@@ -85,20 +98,25 @@
     {
       "id": "gpuadvisory_02aa3108c3df0591",
       "source_project": "flowframes",
-      "status": "Blocked",
+      "status": "Review",
       "backend": [
         "vulkan_ncnn"
       ],
-      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "readiness_level": "RESEARCH_PROVENANCE_UNKNOWN",
+      "research_classifications": [
+        "RESEARCH_PROVENANCE_UNKNOWN",
+        "RESEARCH_HASH_MISSING",
+        "RESEARCH_BACKEND_CANDIDATE"
+      ],
       "hard_blocks": [
-        "HASH_REQUIRED_BEFORE_USE",
-        "PROVENANCE_REQUIRED_BEFORE_USE"
+        "PROVENANCE_REQUIRED_BEFORE_CONTROLLED_TEST"
       ],
       "soft_warnings": [
+        "HASH_CAPTURE_REQUIRED_BEFORE_EXECUTION",
         "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
         "SOURCE_AUTHORITY_REVIEW"
       ],
-      "action": "Capture hash and provenance proof before ranking this higher.",
+      "action": "Record source identity and provenance before controlled testing.",
       "labels": [
         "CANDIDATE_VULKAN_NCNN",
         "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
@@ -110,18 +128,27 @@
     {
       "id": "gpuadvisory_041e8b363c9501bf",
       "source_project": "huggingface",
-      "status": "Blocked",
+      "status": "Review",
       "backend": [
         "cuda"
       ],
-      "readiness_level": "BACKEND_BLOCKED_LICENSE",
-      "hard_blocks": [
-        "LICENSE_REVIEW_REQUIRED",
-        "ARTIFACT_ACQUISITION_DEFERRED",
-        "HASH_REQUIRED_BEFORE_USE"
+      "readiness_level": "RESEARCH_READY_FOR_CONTROLLED_TEST",
+      "research_classifications": [
+        "RESEARCH_METADATA_ONLY",
+        "RESEARCH_ARTIFACT_DEFERRED",
+        "RESEARCH_HASH_MISSING",
+        "RESEARCH_BACKEND_PROVEN",
+        "RESEARCH_READY_FOR_CONTROLLED_TEST",
+        "RESEARCH_REVIEW_REQUIRED"
       ],
-      "soft_warnings": [],
-      "action": "Review license metadata before controlled testing.",
+      "hard_blocks": [],
+      "soft_warnings": [
+        "ARTIFACT_DEFERRED",
+        "HASH_CAPTURE_REQUIRED_BEFORE_EXECUTION",
+        "REDISTRIBUTION_NOT_DECIDED",
+        "CONTROLLED_TEST_ONLY_NOT_RECOMMENDATION"
+      ],
+      "action": "Research-only candidate; capture artifact hash before execution.",
       "labels": [
         "CANDIDATE_CUDA_5090",
         "MODEL_LICENSE_UNKNOWN",
@@ -136,12 +163,16 @@
       "backend": [
         "cuda"
       ],
-      "readiness_level": "BACKEND_READY_FOR_CONTROLLED_TEST",
+      "readiness_level": "RESEARCH_READY_FOR_CONTROLLED_TEST",
+      "research_classifications": [
+        "RESEARCH_BACKEND_PROVEN",
+        "RESEARCH_READY_FOR_CONTROLLED_TEST"
+      ],
       "hard_blocks": [],
       "soft_warnings": [
         "CONTROLLED_TEST_ONLY_NOT_RECOMMENDATION"
       ],
-      "action": "Eligible for a controlled local test plan; not a recommendation.",
+      "action": "Eligible for a controlled local research test plan; not a redistribution recommendation.",
       "labels": [
         "CUDA_BACKEND_PRESENT",
         "FRAMEGEN_RUNTIME_CANDIDATE",
@@ -152,20 +183,25 @@
     {
       "id": "gpuadvisory_045535c4fb0921ec",
       "source_project": "flowframes",
-      "status": "Blocked",
+      "status": "Review",
       "backend": [
         "vulkan_ncnn"
       ],
-      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "readiness_level": "RESEARCH_PROVENANCE_UNKNOWN",
+      "research_classifications": [
+        "RESEARCH_PROVENANCE_UNKNOWN",
+        "RESEARCH_HASH_MISSING",
+        "RESEARCH_BACKEND_CANDIDATE"
+      ],
       "hard_blocks": [
-        "HASH_REQUIRED_BEFORE_USE",
-        "PROVENANCE_REQUIRED_BEFORE_USE"
+        "PROVENANCE_REQUIRED_BEFORE_CONTROLLED_TEST"
       ],
       "soft_warnings": [
+        "HASH_CAPTURE_REQUIRED_BEFORE_EXECUTION",
         "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
         "SOURCE_AUTHORITY_REVIEW"
       ],
-      "action": "Capture hash and provenance proof before ranking this higher.",
+      "action": "Record source identity and provenance before controlled testing.",
       "labels": [
         "CANDIDATE_VULKAN_NCNN",
         "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
@@ -177,17 +213,23 @@
     {
       "id": "gpuadvisory_0538423e61f2bbe3",
       "source_project": "flowframes",
-      "status": "Blocked",
+      "status": "Review",
       "backend": [
         "vulkan_ncnn"
       ],
-      "readiness_level": "BACKEND_BLOCKED_HASH",
-      "hard_blocks": [
-        "HASH_REQUIRED_BEFORE_USE",
-        "PROVENANCE_REQUIRED_BEFORE_USE"
+      "readiness_level": "RESEARCH_PROVENANCE_UNKNOWN",
+      "research_classifications": [
+        "RESEARCH_PROVENANCE_UNKNOWN",
+        "RESEARCH_HASH_MISSING",
+        "RESEARCH_BACKEND_CANDIDATE"
       ],
-      "soft_warnings": [],
-      "action": "Capture hash and provenance proof before ranking this higher.",
+      "hard_blocks": [
+        "PROVENANCE_REQUIRED_BEFORE_CONTROLLED_TEST"
+      ],
+      "soft_warnings": [
+        "HASH_CAPTURE_REQUIRED_BEFORE_EXECUTION"
+      ],
+      "action": "Record source identity and provenance before controlled testing.",
       "labels": [
         "CANDIDATE_VULKAN_NCNN",
         "FRAMEGEN_RUNTIME_CANDIDATE",
@@ -203,12 +245,16 @@
       "backend": [
         "cuda"
       ],
-      "readiness_level": "BACKEND_READY_FOR_CONTROLLED_TEST",
+      "readiness_level": "RESEARCH_READY_FOR_CONTROLLED_TEST",
+      "research_classifications": [
+        "RESEARCH_BACKEND_PROVEN",
+        "RESEARCH_READY_FOR_CONTROLLED_TEST"
+      ],
       "hard_blocks": [],
       "soft_warnings": [
         "CONTROLLED_TEST_ONLY_NOT_RECOMMENDATION"
       ],
-      "action": "Eligible for a controlled local test plan; not a recommendation.",
+      "action": "Eligible for a controlled local research test plan; not a redistribution recommendation.",
       "labels": [
         "CUDA_BACKEND_PRESENT",
         "CUDA_CLAIM_UNVERIFIED",
@@ -219,17 +265,23 @@
     {
       "id": "gpuadvisory_06ed6454f4f4a052",
       "source_project": "flowframes",
-      "status": "Blocked",
+      "status": "Review",
       "backend": [
         "vulkan_ncnn"
       ],
-      "readiness_level": "BACKEND_BLOCKED_HASH",
-      "hard_blocks": [
-        "HASH_REQUIRED_BEFORE_USE",
-        "PROVENANCE_REQUIRED_BEFORE_USE"
+      "readiness_level": "RESEARCH_PROVENANCE_UNKNOWN",
+      "research_classifications": [
+        "RESEARCH_PROVENANCE_UNKNOWN",
+        "RESEARCH_HASH_MISSING",
+        "RESEARCH_BACKEND_CANDIDATE"
       ],
-      "soft_warnings": [],
-      "action": "Capture hash and provenance proof before ranking this higher.",
+      "hard_blocks": [
+        "PROVENANCE_REQUIRED_BEFORE_CONTROLLED_TEST"
+      ],
+      "soft_warnings": [
+        "HASH_CAPTURE_REQUIRED_BEFORE_EXECUTION"
+      ],
+      "action": "Record source identity and provenance before controlled testing.",
       "labels": [
         "CANDIDATE_VULKAN_NCNN",
         "VIDEO_INTERPOLATION_CANDIDATE",
@@ -240,17 +292,23 @@
     {
       "id": "gpuadvisory_07cbd1a2e5d277f5",
       "source_project": "flowframes",
-      "status": "Blocked",
+      "status": "Review",
       "backend": [
         "vulkan_ncnn"
       ],
-      "readiness_level": "BACKEND_BLOCKED_HASH",
-      "hard_blocks": [
-        "HASH_REQUIRED_BEFORE_USE",
-        "PROVENANCE_REQUIRED_BEFORE_USE"
+      "readiness_level": "RESEARCH_PROVENANCE_UNKNOWN",
+      "research_classifications": [
+        "RESEARCH_PROVENANCE_UNKNOWN",
+        "RESEARCH_HASH_MISSING",
+        "RESEARCH_BACKEND_CANDIDATE"
       ],
-      "soft_warnings": [],
-      "action": "Capture hash and provenance proof before ranking this higher.",
+      "hard_blocks": [
+        "PROVENANCE_REQUIRED_BEFORE_CONTROLLED_TEST"
+      ],
+      "soft_warnings": [
+        "HASH_CAPTURE_REQUIRED_BEFORE_EXECUTION"
+      ],
+      "action": "Record source identity and provenance before controlled testing.",
       "labels": [
         "CANDIDATE_VULKAN_NCNN",
         "VIDEO_INTERPOLATION_CANDIDATE",
@@ -261,17 +319,23 @@
     {
       "id": "gpuadvisory_086ccade586c368d",
       "source_project": "flowframes",
-      "status": "Blocked",
+      "status": "Review",
       "backend": [
         "vulkan_ncnn"
       ],
-      "readiness_level": "BACKEND_BLOCKED_HASH",
-      "hard_blocks": [
-        "HASH_REQUIRED_BEFORE_USE",
-        "PROVENANCE_REQUIRED_BEFORE_USE"
+      "readiness_level": "RESEARCH_PROVENANCE_UNKNOWN",
+      "research_classifications": [
+        "RESEARCH_PROVENANCE_UNKNOWN",
+        "RESEARCH_HASH_MISSING",
+        "RESEARCH_BACKEND_CANDIDATE"
       ],
-      "soft_warnings": [],
-      "action": "Capture hash and provenance proof before ranking this higher.",
+      "hard_blocks": [
+        "PROVENANCE_REQUIRED_BEFORE_CONTROLLED_TEST"
+      ],
+      "soft_warnings": [
+        "HASH_CAPTURE_REQUIRED_BEFORE_EXECUTION"
+      ],
+      "action": "Record source identity and provenance before controlled testing.",
       "labels": [
         "CANDIDATE_VULKAN_NCNN",
         "FRAMEGEN_RUNTIME_CANDIDATE",
@@ -283,17 +347,23 @@
     {
       "id": "gpuadvisory_0913c120f972d35d",
       "source_project": "flowframes",
-      "status": "Blocked",
+      "status": "Review",
       "backend": [
         "vulkan_ncnn"
       ],
-      "readiness_level": "BACKEND_BLOCKED_HASH",
-      "hard_blocks": [
-        "HASH_REQUIRED_BEFORE_USE",
-        "PROVENANCE_REQUIRED_BEFORE_USE"
+      "readiness_level": "RESEARCH_PROVENANCE_UNKNOWN",
+      "research_classifications": [
+        "RESEARCH_PROVENANCE_UNKNOWN",
+        "RESEARCH_HASH_MISSING",
+        "RESEARCH_BACKEND_CANDIDATE"
       ],
-      "soft_warnings": [],
-      "action": "Capture hash and provenance proof before ranking this higher.",
+      "hard_blocks": [
+        "PROVENANCE_REQUIRED_BEFORE_CONTROLLED_TEST"
+      ],
+      "soft_warnings": [
+        "HASH_CAPTURE_REQUIRED_BEFORE_EXECUTION"
+      ],
+      "action": "Record source identity and provenance before controlled testing.",
       "labels": [
         "CANDIDATE_VULKAN_NCNN",
         "FRAMEGEN_RUNTIME_CANDIDATE",
@@ -305,21 +375,27 @@
     {
       "id": "gpuadvisory_0a15fad4240067b4",
       "source_project": "cupscale",
-      "status": "Blocked",
+      "status": "Review",
       "backend": [
         "cuda",
         "vulkan_ncnn"
       ],
-      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "readiness_level": "RESEARCH_PROVENANCE_UNKNOWN",
+      "research_classifications": [
+        "RESEARCH_PROVENANCE_UNKNOWN",
+        "RESEARCH_HASH_MISSING",
+        "RESEARCH_BACKEND_PROVEN",
+        "RESEARCH_BACKEND_CANDIDATE"
+      ],
       "hard_blocks": [
-        "HASH_REQUIRED_BEFORE_USE",
-        "PROVENANCE_REQUIRED_BEFORE_USE"
+        "PROVENANCE_REQUIRED_BEFORE_CONTROLLED_TEST"
       ],
       "soft_warnings": [
+        "HASH_CAPTURE_REQUIRED_BEFORE_EXECUTION",
         "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
         "SOURCE_AUTHORITY_REVIEW"
       ],
-      "action": "Capture hash and provenance proof before ranking this higher.",
+      "action": "Record source identity and provenance before controlled testing.",
       "labels": [
         "CANDIDATE_VULKAN_NCNN",
         "CUDA_BACKEND_PRESENT",

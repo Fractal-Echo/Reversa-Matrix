@@ -131,7 +131,7 @@ Home:
 - GPU Proof
 - Unsafe Actions Blocked
 - GPU Readiness
-- Model License Risk
+- Research Provenance
 - Next Safe Action
 
 Texture Pipeline:

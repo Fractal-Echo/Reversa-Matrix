@@ -5,7 +5,7 @@
   "activeProject": {
     "name": "GPU Upscale / Framegen Advisory Sample",
     "mode": "planning_only",
-    "nextSafeAction": "Review model license and backend proof before preparing any package."
+    "nextSafeAction": "Review provenance, artifact hash, and backend proof before preparing any controlled test."
   },
   "cards": [
     {
@@ -39,9 +39,9 @@
       "count": 49
     },
     {
-      "title": "Model License Risk",
+      "title": "Research Provenance",
       "status": "Review",
-      "description": "Unknown-license models remain deferred.",
+      "description": "Redistribution may be undecided while research classification continues.",
       "count": 32
     },
     {
@@ -109,10 +109,10 @@
   "safetyGate": {
     "hardBlocks": [
       "Patch dossier missing required proof.",
-      "Unknown-license model metadata cannot be used for package prep.",
       "CUDA/5090 acceleration lacks direct host proof."
     ],
     "softWarnings": [
+      "Redistribution is not decided for some model metadata; keep public artifacts out of Reversa.",
       "Linux/Proton compatibility is candidate-only until runtime evidence exists."
     ],
     "approvalRequired": true

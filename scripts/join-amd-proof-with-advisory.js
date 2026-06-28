@@ -29,7 +29,7 @@ export function classifyAdvisoryRecordForAmdProof(record, proof) {
   const backends = new Set(record.backend ?? []);
   const classifications = [];
   const amdRelevant = isAmdRelevant(record);
-  const licenseBlocked = labels.has('MODEL_LICENSE_UNKNOWN')
+  const redistributionUndecided = labels.has('MODEL_LICENSE_UNKNOWN')
     || (record.source_kind === 'model_card_metadata' && String(record.source_license ?? '').toUpperCase() === 'UNKNOWN');
   const modelDeferred = labels.has('MODEL_WEIGHT_DOWNLOAD_DEFERRED') || labels.has('MODEL_METADATA_ONLY');
   const backendUnknown = backends.size === 0 || backends.has('unknown');
@@ -44,8 +44,10 @@ export function classifyAdvisoryRecordForAmdProof(record, proof) {
   if (!amdRelevant) classifications.push('NOT_AMD_RELEVANT');
   if (labels.has('WINDOWS_ONLY_RUNTIME')) classifications.push('AMD_WINDOWS_ONLY_REVIEW');
   if (labels.has('PROTON_COMPATIBLE_CANDIDATE') || labels.has('LINUX_RUNTIME_UNKNOWN')) classifications.push('AMD_LINUX_PROTON_UNPROVEN');
-  if (licenseBlocked) classifications.push('AMD_MODEL_LICENSE_BLOCKED');
-  if (modelDeferred) classifications.push('AMD_MODEL_WEIGHT_DEFERRED');
+  if (redistributionUndecided) classifications.push('AMD_REDISTRIBUTION_UNDECIDED');
+  if (labels.has('MODEL_PROVENANCE_MISSING')) classifications.push('AMD_PROVENANCE_UNKNOWN');
+  if (modelDeferred) classifications.push('AMD_RESEARCH_ARTIFACT_DEFERRED');
+  if (labels.has('MODEL_HASH_MISSING')) classifications.push('AMD_RESEARCH_HASH_MISSING');
 
   if (directmlCandidate && proof?.directml?.candidate) classifications.push('AMD_DIRECTML_POSSIBLE');
   if (onnxCandidate && onnxDirectmlTinyOp) classifications.push('AMD_ONNX_DIRECTML_POSSIBLE');
@@ -65,8 +67,7 @@ export function classifyAdvisoryRecordForAmdProof(record, proof) {
   if (
     amdRelevant
     && ((directmlCandidate && directmlTinyOp) || (onnxCandidate && onnxDirectmlTinyOp))
-    && !licenseBlocked
-    && !modelDeferred
+    && !labels.has('MODEL_PROVENANCE_MISSING')
     && !backendUnknown
     && (directmlCandidate || onnxCandidate)
   ) {
@@ -108,8 +109,10 @@ export function summarizeAmdJoinedRecords(joined) {
     vulkanNcnnPossible: counts.AMD_VULKAN_NCNN_POSSIBLE ?? 0,
     openclPossible: counts.AMD_OPENCL_POSSIBLE ?? 0,
     hipRocmUnknown: counts.AMD_HIP_ROCM_UNKNOWN ?? 0,
-    blockedByLicense: counts.AMD_MODEL_LICENSE_BLOCKED ?? 0,
-    deferredModelArtifacts: counts.AMD_MODEL_WEIGHT_DEFERRED ?? 0,
+    redistributionNotDecided: counts.AMD_REDISTRIBUTION_UNDECIDED ?? 0,
+    provenanceUnknown: counts.AMD_PROVENANCE_UNKNOWN ?? 0,
+    hashMissing: counts.AMD_RESEARCH_HASH_MISSING ?? 0,
+    deferredModelArtifacts: counts.AMD_RESEARCH_ARTIFACT_DEFERRED ?? 0,
     runtimeNotReady: counts.AMD_RUNTIME_NOT_READY ?? 0,
     linuxProtonUnproven: counts.AMD_LINUX_PROTON_UNPROVEN ?? 0,
     windowsOnlyReview: counts.AMD_WINDOWS_ONLY_REVIEW ?? 0,
@@ -126,8 +129,10 @@ function isAmdRelevant(record) {
 
 function chooseAmdPrimaryClassification(classifications) {
   const priority = [
-    'AMD_MODEL_LICENSE_BLOCKED',
-    'AMD_MODEL_WEIGHT_DEFERRED',
+    'AMD_PROVENANCE_UNKNOWN',
+    'AMD_REDISTRIBUTION_UNDECIDED',
+    'AMD_RESEARCH_ARTIFACT_DEFERRED',
+    'AMD_RESEARCH_HASH_MISSING',
     'AMD_890M_READY_CANDIDATE',
     'AMD_DIRECTML_POSSIBLE',
     'AMD_ONNX_DIRECTML_POSSIBLE',
@@ -144,8 +149,10 @@ function chooseAmdPrimaryClassification(classifications) {
 
 function recommendAmdFitAction(classifications) {
   const set = new Set(classifications);
-  if (set.has('AMD_MODEL_LICENSE_BLOCKED')) return 'Review license metadata before any package planning.';
-  if (set.has('AMD_MODEL_WEIGHT_DEFERRED')) return 'Keep model artifact acquisition deferred.';
+  if (set.has('AMD_PROVENANCE_UNKNOWN')) return 'Record model provenance before controlled testing.';
+  if (set.has('AMD_REDISTRIBUTION_UNDECIDED')) return 'Research-only candidate; redistribution is not decided.';
+  if (set.has('AMD_RESEARCH_HASH_MISSING')) return 'Capture model artifact hash before execution.';
+  if (set.has('AMD_RESEARCH_ARTIFACT_DEFERRED')) return 'Keep model artifact acquisition deferred.';
   if (set.has('AMD_890M_READY_CANDIDATE')) return 'Candidate is ready for planning evidence review only.';
   if (set.has('AMD_DIRECTML_POSSIBLE')) return 'Capture DirectML import or tiny-op proof before treating this as ready.';
   if (set.has('AMD_ONNX_DIRECTML_POSSIBLE')) return 'Capture ONNX Runtime DirectML session proof before treating this as ready.';
@@ -183,7 +190,9 @@ function renderAmdFitMarkdown(summary, proof) {
     `- Vulkan NCNN possible: ${summary.vulkanNcnnPossible}`,
     `- OpenCL possible: ${summary.openclPossible}`,
     `- HIP/ROCm unknown: ${summary.hipRocmUnknown}`,
-    `- Blocked by license: ${summary.blockedByLicense}`,
+    `- Redistribution not decided: ${summary.redistributionNotDecided}`,
+    `- Provenance unknown: ${summary.provenanceUnknown}`,
+    `- Hash missing: ${summary.hashMissing}`,
     `- Deferred model artifacts: ${summary.deferredModelArtifacts}`,
     `- Runtime not ready: ${summary.runtimeNotReady}`,
     `- Linux/Proton unproven: ${summary.linuxProtonUnproven}`,

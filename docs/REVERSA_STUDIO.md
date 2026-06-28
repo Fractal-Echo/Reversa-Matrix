@@ -94,9 +94,10 @@ node ./bin/reversa.js studio backend-matrix \
   --out /path/to/backend-matrix
 ```
 
-`BACKEND_READY_FOR_CONTROLLED_TEST` means planning can continue for a controlled
-local test. It is not a recommendation, production-ready claim, model-artifact
-approval, or runtime launch permission.
+`RESEARCH_READY_FOR_CONTROLLED_TEST` means planning can continue for a
+controlled local research test. It is not a recommendation, production-ready
+claim, redistribution approval, model-artifact approval, or runtime launch
+permission.
 
 ## What Version 01 Does Not Do
 

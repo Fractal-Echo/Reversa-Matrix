@@ -73,7 +73,7 @@ export function buildModelLibrary(records, labelSummary = []) {
     .slice(0, 18);
 
   const models = hfRecords.map(record => {
-    const licenseUnknown = record.labels.includes('MODEL_LICENSE_UNKNOWN');
+    const redistributionUndecided = record.labels.includes('MODEL_LICENSE_UNKNOWN');
     const hashMissing = record.labels.includes('MODEL_HASH_MISSING') || !record.required_proof.includes('model_hash');
     const backend = record.backend.length > 0 ? record.backend : ['unknown'];
     return {
@@ -82,12 +82,12 @@ export function buildModelLibrary(records, labelSummary = []) {
       source_authority: false,
       generated_artifact: true,
       license: record.source_license || 'UNKNOWN',
-      licenseStatus: licenseUnknown ? 'warning' : 'reviewed',
+      redistributionStatus: redistributionUndecided ? 'not_decided' : 'metadata_present',
       hashStatus: hashMissing ? 'required_before_use' : 'metadata_only',
       backend,
       runtime: record.runtime,
       vramEstimate: estimateVram(backend),
-      acquisitionStatus: licenseUnknown ? 'deferred_license_review' : 'deferred_hash_review',
+      acquisitionStatus: redistributionUndecided ? 'research_only_redistribution_not_decided' : 'deferred_hash_review',
       risk: record.risk,
       recommendedAction: sanitizeUiText(record.recommended_action),
       labels: uiSafeLabels(record.labels),
@@ -101,7 +101,7 @@ export function buildModelLibrary(records, labelSummary = []) {
     title: 'Reversa Studio Sample Model Library',
     summary: {
       totalModels: models.length,
-      unknownLicense: models.filter(model => model.licenseStatus === 'warning').length,
+      redistributionNotDecided: models.filter(model => model.redistributionStatus === 'not_decided').length,
       backendFamilies: [...new Set(models.flatMap(model => model.backend))].sort(),
       labelCount: labelSummary.length,
     },
@@ -123,7 +123,7 @@ export function buildProjectFixture(records, labelSummary = [], sourceSummary = 
   const unsafePatch = labelCounts.GAME_PATCH_UNSAFE ?? 0;
   const cudaUnverified = labelCounts.CUDA_CLAIM_UNVERIFIED ?? 0;
   const linuxUnknown = (labelCounts.LINUX_RUNTIME_UNKNOWN ?? 0) + (labelCounts.PROTON_COMPATIBLE_CANDIDATE ?? 0);
-  const licenseUnknown = labelCounts.MODEL_LICENSE_UNKNOWN ?? 0;
+  const redistributionNotDecided = labelCounts.MODEL_LICENSE_UNKNOWN ?? 0;
 
   return {
     schema_version: 1,
@@ -132,7 +132,7 @@ export function buildProjectFixture(records, labelSummary = [], sourceSummary = 
     activeProject: {
       name: 'GPU Upscale / Framegen Advisory Sample',
       mode: 'planning_only',
-      nextSafeAction: 'Review model license and backend proof before preparing any package.',
+      nextSafeAction: 'Review provenance, artifact hash, and backend proof before preparing any controlled test.',
     },
     cards: [
       card('Active Project', 'Review', 'Planning fixture loaded from advisory dataset.', records.length),
@@ -140,7 +140,7 @@ export function buildProjectFixture(records, labelSummary = [], sourceSummary = 
       card('Known-Good Frontier', 'Safe', 'Generated artifacts stay separated from authoritative evidence.', generatedCount),
       card('Unsafe Actions Blocked', unsafePatch > 0 ? 'Blocked' : 'Safe', 'Patch plans stay proposal-only until proof exists.', unsafePatch),
       card('GPU Readiness', cudaUnverified > 0 ? 'Review' : 'Candidate', 'CUDA/5090 claims require host runtime proof.', cudaUnverified),
-      card('Model License Risk', licenseUnknown > 0 ? 'Review' : 'Safe', 'Unknown-license models remain deferred.', licenseUnknown),
+      card('Research Provenance', redistributionNotDecided > 0 ? 'Review' : 'Safe', 'Redistribution may be undecided while research classification continues.', redistributionNotDecided),
       card('Next Safe Action', 'Review', 'Open Safety Gate and resolve missing proof.', 1),
     ],
     evidenceBoard: {
@@ -164,10 +164,10 @@ export function buildProjectFixture(records, labelSummary = [], sourceSummary = 
     safetyGate: {
       hardBlocks: [
         ...conditionalBlock(unsafePatch > 0, 'Patch dossier missing required proof.'),
-        ...conditionalBlock(licenseUnknown > 0, 'Unknown-license model metadata cannot be used for package prep.'),
         ...conditionalBlock(cudaUnverified > 0, 'CUDA/5090 acceleration lacks direct host proof.'),
       ],
       softWarnings: [
+        ...conditionalBlock(redistributionNotDecided > 0, 'Redistribution is not decided for some model metadata; keep public artifacts out of Reversa.'),
         ...conditionalBlock(linuxUnknown > 0, 'Linux/Proton compatibility is candidate-only until runtime evidence exists.'),
       ],
       approvalRequired: true,
@@ -395,7 +395,9 @@ export function buildSampleAmdLocalFitFixture(records) {
       vulkanNcnnPossible: summary.vulkanNcnnPossible,
       openclPossible: summary.openclPossible,
       hipRocmUnknown: summary.hipRocmUnknown,
-      blockedByLicense: summary.blockedByLicense,
+      redistributionNotDecided: summary.redistributionNotDecided,
+      provenanceUnknown: summary.provenanceUnknown,
+      hashMissing: summary.hashMissing,
       deferredModelArtifacts: summary.deferredModelArtifacts,
       runtimeNotReady: summary.runtimeNotReady,
       linuxProtonUnproven: summary.linuxProtonUnproven,
@@ -414,7 +416,7 @@ export function buildSampleAmdLocalFitFixture(records) {
       .map(row => ({
         id: row.original_record_id,
         source_project: row.source_project,
-        status: row.classifications.includes('AMD_MODEL_LICENSE_BLOCKED') ? 'review' : 'candidate',
+        status: row.classifications.includes('AMD_PROVENANCE_UNKNOWN') ? 'review' : 'candidate',
         backend: row.backend,
         action: sanitizeUiText(row.recommended_action),
         source_authority: false,
@@ -427,7 +429,7 @@ export function buildSampleLocalFitFixture(records, labelSummary = []) {
   const joined = records.map(record => classifyAdvisoryRecordForLocalGpu(record, proof));
   const summary = summarizeJoinedRecords(joined);
   const labelCounts = Object.fromEntries(labelSummary.map(row => [row.label, Number(row.count) || 0]));
-  const licenseBlocked = labelCounts.MODEL_LICENSE_UNKNOWN ?? 0;
+  const redistributionNotDecided = labelCounts.MODEL_LICENSE_UNKNOWN ?? 0;
   const deferredArtifacts = labelCounts.MODEL_METADATA_ONLY ?? 0;
 
   return {
@@ -441,7 +443,9 @@ export function buildSampleLocalFitFixture(records, labelSummary = []) {
       possibleButModelDeferred: summary.possibleButModelDeferred,
       cudaBackendPossible: summary.cudaBackendPossible,
       torchCudaMissing: summary.torchCudaMissing,
-      blockedByLicense: licenseBlocked,
+      redistributionNotDecided,
+      provenanceUnknown: summary.provenanceUnknown,
+      hashMissing: summary.hashMissing,
       blockedByMissingBackend: summary.blockedByMissingBackend,
       deferredModelArtifacts: deferredArtifacts,
       linuxProtonUnproven: summary.linuxProtonUnproven,
@@ -449,8 +453,8 @@ export function buildSampleLocalFitFixture(records, labelSummary = []) {
     actions: [
       { label: 'Tensor proof candidate', status: 'candidate', count: summary.readyCandidates },
       { label: 'CUDA possible', status: 'candidate', count: summary.cudaBackendPossible },
-      { label: 'License review required', status: 'review', count: licenseBlocked },
-      { label: 'Download deferred', status: 'review', count: deferredArtifacts },
+      { label: 'Redistribution not decided', status: 'review', count: redistributionNotDecided },
+      { label: 'Artifact deferred', status: 'review', count: deferredArtifacts },
       { label: 'Runtime test not run', status: 'blocked', count: records.length },
     ],
     records: records
@@ -459,18 +463,18 @@ export function buildSampleLocalFitFixture(records, labelSummary = []) {
       .map(record => {
         const labels = record.labels ?? [];
         const backend = record.backend ?? [];
-        const licenseReview = labels.includes('MODEL_LICENSE_UNKNOWN');
+        const redistributionReview = labels.includes('MODEL_LICENSE_UNKNOWN');
         const cudaCandidate = isCudaRecord(record);
         const deferred = isModelDeferred(record);
         const ready = isTensorProofReadyCandidate(record);
         return {
           id: record.record_id,
           source_project: record.source_project,
-          status: licenseReview || deferred ? 'review' : (ready ? 'candidate' : 'review'),
+          status: redistributionReview || deferred ? 'review' : (ready ? 'candidate' : 'review'),
           backend,
-          action: licenseReview
-            ? 'License review required'
-            : (deferred ? 'Download deferred' : (ready ? 'Tensor proof candidate' : (cudaCandidate ? 'CUDA possible' : 'Backend review required'))),
+          action: redistributionReview
+            ? 'Redistribution not decided'
+            : (deferred ? 'Artifact deferred' : (ready ? 'Tensor proof candidate' : (cudaCandidate ? 'CUDA possible' : 'Backend review required'))),
           source_authority: false,
         };
       }),
@@ -489,16 +493,11 @@ function isModelDeferred(record) {
   return labels.includes('MODEL_WEIGHT_DOWNLOAD_DEFERRED') || labels.includes('MODEL_METADATA_ONLY');
 }
 
-function isLicenseBlocked(record) {
-  const labels = record.labels ?? [];
-  return labels.includes('MODEL_LICENSE_UNKNOWN')
-    || (record.source_kind === 'model_card_metadata' && String(record.source_license ?? '').toUpperCase() === 'UNKNOWN');
-}
-
 function isTensorProofReadyCandidate(record) {
   const backend = record.backend ?? [];
   const backendUnknown = backend.length === 0 || backend.includes('unknown');
-  return isCudaRecord(record) && !isLicenseBlocked(record) && !isModelDeferred(record) && !backendUnknown;
+  const labels = record.labels ?? [];
+  return isCudaRecord(record) && !labels.includes('MODEL_PROVENANCE_MISSING') && !isModelDeferred(record) && !backendUnknown;
 }
 
 function uiSafeLabels(labels) {

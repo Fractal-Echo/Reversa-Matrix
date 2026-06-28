@@ -5,13 +5,15 @@
   "proof_classification": "AMD_PROOF_ONNXRUNTIME_DIRECTML_TINY_OP_PASS",
   "summary": {
     "totalRecords": 774,
-    "readyCandidates": 1,
+    "readyCandidates": 7,
     "directmlPossible": 1,
     "onnxDirectmlPossible": 7,
     "vulkanNcnnPossible": 255,
     "openclPossible": 0,
     "hipRocmUnknown": 0,
-    "blockedByLicense": 32,
+    "redistributionNotDecided": 32,
+    "provenanceUnknown": 2,
+    "hashMissing": 3,
     "deferredModelArtifacts": 48,
     "runtimeNotReady": 343,
     "linuxProtonUnproven": 2,
@@ -68,20 +70,20 @@
     {
       "id": "gpuadvisory_0413504f35ef1c85",
       "source_project": "huggingface",
-      "status": "review",
+      "status": "candidate",
       "backend": [],
-      "action": "Review license metadata before any package planning.",
+      "action": "Research-only candidate; redistribution is not decided.",
       "source_authority": false
     },
     {
       "id": "gpuadvisory_041e8b363c9501bf",
       "source_project": "huggingface",
-      "status": "review",
+      "status": "candidate",
       "backend": [
         "cuda",
         "pytorch"
       ],
-      "action": "Review license metadata before any package planning.",
+      "action": "Research-only candidate; redistribution is not decided.",
       "source_authority": false
     },
     {
