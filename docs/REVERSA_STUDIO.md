@@ -55,11 +55,14 @@ separate controlled setup may install official PyTorch CUDA wheels into
 Reversa Studio can also capture a separate AMD proof lane for HX 370 / Radeon
 890M / UMA systems. This lane records Windows GPU visibility, DirectX 12,
 DirectML candidate status, UMA memory evidence, Vulkan/OpenCL evidence when
-visible, and optional DirectML Python import or tiny-op proof from an existing
-interpreter.
+visible, optional `torch-directml` proof, and optional ONNX Runtime DirectML
+proof from an existing interpreter.
 
 The AMD lane does not overwrite RTX 5090 proof. DirectML candidate status is
 useful host evidence, but it is not a model-ready or runtime-ready claim.
+ONNX Runtime DirectML tiny-op proof uses a generated local Add graph with memory
+pattern optimizations disabled and sequential execution mode; it still does not
+prove broad model readiness.
 
 Use:
 

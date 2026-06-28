@@ -235,8 +235,8 @@ projects.
 Reversa Studio can capture local GPU proof and use it to rank advisory
 candidates. The 5090 proof lane records Nvidia/CUDA/Python/backend evidence. The
 AMD proof lane records HX 370 / Radeon 890M / UMA, DirectX 12, DirectML
-candidate, Vulkan, and OpenCL evidence. Model acquisition stays disabled by
-default.
+candidate, ONNX Runtime DirectML tiny-op proof when available, Vulkan, and
+OpenCL evidence. Model acquisition stays disabled by default.
 
 Compare two trees:
 

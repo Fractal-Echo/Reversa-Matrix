@@ -38,7 +38,8 @@ export function classifyAdvisoryRecordForAmdProof(record, proof) {
   const vulkanCandidate = backends.has('vulkan_ncnn') || labels.has('VULKAN_NCNN_BACKEND_PRESENT') || labels.has('CANDIDATE_VULKAN_NCNN');
   const openclCandidate = backends.has('opencl') || labels.has('OPENCL_BACKEND_PRESENT');
   const hipCandidate = backends.has('hip') || labels.has('HIP_BACKEND_PRESENT') || labels.has('ROCM_BACKEND_PRESENT');
-  const directRuntimeProof = Boolean(proof?.directml?.tiny_op_pass);
+  const onnxDirectmlTinyOp = Boolean(proof?.directml?.onnxruntime_tiny_op_pass || proof?.directml?.onnxruntime_directml_tiny_op_pass);
+  const directmlTinyOp = Boolean(proof?.directml?.tiny_op_pass);
 
   if (!amdRelevant) classifications.push('NOT_AMD_RELEVANT');
   if (labels.has('WINDOWS_ONLY_RUNTIME')) classifications.push('AMD_WINDOWS_ONLY_REVIEW');
@@ -47,7 +48,7 @@ export function classifyAdvisoryRecordForAmdProof(record, proof) {
   if (modelDeferred) classifications.push('AMD_MODEL_WEIGHT_DEFERRED');
 
   if (directmlCandidate && proof?.directml?.candidate) classifications.push('AMD_DIRECTML_POSSIBLE');
-  if (onnxCandidate && proof?.directml?.onnxruntime_directml_available) classifications.push('AMD_ONNX_DIRECTML_POSSIBLE');
+  if (onnxCandidate && onnxDirectmlTinyOp) classifications.push('AMD_ONNX_DIRECTML_POSSIBLE');
   if (vulkanCandidate && proof?.vulkan?.available) classifications.push('AMD_VULKAN_NCNN_POSSIBLE');
   if (openclCandidate && proof?.opencl?.available) classifications.push('AMD_OPENCL_POSSIBLE');
   if (hipCandidate && !proof?.rocm_hip?.usable) classifications.push('AMD_HIP_ROCM_UNKNOWN');
@@ -63,7 +64,7 @@ export function classifyAdvisoryRecordForAmdProof(record, proof) {
 
   if (
     amdRelevant
-    && directRuntimeProof
+    && ((directmlCandidate && directmlTinyOp) || (onnxCandidate && onnxDirectmlTinyOp))
     && !licenseBlocked
     && !modelDeferred
     && !backendUnknown

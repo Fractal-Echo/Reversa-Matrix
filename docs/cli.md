@@ -148,7 +148,9 @@ The fixture command reads local JSONL/TSV files and writes display fixtures.
 The GPU proof command records passive Nvidia/CUDA/Python/backend evidence. The
 AMD proof command records Windows/WSL/DirectX/DirectML candidate evidence for
 Radeon 890M / UMA systems. The optional `--python` flag selects an existing
-interpreter, such as a controlled local PyTorch CUDA or DirectML proof venv. The
+interpreter, such as a controlled local PyTorch CUDA or DirectML proof venv. If
+`onnxruntime-directml` and `onnx` are present, AMD proof also runs a tiny local
+ONNX Add graph with memory pattern disabled and sequential execution. The
 commands themselves do not install packages. None of the Studio commands acquire
 models, launch runtimes, patch binaries, connect to phones, or mutate projects.
 

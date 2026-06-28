@@ -95,6 +95,11 @@ export function buildAmdUmaProof({ timestamp, host, windowsProbe, dxdiagText = '
       candidate: Boolean(amdGpu && directx12Visible),
       torch_directml_available: python.torch_directml_available,
       onnxruntime_directml_available: python.onnxruntime_directml_available,
+      onnxruntime_version: python.onnxruntime_version,
+      onnxruntime_providers: python.onnxruntime_providers,
+      onnxruntime_tiny_op_pass: python.onnxruntime_directml_tiny_op_pass,
+      onnxruntime_session_options: python.onnxruntime_session_options,
+      onnxruntime_session_providers: python.onnxruntime_session_providers,
       tiny_op_pass: python.torch_directml_tiny_op_pass || python.onnxruntime_directml_tiny_op_pass,
       torch_directml_tiny_op_pass: python.torch_directml_tiny_op_pass,
       onnxruntime_directml_tiny_op_pass: python.onnxruntime_directml_tiny_op_pass,
@@ -286,8 +291,24 @@ out = {
   "torch_directml_tiny_op_pass": False,
   "torch_directml_error": None,
   "onnxruntime_available": False,
+  "onnxruntime_version": None,
   "onnxruntime_directml_available": False,
   "onnxruntime_providers": [],
+  "onnxruntime_session_providers": [],
+  "onnxruntime_session_options": {
+    "enable_mem_pattern": False,
+    "execution_mode": "ORT_SEQUENTIAL"
+  },
+  "onnxruntime_tiny_model": {
+    "source_authority": False,
+    "generated_artifact": True,
+    "opset": 20,
+    "ir_version": 10,
+    "external_model": False
+  },
+  "onnxruntime_input": [[10.0, 20.0, 30.0, 40.0]],
+  "onnxruntime_output": None,
+  "onnxruntime_expected": [[11.0, 22.0, 33.0, 44.0]],
   "onnxruntime_directml_tiny_op_pass": False,
   "onnxruntime_error": None,
 }
@@ -312,8 +333,50 @@ try:
   if importlib.util.find_spec("onnxruntime") is not None:
     import onnxruntime as ort
     out["onnxruntime_available"] = True
+    out["onnxruntime_version"] = ort.__version__
     out["onnxruntime_providers"] = list(ort.get_available_providers())
     out["onnxruntime_directml_available"] = "DmlExecutionProvider" in out["onnxruntime_providers"]
+    if out["onnxruntime_directml_available"] and importlib.util.find_spec("onnx") is not None and importlib.util.find_spec("numpy") is not None:
+      import tempfile
+      from pathlib import Path
+      import numpy as np
+      import onnx
+      from onnx import TensorProto, helper, numpy_helper
+
+      with tempfile.TemporaryDirectory(prefix="reversa-onnx-dml-") as temp_dir:
+        model_path = Path(temp_dir) / "tiny-add.onnx"
+        constant = np.array([[1.0, 2.0, 3.0, 4.0]], dtype=np.float32)
+        input_info = helper.make_tensor_value_info("input", TensorProto.FLOAT, [1, 4])
+        output_info = helper.make_tensor_value_info("output", TensorProto.FLOAT, [1, 4])
+        constant_init = numpy_helper.from_array(constant, name="constant")
+        node = helper.make_node("Add", ["input", "constant"], ["output"], name="tiny_add")
+        graph = helper.make_graph([node], "reversa_tiny_add", [input_info], [output_info], [constant_init])
+        model = helper.make_model(graph, opset_imports=[helper.make_opsetid("", 20)], producer_name="reversa-studio")
+        model.ir_version = 10
+        onnx.checker.check_model(model)
+        onnx.save(model, model_path)
+
+        so = ort.SessionOptions()
+        so.enable_mem_pattern = False
+        so.execution_mode = ort.ExecutionMode.ORT_SEQUENTIAL
+        requested_providers = ["DmlExecutionProvider", "CPUExecutionProvider"]
+        try:
+          sess = ort.InferenceSession(
+            str(model_path),
+            sess_options=so,
+            providers=requested_providers,
+            provider_options=[{"device_id": "1"}, {}],
+          )
+        except Exception:
+          sess = ort.InferenceSession(str(model_path), sess_options=so, providers=requested_providers)
+        out["onnxruntime_session_providers"] = list(sess.get_providers())
+        x = np.array(out["onnxruntime_input"], dtype=np.float32)
+        y = sess.run(None, {"input": x})[0]
+        out["onnxruntime_output"] = y.tolist()
+        out["onnxruntime_directml_tiny_op_pass"] = bool(
+          "DmlExecutionProvider" in out["onnxruntime_session_providers"]
+          and np.allclose(y, np.array(out["onnxruntime_expected"], dtype=np.float32))
+        )
 except Exception as error:
   out["onnxruntime_error"] = repr(error)
 
@@ -385,16 +448,23 @@ function normalizePythonProbe(probe) {
     torch_directml_device: probe?.torch_directml_device ?? null,
     torch_directml_tiny_op_pass: Boolean(probe?.torch_directml_tiny_op_pass),
     onnxruntime_available: Boolean(probe?.onnxruntime_available),
+    onnxruntime_version: probe?.onnxruntime_version ?? null,
     onnxruntime_directml_available: Boolean(probe?.onnxruntime_directml_available),
     onnxruntime_providers: probe?.onnxruntime_providers ?? [],
+    onnxruntime_session_providers: probe?.onnxruntime_session_providers ?? [],
+    onnxruntime_session_options: probe?.onnxruntime_session_options ?? null,
+    onnxruntime_tiny_model: probe?.onnxruntime_tiny_model ?? null,
+    onnxruntime_input: probe?.onnxruntime_input ?? null,
+    onnxruntime_output: probe?.onnxruntime_output ?? null,
+    onnxruntime_expected: probe?.onnxruntime_expected ?? null,
     onnxruntime_directml_tiny_op_pass: Boolean(probe?.onnxruntime_directml_tiny_op_pass),
     error: probe?.error ?? probe?.torch_directml_error ?? probe?.onnxruntime_error ?? null,
   };
 }
 
 function classifyAmdProof(facts) {
-  if (facts.torchDirectmlTinyOp) return 'AMD_PROOF_TORCH_DIRECTML_TINY_OP_PASS';
   if (facts.onnxDirectmlTinyOp) return 'AMD_PROOF_ONNXRUNTIME_DIRECTML_TINY_OP_PASS';
+  if (facts.torchDirectmlTinyOp) return 'AMD_PROOF_TORCH_DIRECTML_TINY_OP_PASS';
   if (facts.torchDirectmlImport) return 'AMD_PROOF_TORCH_DIRECTML_IMPORT';
   if (facts.onnxDirectmlImport) return 'AMD_PROOF_ONNXRUNTIME_DIRECTML_IMPORT';
   if (facts.directmlCandidate) return 'AMD_PROOF_DIRECTML_CANDIDATE';
@@ -430,6 +500,7 @@ function buildNotes({ amdGpu, nvidiaVisible, memory, directx12Visible, python })
   if (nvidiaVisible) notes.push('RTX 5090 is also present; AMD and NVIDIA proof lanes must remain separated.');
   if (memory.uma_status === 'confirmed') notes.push('64 GiB physical memory and shared-memory display evidence confirm UMA-style shared memory.');
   if (directx12Visible) notes.push('DirectX 12 is visible; DirectML remains a candidate until backend import or tiny-op proof exists.');
+  if (python.onnxruntime_directml_tiny_op_pass) notes.push('ONNX Runtime DirectML tiny synthetic Add operation passed with memory pattern disabled and sequential execution.');
   if (!python.torch_directml_available) notes.push('torch-directml was not proven in the selected Python environment.');
   if (!python.onnxruntime_directml_available) notes.push('ONNX Runtime DirectML provider was not proven in the selected Python environment.');
   return notes;
@@ -513,6 +584,10 @@ export function renderAmdProofMarkdown(proof) {
     `- DirectML candidate: ${proof.directml.candidate ? 'yes' : 'no'}`,
     `- torch-directml: ${proof.directml.torch_directml_available ? 'present' : 'missing'}`,
     `- ONNX Runtime DirectML: ${proof.directml.onnxruntime_directml_available ? 'present' : 'missing'}`,
+    `- ONNX Runtime version: ${proof.directml.onnxruntime_version ?? 'unknown'}`,
+    `- ONNX Runtime DirectML tiny op: ${proof.directml.onnxruntime_tiny_op_pass ? 'pass' : 'not proven'}`,
+    `- ONNX Runtime session mode: ${proof.directml.onnxruntime_session_options?.execution_mode ?? 'unknown'}`,
+    `- ONNX Runtime memory pattern: ${proof.directml.onnxruntime_session_options?.enable_mem_pattern === false ? 'disabled' : 'unknown'}`,
     `- Vulkan: ${proof.vulkan.available ? 'visible' : 'not proven'}`,
     `- OpenCL: ${proof.opencl.available ? 'visible' : 'not proven'}`,
     `- ROCm/HIP usable: ${proof.rocm_hip.usable ? 'yes' : 'no'}`,
@@ -533,6 +608,7 @@ function renderBackendProbeTsv(proof) {
     `directml_candidate\t${proof.directml.candidate ? 'present' : 'missing'}`,
     `torch_directml\t${proof.directml.torch_directml_available ? 'present' : 'missing'}`,
     `onnxruntime_directml\t${proof.directml.onnxruntime_directml_available ? 'present' : 'missing'}`,
+    `onnxruntime_directml_tiny_op\t${proof.directml.onnxruntime_tiny_op_pass ? 'present' : 'missing'}`,
     `vulkan\t${proof.vulkan.available ? 'present' : 'missing'}`,
     `opencl\t${proof.opencl.available ? 'present' : 'missing'}`,
     `hip_rocm\t${proof.rocm_hip.usable ? 'present' : 'missing'}`,

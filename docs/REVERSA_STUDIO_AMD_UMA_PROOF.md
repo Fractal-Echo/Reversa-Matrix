@@ -26,6 +26,10 @@ phone work, or Nebula work.
 DirectML candidate status is not model-ready status. It only means the host has
 the minimum shape for a future DirectML backend proof.
 
+ONNX Runtime DirectML proof is stronger than provider import only when a tiny
+synthetic local graph runs through `DmlExecutionProvider`. That session must keep
+memory pattern optimizations disabled and use sequential execution mode.
+
 ## Evidence Shape
 
 ```json
@@ -53,8 +57,18 @@ the minimum shape for a future DirectML backend proof.
   "directml": {
     "candidate": true,
     "torch_directml_available": false,
-    "onnxruntime_directml_available": false,
-    "tiny_op_pass": false
+    "onnxruntime_directml_available": true,
+    "onnxruntime_version": "1.24.4",
+    "onnxruntime_providers": [
+      "DmlExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "onnxruntime_tiny_op_pass": true,
+    "onnxruntime_session_options": {
+      "enable_mem_pattern": false,
+      "execution_mode": "ORT_SEQUENTIAL"
+    },
+    "tiny_op_pass": true
   },
   "vulkan": {
     "available": true,
@@ -84,6 +98,12 @@ the minimum shape for a future DirectML backend proof.
 - UMA inferred is not UMA confirmed.
 - DirectML candidate is not DirectML runtime proof.
 - ONNX Runtime DirectML provider proof is not a full model proof.
+- ONNX Runtime DirectML tiny-op proof uses a generated local Add graph, not an
+  external model.
+- ONNX Runtime DirectML sessions must use `enable_mem_pattern=false` and
+  `ORT_SEQUENTIAL` for this proof lane.
+- A tiny ONNX DirectML op can prove backend mechanics; it still does not prove
+  broad model readiness.
 - `torch-directml` should use an isolated compatible environment if tested.
 - Reversa does not install drivers, launch games, connect to phones, patch
   binaries, or run Nebula from this lane.

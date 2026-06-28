@@ -120,6 +120,8 @@ function renderAmdProof() {
     proofCard('Radeon 890M', proof.gpu.amd_visible ? proof.gpu.name : 'not detected', proof.gpu.amd_visible ? 'Safe' : 'Blocked'),
     proofCard('64 GiB UMA', `${proof.memory.uma_status} / ${proof.memory.uma_shared_mib ?? 'unknown'} MiB shared`, proof.memory.uma_status === 'confirmed' ? 'Safe' : 'Review'),
     proofCard('DirectML', proof.directml.tiny_op_pass ? 'tiny op passed' : (proof.directml.candidate ? 'candidate, not model-ready' : 'not proven'), proof.directml.tiny_op_pass ? 'Safe' : 'Candidate'),
+    proofCard('ONNX Runtime DML', proof.directml.onnxruntime_tiny_op_pass ? `pass / ${proof.directml.onnxruntime_version ?? 'unknown'}` : (proof.directml.onnxruntime_directml_available ? 'provider present' : 'not proven'), proof.directml.onnxruntime_tiny_op_pass ? 'Safe' : 'Review'),
+    proofCard('Session Constraints', `memPattern=${String(proof.directml.onnxruntime_session_options?.enable_mem_pattern)} mode=${proof.directml.onnxruntime_session_options?.execution_mode ?? 'unknown'}`, proof.directml.onnxruntime_session_options?.enable_mem_pattern === false ? 'Safe' : 'Review'),
   ].join('');
 
   document.getElementById('amd-backend-readiness').innerHTML = [

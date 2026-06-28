@@ -98,6 +98,18 @@ test('AMD proof promotes ONNX Runtime DirectML provider fixture', () => {
   assert(proof.classifications.includes('AMD_PROOF_ONNXRUNTIME_DIRECTML_IMPORT'));
 });
 
+test('AMD proof promotes ONNX Runtime DirectML tiny op fixture', () => {
+  const proof = amdProofFixture({
+    pythonProbe: onnxTinyProbe(),
+  });
+
+  assert.equal(proof.classification, 'AMD_PROOF_ONNXRUNTIME_DIRECTML_TINY_OP_PASS');
+  assert.equal(proof.directml.onnxruntime_tiny_op_pass, true);
+  assert.equal(proof.directml.onnxruntime_session_options.enable_mem_pattern, false);
+  assert.equal(proof.directml.onnxruntime_session_options.execution_mode, 'ORT_SEQUENTIAL');
+  assert.equal(proof.python.onnxruntime_tiny_model.source_authority, false);
+});
+
 test('AMD advisory join blocks unknown-license model from ready status', () => {
   const joined = classifyAdvisoryRecordForAmdProof(advisoryRecord({
     labels: ['MODEL_LICENSE_UNKNOWN', 'MODEL_WEIGHT_DOWNLOAD_DEFERRED', 'DIRECTML_BACKEND_PRESENT'],
@@ -108,6 +120,31 @@ test('AMD advisory join blocks unknown-license model from ready status', () => {
   assert(joined.classifications.includes('AMD_MODEL_LICENSE_BLOCKED'));
   assert(!joined.classifications.includes('AMD_890M_READY_CANDIDATE'));
   assert.equal(joined.safe_for_model_download, false);
+});
+
+test('AMD ONNX DirectML provider import alone does not mark unknown-license model ready', () => {
+  const joined = classifyAdvisoryRecordForAmdProof(advisoryRecord({
+    labels: ['MODEL_LICENSE_UNKNOWN', 'ONNX_BACKEND_PRESENT'],
+    backend: ['onnx'],
+    source_license: 'UNKNOWN',
+  }), amdProofFixture({
+    pythonProbe: {
+      available: true,
+      executable: '/venv/python',
+      version: '3.12',
+      torch_directml_available: false,
+      torch_directml_tiny_op_pass: false,
+      onnxruntime_available: true,
+      onnxruntime_version: '1.24.4',
+      onnxruntime_directml_available: true,
+      onnxruntime_providers: ['DmlExecutionProvider', 'CPUExecutionProvider'],
+      onnxruntime_directml_tiny_op_pass: false,
+    },
+  }));
+
+  assert(joined.classifications.includes('AMD_MODEL_LICENSE_BLOCKED'));
+  assert(!joined.classifications.includes('AMD_890M_READY_CANDIDATE'));
+  assert(!joined.classifications.includes('AMD_ONNX_DIRECTML_POSSIBLE'));
 });
 
 test('AMD DirectML candidate remains possible, not ready, without tiny op proof', () => {
@@ -143,6 +180,19 @@ test('AMD DirectML tiny op can mark reviewed backend as ready candidate', () => 
   assert(joined.classifications.includes('AMD_890M_READY_CANDIDATE'));
 });
 
+test('AMD ONNX DirectML tiny op promotes eligible ONNX metadata to possible', () => {
+  const joined = classifyAdvisoryRecordForAmdProof(advisoryRecord({
+    labels: ['ONNX_BACKEND_PRESENT'],
+    backend: ['onnx'],
+    source_license: 'mit',
+  }), amdProofFixture({
+    pythonProbe: onnxTinyProbe(),
+  }));
+
+  assert(joined.classifications.includes('AMD_ONNX_DIRECTML_POSSIBLE'));
+  assert(joined.classifications.includes('AMD_890M_READY_CANDIDATE'));
+});
+
 test('AMD advisory join writes generated non-authority outputs', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-amd-fit-'));
   const proofPath = join(root, 'amd-proof.json');
@@ -170,7 +220,7 @@ test('RTX 5090 proof fixture and AMD proof fixture remain separate lanes', () =>
   const amd = buildSampleAmdProofFixture();
 
   assert.equal(nvidia.classification, 'GPU_PROOF_TENSOR_OP_PASS');
-  assert.equal(amd.classification, 'AMD_PROOF_DIRECTML_CANDIDATE');
+  assert.equal(amd.classification, 'AMD_PROOF_ONNXRUNTIME_DIRECTML_TINY_OP_PASS');
   assert.equal(nvidia.gpu.name, 'NVIDIA GeForce RTX 5090');
   assert.equal(amd.gpu.name, 'AMD Radeon(TM) 890M Graphics');
   assert.equal(Object.hasOwn(nvidia, 'directml'), false);
@@ -186,6 +236,36 @@ function amdProofFixture(overrides = {}) {
     wslProbeText: overrides.wslProbeText ?? wslProbeFixture(),
     pythonProbe: overrides.pythonProbe ?? { available: false },
   });
+}
+
+function onnxTinyProbe() {
+  return {
+    available: true,
+    executable: '/venv/python',
+    version: '3.12',
+    torch_directml_available: false,
+    torch_directml_tiny_op_pass: false,
+    onnxruntime_available: true,
+    onnxruntime_version: '1.24.4',
+    onnxruntime_directml_available: true,
+    onnxruntime_providers: ['DmlExecutionProvider', 'CPUExecutionProvider'],
+    onnxruntime_session_providers: ['DmlExecutionProvider', 'CPUExecutionProvider'],
+    onnxruntime_session_options: {
+      enable_mem_pattern: false,
+      execution_mode: 'ORT_SEQUENTIAL',
+    },
+    onnxruntime_tiny_model: {
+      source_authority: false,
+      generated_artifact: true,
+      opset: 20,
+      ir_version: 10,
+      external_model: false,
+    },
+    onnxruntime_input: [[10, 20, 30, 40]],
+    onnxruntime_output: [[11, 22, 33, 44]],
+    onnxruntime_expected: [[11, 22, 33, 44]],
+    onnxruntime_directml_tiny_op_pass: true,
+  };
 }
 
 function windowsProbeFixture(overrides = {}) {

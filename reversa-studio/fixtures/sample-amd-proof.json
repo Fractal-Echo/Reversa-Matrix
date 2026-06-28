@@ -41,12 +41,29 @@
   },
   "directml": {
     "candidate": true,
-    "torch_directml_available": false,
-    "onnxruntime_directml_available": false,
-    "tiny_op_pass": false,
+    "torch_directml_available": true,
+    "onnxruntime_directml_available": true,
+    "onnxruntime_version": "1.24.4",
+    "onnxruntime_providers": [
+      "DmlExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "onnxruntime_tiny_op_pass": true,
+    "onnxruntime_session_options": {
+      "enable_mem_pattern": false,
+      "execution_mode": "ORT_SEQUENTIAL"
+    },
+    "onnxruntime_session_providers": [
+      "DmlExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "tiny_op_pass": true,
     "torch_directml_tiny_op_pass": false,
-    "onnxruntime_directml_tiny_op_pass": false,
-    "available_providers": []
+    "onnxruntime_directml_tiny_op_pass": true,
+    "available_providers": [
+      "DmlExecutionProvider",
+      "CPUExecutionProvider"
+    ]
   },
   "vulkan": {
     "available": true,
@@ -79,20 +96,66 @@
     "requested_executable": "unknown",
     "executable": "unknown",
     "version": "unknown",
-    "torch_directml_available": false,
+    "torch_directml_available": true,
     "torch_directml_device": null,
     "torch_directml_tiny_op_pass": false,
-    "onnxruntime_available": false,
-    "onnxruntime_directml_available": false,
-    "onnxruntime_providers": [],
-    "onnxruntime_directml_tiny_op_pass": false,
+    "onnxruntime_available": true,
+    "onnxruntime_version": "1.24.4",
+    "onnxruntime_directml_available": true,
+    "onnxruntime_providers": [
+      "DmlExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "onnxruntime_session_providers": [
+      "DmlExecutionProvider",
+      "CPUExecutionProvider"
+    ],
+    "onnxruntime_session_options": {
+      "enable_mem_pattern": false,
+      "execution_mode": "ORT_SEQUENTIAL"
+    },
+    "onnxruntime_tiny_model": {
+      "source_authority": false,
+      "generated_artifact": true,
+      "opset": 20,
+      "ir_version": 10,
+      "external_model": false
+    },
+    "onnxruntime_input": [
+      [
+        10,
+        20,
+        30,
+        40
+      ]
+    ],
+    "onnxruntime_output": [
+      [
+        11,
+        22,
+        33,
+        44
+      ]
+    ],
+    "onnxruntime_expected": [
+      [
+        11,
+        22,
+        33,
+        44
+      ]
+    ],
+    "onnxruntime_directml_tiny_op_pass": true,
     "error": null
   },
-  "classification": "AMD_PROOF_DIRECTML_CANDIDATE",
+  "classification": "AMD_PROOF_ONNXRUNTIME_DIRECTML_TINY_OP_PASS",
   "classifications": [
     "AMD_PROOF_WINDOWS_GPU_VISIBLE",
     "AMD_PROOF_DIRECTX12_VISIBLE",
     "AMD_PROOF_DIRECTML_CANDIDATE",
+    "AMD_PROOF_TORCH_DIRECTML_IMPORT",
+    "AMD_PROOF_ONNXRUNTIME_DIRECTML_IMPORT",
+    "AMD_PROOF_ONNXRUNTIME_DIRECTML_TINY_OP_PASS",
     "AMD_PROOF_VULKAN_VISIBLE",
     "AMD_PROOF_OPENCL_VISIBLE",
     "AMD_PROOF_UMA_CONFIRMED"
@@ -100,6 +163,6 @@
   "safe_for_model_download": false,
   "notes": [
     "Radeon 890M visibility is separated from the RTX 5090 proof lane.",
-    "DirectML is candidate evidence until an import or tiny-op proof exists."
+    "ONNX Runtime DirectML tiny synthetic Add operation passed with memory pattern disabled and sequential execution."
   ]
 }

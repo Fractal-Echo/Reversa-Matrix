@@ -2,18 +2,18 @@
   "schema_version": 1,
   "generated_fixture": true,
   "source_authority": false,
-  "proof_classification": "AMD_PROOF_DIRECTML_CANDIDATE",
+  "proof_classification": "AMD_PROOF_ONNXRUNTIME_DIRECTML_TINY_OP_PASS",
   "summary": {
     "totalRecords": 774,
-    "readyCandidates": 0,
+    "readyCandidates": 1,
     "directmlPossible": 1,
-    "onnxDirectmlPossible": 0,
+    "onnxDirectmlPossible": 7,
     "vulkanNcnnPossible": 255,
     "openclPossible": 0,
     "hipRocmUnknown": 0,
     "blockedByLicense": 32,
     "deferredModelArtifacts": 48,
-    "runtimeNotReady": 349,
+    "runtimeNotReady": 343,
     "linuxProtonUnproven": 2,
     "windowsOnlyReview": 1
   },
@@ -26,7 +26,7 @@
     {
       "label": "ONNX DirectML possible",
       "status": "candidate",
-      "count": 0
+      "count": 7
     },
     {
       "label": "Vulkan NCNN possible",
@@ -41,7 +41,7 @@
     {
       "label": "Runtime proof needed",
       "status": "review",
-      "count": 349
+      "count": 343
     }
   ],
   "records": [
