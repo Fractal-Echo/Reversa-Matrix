@@ -1702,8 +1702,11 @@ test('scanner scopes sectioned config assignments before contradiction grouping'
 
 test('scanner scopes package config files by directory and section', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-package-config-scope-'));
+  await mkdir(join(root, 'android', 'prefab'), { recursive: true });
+  await mkdir(join(root, 'cmake', 'scripts'), { recursive: true });
   await mkdir(join(root, 'dotnet', 'samples'), { recursive: true });
   await mkdir(join(root, 'python', 'samples'), { recursive: true });
+  await mkdir(join(root, 'rust', 'ui'), { recursive: true });
   await writeFile(join(root, '.editorconfig'), [
     '[*.cs]',
     'dotnet_diagnostic.CA1031.severity = warning',
@@ -1726,6 +1729,24 @@ test('scanner scopes package config files by directory and section', async () =>
     '[tool.ruff]',
     'target-version = "py310"',
   ].join('\n'), 'utf8');
+  await writeFile(join(root, 'rust', 'ui', 'Cargo.toml'), [
+    '[package]',
+    'name = "lsfg-vk-ui"',
+    'version = "1.0.0"',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'android', 'prefab', 'prefab.json'), [
+    '{',
+    '  "name": "OpenXR",',
+    '  "version": "@MAJOR@.@MINOR@.@PATCH@",',
+    '  "graphicsDriver": "fixture"',
+    '}',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'cmake', 'scripts', 'CMakePresets.json'), [
+    '{',
+    '  "version": 3,',
+    '  "graphicsDriver": "fixture"',
+    '}',
+  ].join('\n'), 'utf8');
 
   const report = await scanProject({
     projectRoot: root,
@@ -1736,6 +1757,8 @@ test('scanner scopes package config files by directory and section', async () =>
   assertEvidence(report, 'build_variables', 'config.dotnet/samples.glob_cs.dotnet_diagnostic.CA1031.severity=none');
   assertEvidence(report, 'build_variables', 'config.root.project.name=root-package');
   assertEvidence(report, 'build_variables', 'config.python/samples.project.name=sample-package');
+  assertEvidence(report, 'build_variables', 'config.android/prefab.version=@MAJOR@.@MINOR@.@PATCH@');
+  assertEvidence(report, 'build_variables', 'config.cmake/scripts.version=3');
   assert(
     !report.contradictions.some(item => item.title.includes('Conflicting definitions for dotnet_diagnostic.CA1031.severity')),
     'same analyzer key in nested .editorconfig files should not conflict globally'
@@ -1748,6 +1771,14 @@ test('scanner scopes package config files by directory and section', async () =>
     !report.contradictions.some(item => item.title.includes('Conflicting definitions for tool.ruff.target-version')),
     'same ruff key in separate pyproject roots should not conflict globally'
   );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for name')),
+    'package metadata names in separate manifest roots should not conflict globally'
+  );
+  assert(
+    !report.contradictions.some(item => item.title.includes('Conflicting definitions for version')),
+    'package metadata versions in separate manifest roots should not conflict globally'
+  );
 });
 
 test('scanner does not treat prompt role syntax as source paths', async () => {
@@ -1755,6 +1786,7 @@ test('scanner does not treat prompt role syntax as source paths', async () => {
   await writeFile(join(root, 'agent.js'), [
     '// The transcript has system/developer and system/user/assistant layers.',
     'const runtimeDirs = ["system/bin", "system/xbin", "vendor/bin"];',
+    '// Refer to BufferUsage in hardware/interfaces/graphics/common/<ver>/types.hal',
     'const p = "vendor/lib64/libmissing_prompt_role_test.so";',
   ].join('\n'), 'utf8');
 
@@ -1768,6 +1800,7 @@ test('scanner does not treat prompt role syntax as source paths', async () => {
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/bin');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:system/xbin');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:vendor/bin');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/interfaces/graphics/common/');
   assertEvidence(report, 'invalid_paths', 'referenced_path_missing:vendor/lib64/libmissing_prompt_role_test.so');
 });
 
