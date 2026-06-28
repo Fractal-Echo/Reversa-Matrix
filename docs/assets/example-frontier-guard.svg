@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1000 620">
+  <title id="title">Known-good frontier guard example</title>
+  <desc id="desc">Example shot showing Reversa preserving a known-good frontier above a newer lower failed run.</desc>
+  <rect width="1000" height="620" rx="22" fill="#030609"/>
+  <rect x="46" y="42" width="908" height="536" rx="14" fill="#07111a" stroke="#254a60" stroke-width="2"/>
+  <text x="82" y="100" fill="#edf7ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="36" font-weight="900">Known-Good Frontier Guard</text>
+  <text x="84" y="134" fill="#18e5ff" font-family="ui-monospace,Consolas,monospace" font-size="18">newer is not stronger / raw proof beats status-only</text>
+  <g font-family="Inter,Segoe UI,Arial,sans-serif">
+    <rect x="94" y="190" width="335" height="240" rx="8" fill="#04110e" stroke="#65ff4d" stroke-width="2"/>
+    <text x="122" y="232" fill="#65ff4d" font-size="19" font-weight="900">HIGHEST KNOWN GOOD</text>
+    <text x="122" y="276" fill="#edf7ff" font-size="24" font-weight="800">WAYLAND REAL BUFFER PASS</text>
+    <text x="122" y="322" fill="#93a5b8" font-size="18">real_buffer_commits=2</text>
+    <text x="122" y="354" fill="#93a5b8" font-size="18">vkGetMemoryFdKHR=0</text>
+    <text x="122" y="386" fill="#93a5b8" font-size="18">sidecar-14 + sidecar-06</text>
+    <rect x="572" y="190" width="335" height="240" rx="8" fill="#14070b" stroke="#ff304f" stroke-width="2"/>
+    <text x="600" y="232" fill="#ff304f" font-size="19" font-weight="900">NEWER LOWER RUN</text>
+    <text x="600" y="276" fill="#edf7ff" font-size="24" font-weight="800">BELOW FRONTIER</text>
+    <text x="600" y="322" fill="#93a5b8" font-size="18">xserver_ready=no</text>
+    <text x="600" y="354" fill="#93a5b8" font-size="18">real_buffer_commits=0</text>
+    <text x="600" y="386" fill="#93a5b8" font-size="18">SIGBUS stayed fatal</text>
+  </g>
+  <path d="M445 305h93" stroke="#18e5ff" stroke-width="5"/>
+  <path d="M526 289l28 16-28 16z" fill="#18e5ff"/>
+  <rect x="154" y="476" width="692" height="54" rx="8" fill="#0c1724" stroke="#ffc857"/>
+  <text x="180" y="510" fill="#ffc857" font-family="ui-monospace,Consolas,monospace" font-size="21">REGRESSION_BELOW_KNOWN_GOOD_FRONTIER -> recover exact working harness</text>
+</svg>

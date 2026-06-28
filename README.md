@@ -4,6 +4,10 @@ Reversa-Matrix is a local evidence scanner, contradiction detector, and guarded 
 
 [![Docs](https://img.shields.io/badge/DOCS-Reversa--Matrix-009c3b?style=for-the-badge&logo=material-for-mkdocs&logoColor=white&labelColor=2d2d2d)](https://fractal-echo.github.io/Reversa-Matrix/)
 
+<p align="center">
+  <img src="docs/assets/reversa-matrix-monogram.svg" alt="Reversa-Matrix RM monogram" width="900">
+</p>
+
 It scans repositories, extracted project trees, config folders, logs, runtime notes, and agent instructions. It writes structured reports that help a human or coding agent see what is known, what conflicts, what needs proof, and what should not be patched yet.
 
 Core rule:
@@ -35,6 +39,14 @@ Reversa-Matrix is designed for evidence-heavy work across:
 - Power/TDP research for handheld daemons, game-aware tuning profiles, battery caps, and mutation guards.
 - Claude/Codex-style agent workflows, settings, hooks, skills, subagents, MCP, plugins, and approval policies.
 - Generic C/C++/Rust/Java/Kotlin/Python/JavaScript projects with copied constants, generated artifacts, and stale assumptions.
+
+## Example Shots
+
+These are static example shots of the current Reversa-Matrix visual language and evidence surfaces.
+
+| Scan dashboard | Reversa Studio | Frontier guard |
+|---|---|---|
+| ![Scan dashboard example](docs/assets/example-scan-dashboard.svg) | ![Reversa Studio example](docs/assets/example-reversa-studio.svg) | ![Known-good frontier guard example](docs/assets/example-frontier-guard.svg) |
 
 ## What It Is Not
 

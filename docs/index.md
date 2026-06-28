@@ -1,10 +1,20 @@
 # Reversa-Matrix
 
+![Reversa-Matrix RM monogram](assets/reversa-matrix-monogram.svg)
+
 Reversa-Matrix is an AI evidence, contradiction, and guarded patch-intelligence engine.
 
 It turns messy repositories, logs, runtime traces, device reports, and agent instructions into traceable findings, contradiction maps, project memory/frontiers, guarded patch dossiers, review-only patch diffs, and agent-ready operating rules.
 
 It is built to stop regressions, stale assumptions, and AI amnesia during complex engineering work. It starts with files, symbols, build declarations, device facts, paths, configs, logs, runtime traces, agent policies, and contradictions.
+
+## Example Shots
+
+These static examples show the current Reversa-Matrix visual direction:
+
+| Scan dashboard | Reversa Studio | Frontier guard |
+|---|---|---|
+| ![Scan dashboard example](assets/example-scan-dashboard.svg) | ![Reversa Studio example](assets/example-reversa-studio.svg) | ![Known-good frontier guard example](assets/example-frontier-guard.svg) |
 
 ## What Reversa Is Now
 

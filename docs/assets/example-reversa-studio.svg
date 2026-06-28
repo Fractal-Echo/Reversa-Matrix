@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc" viewBox="0 0 1000 620">
+  <title id="title">Reversa Studio example</title>
+  <desc id="desc">Example Reversa Studio shot showing local GPU, AMD UMA, and Power/TDP panels.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#030609"/>
+      <stop offset="0.55" stop-color="#081018"/>
+      <stop offset="1" stop-color="#12070b"/>
+    </linearGradient>
+  </defs>
+  <rect width="1000" height="620" rx="22" fill="url(#bg)"/>
+  <path d="M0 78h1000M0 156h1000M0 234h1000M0 312h1000M0 390h1000M0 468h1000M0 546h1000" stroke="#173143" opacity="0.5"/>
+  <path d="M80 56h840v508H80z" fill="#07111a" stroke="#254a60" stroke-width="2"/>
+  <text x="114" y="108" fill="#edf7ff" font-family="Inter,Segoe UI,Arial,sans-serif" font-size="38" font-weight="900">Reversa Studio</text>
+  <text x="116" y="140" fill="#18e5ff" font-family="ui-monospace,Consolas,monospace" font-size="17">planning_only=true source_authority=json</text>
+  <g font-family="Inter,Segoe UI,Arial,sans-serif">
+    <rect x="114" y="184" width="225" height="138" rx="8" fill="#0c1724" stroke="#65ff4d"/>
+    <text x="136" y="222" fill="#65ff4d" font-size="17" font-weight="900">LOCAL 5090 PROOF</text>
+    <text x="136" y="260" fill="#edf7ff" font-size="24" font-weight="800">CUDA tensor op</text>
+    <text x="136" y="294" fill="#93a5b8" font-size="18">backend evidence only</text>
+    <rect x="388" y="184" width="225" height="138" rx="8" fill="#0c1724" stroke="#18e5ff"/>
+    <text x="410" y="222" fill="#18e5ff" font-size="17" font-weight="900">AMD / UMA</text>
+    <text x="410" y="260" fill="#edf7ff" font-size="24" font-weight="800">HX 370 / 890M</text>
+    <text x="410" y="294" fill="#93a5b8" font-size="18">DirectML candidate</text>
+    <rect x="662" y="184" width="225" height="138" rx="8" fill="#0c1724" stroke="#ff304f"/>
+    <text x="684" y="222" fill="#ff304f" font-size="17" font-weight="900">POWER / TDP</text>
+    <text x="684" y="260" fill="#edf7ff" font-size="24" font-weight="800">mutation guarded</text>
+    <text x="684" y="294" fill="#93a5b8" font-size="18">runtime test later</text>
+  </g>
+  <g font-family="ui-monospace,Consolas,monospace" font-size="20">
+    <rect x="114" y="362" width="773" height="142" rx="8" fill="#04090e" stroke="#1f3448"/>
+    <text x="142" y="402" fill="#65ff4d">TDP write deferred</text>
+    <text x="392" y="402" fill="#ffc857">Proof required</text>
+    <text x="614" y="402" fill="#ff304f">Approval required</text>
+    <text x="142" y="450" fill="#18e5ff">model provenance tracked</text>
+    <text x="452" y="450" fill="#edf7ff">patch dossier proposal-only</text>
+  </g>
+</svg>
