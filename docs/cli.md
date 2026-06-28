@@ -65,6 +65,55 @@ question.
 
 ---
 
+### `scan-fleet`
+
+```bash
+node ./bin/reversa.js scan-fleet \
+  --manifest repos.json \
+  --profiles semantic_policy,agentic_gateway \
+  --out reversa_fleet_out \
+  --timeout-ms 300000
+```
+
+Scans many repositories as isolated shards. Each repo/profile pair runs in a
+child process, so an OOM, timeout, missing repo, or bad profile is recorded as a
+classified shard failure instead of killing the full fleet pass.
+
+Manifest formats:
+
+```json
+[
+  { "name": "reversa", "path": "/path/to/Reversa-Matrix", "group": "ai" },
+  { "name": "nebula", "path": "/path/to/Droidspaces-Nebula", "group": "runtime" }
+]
+```
+
+or a newline list of repo paths.
+
+Fleet outputs:
+
+- `fleet-report.json`
+- `fleet-summary.tsv`
+- `fleet-summary.md`
+- per-repo/per-profile normal scan outputs
+
+Useful flags:
+
+| Flag | Meaning |
+|---|---|
+| `--manifest <path>` | JSON or newline repo manifest |
+| `--base-dir <path>` | Resolve relative manifest paths from this directory |
+| `--profiles <ids>` | Comma-separated scan profiles |
+| `--out <path>` | Fleet output directory |
+| `--timeout-ms <n>` | Classify slow shards as `SCAN_FAILED_TIMEOUT` |
+| `--max-file-size <n|nK|nM>` | Forwarded to each shard scan |
+| `--include-ignored` | Forwarded to each shard scan |
+
+Use `scan-fleet` for repo fleets and workspace audits. Use `scan` for one
+bounded source tree.
+
+---
+
 ### `compare`
 
 ```bash

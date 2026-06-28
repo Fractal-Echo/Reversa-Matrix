@@ -16,6 +16,7 @@ const commands = {
   update:             () => import('../lib/commands/update.js'),
   status:             () => import('../lib/commands/status.js'),
   scan:               () => import('../lib/commands/scan.js'),
+  'scan-fleet':       () => import('../lib/commands/scan-fleet.js'),
   compare:            () => import('../lib/commands/compare.js'),
   gui:                () => import('../lib/commands/gui.js'),
   agent:              () => import('../lib/commands/agent.js'),
@@ -41,6 +42,7 @@ if (!command || command === '--help' || command === '-h') {
 
   Commands:
     scan               Scan a source tree and generate structured evidence
+    scan-fleet         Scan many repos as isolated shards with aggregate evidence
     compare            Compare two trees and classify differences
     gui                Generate a local dashboard for scan/compare results
     agent              Run local agent doctor/models/eval/memory/patch scaffolding

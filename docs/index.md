@@ -145,6 +145,20 @@ node ./bin/reversa.js scan \
 node ./bin/reversa.js gui --out reversa_game_out
 ```
 
+Scan a repo fleet without letting one giant tree kill the pass:
+
+```bash
+node ./bin/reversa.js scan-fleet \
+  --manifest ./repos.json \
+  --profiles semantic_policy,agentic_gateway \
+  --out reversa_fleet_out \
+  --timeout-ms 300000
+```
+
+`scan-fleet` writes aggregate JSON/TSV/Markdown and keeps per-repo scan outputs
+isolated. OOMs, timeouts, missing repos, and bad profiles become classified
+evidence instead of silent failures.
+
 ---
 
 ## What You Get
@@ -171,6 +185,9 @@ Use `dashboard.html` to browse. Use `report.json`, `evidence.jsonl`, and `agent_
 
 Local agent runs write `.reversa/runs/<run-id>/` with a prompt, plan, tool call
 log, evidence JSONL, contradiction YAML, and a Markdown report.
+
+Fleet runs write `fleet-report.json`, `fleet-summary.tsv`,
+`fleet-summary.md`, and normal scan outputs under each repo/profile shard.
 
 ---
 
