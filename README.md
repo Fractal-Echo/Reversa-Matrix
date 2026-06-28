@@ -192,6 +192,20 @@ node ./bin/reversa.js scan \
 This records hashes, DRM lease details, wlroots/labwc/KGSL evidence, and FPS
 context. It does not emit patch candidates or authorize runtime/device actions.
 
+Scan DroidSpaces/Nebula Dock lease schemas, fixtures, and command-plan reports:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root /path/to/Droidspaces-Nebula \
+  --profile droidspaces_dock_lease \
+  --out reversa_dock_lease_out
+```
+
+This records host-only Dock authority proof, `BLOCKED_NOT_READY`, dynamic
+discovery requirements, `TEST_ONLY`, `SCM_RIGHTS`, stop/revoke, rollback, crash
+gates, and unsafe runtime-promotion flags. It emits no patch candidates and does
+not approve DRM lease mutation.
+
 Capture passive local GPU proof for Reversa Studio:
 
 ```bash
@@ -272,7 +286,7 @@ Current profile families include:
 - Agent workflows: `agentic_toolchain`, `claude_code_modern`, `claude_code`, `codex_agent`, `agent_workflow`, `ai_coding_surface`, `claude_matrix`, `semantic_policy`.
 - Provider gateways: `agentic_gateway`.
 - Android/recovery/kernel: `android_recovery`, `orangefox`, `orangefox_sync_tool`, `twrp`, `android_kernel`, `kernel`, `gki_kernel`.
-- Linux graphics/container: `userspace_graphics`, `linux_container`, `gamescope`, `child_libpath`, `nebula_child_libpath`, `nebula_gamescope`, `nebula_vulkan_loader`, `known_good_frontier`, `nebula_frontier_guard`, `frontier_guard`.
+- Linux graphics/container: `userspace_graphics`, `linux_container`, `gamescope`, `child_libpath`, `nebula_child_libpath`, `nebula_gamescope`, `nebula_vulkan_loader`, `known_good_frontier`, `nebula_frontier_guard`, `frontier_guard`, `droidspaces_dock_lease`, `nebula_dock_schema`, `dock_command_plan`.
 - Windows: `windows_system`, `windows_compat`.
 - Game/runtime: `game_modding`, `pcgamingwiki_runtime`, `widescreen_framegen_runtime`, `game_exe_patch_runtime`, `graphics_wrapper`, `vulkan_loader`, `bo3_zombies_diagnostics`, `render_enhancement_plugin`, `rm11pro_gaming_runtime`.
 - GPU/upscale/frame generation: `gpu_upscale_framegen`, `upscale_runtime`, `framegen_runtime`, `game_upscale`, `flowframes`, `cupscale`.

@@ -971,6 +971,147 @@ test('decoded media evidence profile reads JSONL proof without patch candidates'
   assert.equal(validateScanReport(report).valid, true);
 });
 
+test('droidspaces dock lease profile records host-only schema and command-plan proof', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-dock-lease-'));
+  await mkdir(join(root, 'docs/integration/schemas'), { recursive: true });
+  await writeFile(join(root, 'docs/integration/schemas/dock-lease-command.schema.json'), JSON.stringify({
+    title: 'Dock lease command schema',
+    type: 'object',
+  }), 'utf8');
+  await writeFile(join(root, 'docs/integration/schemas/dock-lease-result.schema.json'), JSON.stringify({
+    title: 'Dock lease result schema',
+    type: 'object',
+  }), 'utf8');
+  await writeFile(join(root, 'dock-lease-command-plan.json'), JSON.stringify({
+    protocol_version: 1,
+    command: 'dock lease command-plan report',
+    host_only: true,
+    lane: 'dock_drm_lease_external',
+    profile_set_dock: 'BLOCKED_NOT_READY',
+    start_command_available: false,
+    runtime_allowlists_modified: false,
+    app_allowlists_modified: false,
+    classification: 'DOCK_LEASE_COMMAND_PLAN_HOST_ONLY',
+    mutation_allowed_by_policy: false,
+    plans: [
+      {
+        id: 'lease-test-only',
+        command_kind: 'dock_lease_test_only',
+        execute: false,
+        mutation_allowed_by_policy: false,
+        external_display_only: true,
+        dynamic_discovery_required: true,
+        test_only: true,
+        inputs: {
+          allow_raw_shell: false,
+          allow_manual_connector_id: false,
+          allow_manual_crtc_id: false,
+          allow_manual_plane_id: false,
+          allow_manual_fd: false,
+          allow_internal_panel: false,
+          allow_whole_card_takeover: false,
+        },
+        required_guards: {
+          test_only_required_before_commit: true,
+          handoff_mechanism: 'SCM_RIGHTS',
+          stop_revoke_required: true,
+          rollback_required: true,
+          crash_counter_required: true,
+          auto_retry_allowed: false,
+        },
+        result_errors: ['HOST_ONLY_FIXTURE'],
+      },
+    ],
+  }), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'droidspaces_dock_lease',
+  });
+
+  assert.equal(report.scan.profile, 'droidspaces_dock_lease');
+  assertEvidence(report, 'dock_lease_host_proof', 'dock_lease.schema.command_contract=true');
+  assertEvidence(report, 'dock_lease_host_proof', 'dock_lease.schema.result_contract=true');
+  assertEvidence(report, 'dock_lease_host_proof', 'dock_lease.command_plan=DOCK_LEASE_COMMAND_PLAN_HOST_ONLY');
+  assertEvidence(report, 'dock_lease_blocked_not_ready', 'dock_lease.status=BLOCKED_NOT_READY');
+  assertEvidence(report, 'dock_lease_mutation_denied', 'dock_lease.mutation_allowed_by_policy=false');
+  assertEvidence(report, 'dock_lease_dynamic_discovery_required', 'dock_lease.discovery=dynamic_required');
+  assertEvidence(report, 'dock_lease_guard', 'dock_lease.guard.TEST_ONLY=true');
+  assertEvidence(report, 'dock_lease_guard', 'dock_lease.guard.SCM_RIGHTS=true');
+  assertEvidence(report, 'dock_lease_guard', 'dock_lease.guard.stop_revoke=true');
+  assertEvidence(report, 'dock_lease_guard', 'dock_lease.guard.rollback=true');
+  assertEvidence(report, 'dock_lease_guard', 'dock_lease.guard.crash_gate=true');
+  assertEvidence(report, 'dock_lease_guard', 'dock_lease.start_command_available=false');
+  assertNoEvidence(report, ['dock_lease_runtime_warning'], 'dock_lease.warning');
+  assert(!report.contradictions.some(item => item.category === 'dock_lease_guard'));
+  assert.equal(report.patch_candidates.length, 0);
+  assert.equal(validateScanReport(report).valid, true);
+});
+
+test('droidspaces dock lease profile does not warn on guarded wording alone', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-dock-lease-wording-'));
+  await writeFile(join(root, 'dock-lease-notes.md'), [
+    'Dock lease stays host-only.',
+    'Runtime allowlists remain unmodified.',
+    'Start command stays unavailable.',
+    'Dynamic discovery, TEST_ONLY, SCM_RIGHTS, stop/revoke, rollback, and crash gate are required.',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'dock_command_plan',
+  });
+
+  assertEvidence(report, 'dock_lease_dynamic_discovery_required', 'dock_lease.discovery=dynamic_required');
+  assertEvidence(report, 'dock_lease_guard', 'dock_lease.guard.TEST_ONLY=true');
+  assertNoEvidence(report, ['dock_lease_runtime_warning'], 'dock_lease.warning');
+  assert(!report.contradictions.some(item => item.category === 'dock_lease_guard'));
+  assert.equal(report.patch_candidates.length, 0);
+});
+
+test('droidspaces dock lease profile blocks runtime promotion flags without patch candidates', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-dock-lease-runtime-promotion-'));
+  await writeFile(join(root, 'dock-lease-command-plan.json'), JSON.stringify({
+    protocol_version: 1,
+    command: 'dock lease command-plan report',
+    host_only: true,
+    lane: 'dock_drm_lease_external',
+    profile_set_dock: 'BLOCKED_NOT_READY',
+    start_command_available: true,
+    runtime_allowlists_modified: true,
+    app_allowlists_modified: false,
+    classification: 'DOCK_LEASE_COMMAND_PLAN_HOST_ONLY',
+    mutation_allowed_by_policy: true,
+    plans: [
+      {
+        id: 'lease-discovery',
+        command_kind: 'dock_lease_preflight',
+        execute: true,
+        mutation_allowed_by_policy: true,
+        dynamic_discovery_required: true,
+        inputs: {
+          allow_manual_connector_id: true,
+        },
+      },
+    ],
+  }), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'nebula_dock_schema',
+  });
+
+  assertEvidence(report, 'dock_lease_runtime_warning', 'dock_lease.start_command_available=true');
+  assertEvidence(report, 'dock_lease_runtime_warning', 'dock_lease.runtime_allowlists_modified=true');
+  assertEvidence(report, 'dock_lease_runtime_warning', 'dock_lease.mutation_allowed_by_policy=true');
+  assertEvidence(report, 'dock_lease_guard', 'dock_lease.guard.RUNTIME_PROMOTION_BLOCKED=true');
+  assert(report.contradictions.some(item => item.category === 'dock_lease_guard'
+    && item.title === 'Dock lease runtime promotion blocked by host-only proof'
+    && item.likely_winner === 'HOST_ONLY_DOCK_SCHEMA_BOUNDARY'));
+  assert.equal(report.patch_candidates.length, 0);
+  assert.equal(validateScanReport(report).valid, true);
+});
+
 test('known good frontier profile treats per-lane runtime ids as volatile evidence', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-frontier-volatile-runtime-'));
   await writeFile(join(root, 'current.log'), [
