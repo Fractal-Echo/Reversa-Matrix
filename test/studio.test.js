@@ -8,6 +8,8 @@ import { dirname, join, resolve } from 'path';
 import { fileURLToPath } from 'url';
 import {
   buildModelLibrary,
+  buildSampleAmdLocalFitFixture,
+  buildSampleAmdProofFixture,
   buildPatchDossier,
   buildProjectFixture,
   exportGpuAdvisoryUiFixtures,
@@ -24,13 +26,15 @@ test('studio fixture exporter reads advisory dataset and writes model library', 
 
   const result = await exportGpuAdvisoryUiFixtures({ dataset, out });
 
-  assert.equal(result.records, 4);
+  assert.equal(result.records, 5);
   assert.equal(result.models, 2);
   assert(existsSync(join(out, 'sample-model-library.json')));
   assert(existsSync(join(out, 'sample-project.json')));
   assert(existsSync(join(out, 'sample-patch-dossier.json')));
   assert(existsSync(join(out, 'sample-gpu-proof.json')));
   assert(existsSync(join(out, 'sample-local-fit.json')));
+  assert(existsSync(join(out, 'sample-amd-proof.json')));
+  assert(existsSync(join(out, 'sample-amd-local-fit.json')));
 
   const library = JSON.parse(await readFile(join(out, 'sample-model-library.json'), 'utf8'));
   assert.equal(library.source_authority, false);
@@ -43,11 +47,15 @@ test('studio generated fixtures remain display artifacts, not source authority',
   const project = buildProjectFixture(records, sampleLabelSummary(), sampleSourceSummary());
   const library = buildModelLibrary(records, sampleLabelSummary());
   const dossier = buildPatchDossier(records);
+  const amdProof = buildSampleAmdProofFixture();
+  const amdLocalFit = buildSampleAmdLocalFitFixture(records);
 
   assert.equal(project.source_authority, false);
   assert.equal(project.generated_fixture, true);
   assert.equal(library.source_authority, false);
   assert.equal(dossier.source_authority, false);
+  assert.equal(amdProof.source_authority, false);
+  assert.equal(amdLocalFit.source_authority, false);
 });
 
 test('studio model library warns on unknown-license models', () => {
@@ -141,6 +149,39 @@ test('studio command exposes gpu-proof help', () => {
   assert.match(result.stdout, /local GPU proof/);
 });
 
+test('studio command exposes amd-proof help', () => {
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'studio',
+    'amd-proof',
+    '--help',
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /amd-proof/);
+  assert.match(result.stdout, /--windows-probe <path>/);
+  assert.match(result.stdout, /Radeon 890M/);
+});
+
+test('studio command exposes amd-join help', () => {
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'studio',
+    'amd-join',
+    '--help',
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /amd-join/);
+  assert.match(result.stdout, /amd-uma-proof\.json/);
+});
+
 async function readStudioSurfaceText() {
   const files = [
     join(repoRoot, 'reversa-studio', 'README.md'),
@@ -165,6 +206,7 @@ async function writeStudioDataset(dataset) {
       'MODEL_LICENSE_UNKNOWN\t1',
       'MODEL_HASH_MISSING\t1',
       'CUDA_CLAIM_UNVERIFIED\t1',
+      'DIRECTML_BACKEND_PRESENT\t1',
       'PROTON_COMPATIBLE_CANDIDATE\t1',
       'GAME_PATCH_UNSAFE\t1',
       'EXE_PATCH_HASH_REQUIRED\t1',
@@ -216,6 +258,15 @@ function sampleRecords() {
       recommended_action: 'Block patch proposal until hashes and rollback proof exist.',
     }),
     advisoryRecord({
+      record_id: 'directml-candidate',
+      source_kind: 'manual_rule',
+      source_project: 'reversa',
+      labels: ['DIRECTML_BACKEND_PRESENT'],
+      backend: ['directml'],
+      required_proof: ['directml_probe'],
+      recommended_action: 'Capture DirectML proof before package planning.',
+    }),
+    advisoryRecord({
       record_id: 'linux-candidate',
       source_kind: 'manual_rule',
       source_project: 'reversa',
@@ -232,6 +283,7 @@ function sampleLabelSummary() {
     { label: 'MODEL_LICENSE_UNKNOWN', count: '1' },
     { label: 'MODEL_HASH_MISSING', count: '1' },
     { label: 'CUDA_CLAIM_UNVERIFIED', count: '1' },
+    { label: 'DIRECTML_BACKEND_PRESENT', count: '1' },
     { label: 'PROTON_COMPATIBLE_CANDIDATE', count: '1' },
     { label: 'GAME_PATCH_UNSAFE', count: '1' },
     { label: 'EXE_PATCH_HASH_REQUIRED', count: '1' },

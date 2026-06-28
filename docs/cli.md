@@ -130,6 +130,14 @@ node ./bin/reversa.js studio export-fixtures \
 node ./bin/reversa.js studio gpu-proof \
   --python /path/to/venv/bin/python \
   --out /path/to/gpu-proof
+
+node ./bin/reversa.js studio amd-proof \
+  --out /path/to/amd-proof
+
+node ./bin/reversa.js studio amd-join \
+  --proof /path/to/amd-proof/amd-uma-proof.json \
+  --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
+  --out /path/to/amd-local-fit
 ```
 
 Exports small local JSON fixtures for the Reversa Studio prototype. Reversa
@@ -138,10 +146,11 @@ guarded workflow planning.
 
 The fixture command reads local JSONL/TSV files and writes display fixtures.
 The GPU proof command records passive Nvidia/CUDA/Python/backend evidence. The
-optional `--python` flag selects an existing interpreter, such as a controlled
-local PyTorch CUDA proof venv. The command itself does not install packages.
-Neither command acquires models, launches runtimes, patches binaries, connects
-to phones, or mutates projects.
+AMD proof command records Windows/WSL/DirectX/DirectML candidate evidence for
+Radeon 890M / UMA systems. The optional `--python` flag selects an existing
+interpreter, such as a controlled local PyTorch CUDA or DirectML proof venv. The
+commands themselves do not install packages. None of the Studio commands acquire
+models, launch runtimes, patch binaries, connect to phones, or mutate projects.
 
 ---
 

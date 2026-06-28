@@ -50,6 +50,33 @@ separate controlled setup may install official PyTorch CUDA wheels into
 `local/venvs/reversa-torch-cuda-proof` only, then pass that interpreter with
 `--python` for tensor-op proof.
 
+## AMD 890M / UMA Proof Capture
+
+Reversa Studio can also capture a separate AMD proof lane for HX 370 / Radeon
+890M / UMA systems. This lane records Windows GPU visibility, DirectX 12,
+DirectML candidate status, UMA memory evidence, Vulkan/OpenCL evidence when
+visible, and optional DirectML Python import or tiny-op proof from an existing
+interpreter.
+
+The AMD lane does not overwrite RTX 5090 proof. DirectML candidate status is
+useful host evidence, but it is not a model-ready or runtime-ready claim.
+
+Use:
+
+```bash
+node ./bin/reversa.js studio amd-proof \
+  --out /path/to/amd-proof
+```
+
+Then join it with the advisory dataset:
+
+```bash
+node ./bin/reversa.js studio amd-join \
+  --proof /path/to/amd-proof/amd-uma-proof.json \
+  --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
+  --out /path/to/amd-local-fit
+```
+
 ## What Version 01 Does Not Do
 
 - no game launch;

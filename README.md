@@ -217,6 +217,14 @@ node ./bin/reversa.js studio export-fixtures \
 
 node ./bin/reversa.js studio gpu-proof \
   --out /path/to/gpu-proof
+
+node ./bin/reversa.js studio amd-proof \
+  --out /path/to/amd-proof
+
+node ./bin/reversa.js studio amd-join \
+  --proof /path/to/amd-proof/amd-uma-proof.json \
+  --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
+  --out /path/to/amd-local-fit
 ```
 
 Reversa Studio is an early local dashboard prototype for evidence, model
@@ -225,8 +233,10 @@ and does not acquire models, launch runtimes, patch binaries, or mutate scanned
 projects.
 
 Reversa Studio can capture local GPU proof and use it to rank advisory
-candidates. The proof lane records Nvidia/CUDA/Python/backend evidence and keeps
-model acquisition disabled by default.
+candidates. The 5090 proof lane records Nvidia/CUDA/Python/backend evidence. The
+AMD proof lane records HX 370 / Radeon 890M / UMA, DirectX 12, DirectML
+candidate, Vulkan, and OpenCL evidence. Model acquisition stays disabled by
+default.
 
 Compare two trees:
 

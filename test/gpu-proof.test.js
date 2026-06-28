@@ -189,6 +189,8 @@ test('GPU proof scripts do not contain installer or network acquisition commands
   const scripts = [
     join(repoRoot, 'scripts', 'capture-local-gpu-proof.js'),
     join(repoRoot, 'scripts', 'join-gpu-proof-with-advisory.js'),
+    join(repoRoot, 'scripts', 'capture-amd-uma-proof.js'),
+    join(repoRoot, 'scripts', 'join-amd-proof-with-advisory.js'),
   ];
   const text = (await Promise.all(scripts.map(file => readFile(file, 'utf8')))).join('\n');
 

@@ -1,0 +1,127 @@
+{
+  "schema_version": 1,
+  "generated_fixture": true,
+  "source_authority": false,
+  "proof_classification": "AMD_PROOF_DIRECTML_CANDIDATE",
+  "summary": {
+    "totalRecords": 774,
+    "readyCandidates": 0,
+    "directmlPossible": 1,
+    "onnxDirectmlPossible": 0,
+    "vulkanNcnnPossible": 255,
+    "openclPossible": 0,
+    "hipRocmUnknown": 0,
+    "blockedByLicense": 32,
+    "deferredModelArtifacts": 48,
+    "runtimeNotReady": 349,
+    "linuxProtonUnproven": 2,
+    "windowsOnlyReview": 1
+  },
+  "actions": [
+    {
+      "label": "DirectML possible",
+      "status": "candidate",
+      "count": 1
+    },
+    {
+      "label": "ONNX DirectML possible",
+      "status": "candidate",
+      "count": 0
+    },
+    {
+      "label": "Vulkan NCNN possible",
+      "status": "candidate",
+      "count": 255
+    },
+    {
+      "label": "Artifact deferred",
+      "status": "review",
+      "count": 48
+    },
+    {
+      "label": "Runtime proof needed",
+      "status": "review",
+      "count": 349
+    }
+  ],
+  "records": [
+    {
+      "id": "gpuadvisory_02599791bb2a73ab",
+      "source_project": "flowframes",
+      "status": "candidate",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "action": "Capture Vulkan NCNN runtime proof before treating this as ready.",
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_02aa3108c3df0591",
+      "source_project": "flowframes",
+      "status": "candidate",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "action": "Capture Vulkan NCNN runtime proof before treating this as ready.",
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_0413504f35ef1c85",
+      "source_project": "huggingface",
+      "status": "review",
+      "backend": [],
+      "action": "Review license metadata before any package planning.",
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_041e8b363c9501bf",
+      "source_project": "huggingface",
+      "status": "review",
+      "backend": [
+        "cuda",
+        "pytorch"
+      ],
+      "action": "Review license metadata before any package planning.",
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_0445f9cf4316f132",
+      "source_project": "flowframes",
+      "status": "candidate",
+      "backend": [
+        "cuda",
+        "pytorch"
+      ],
+      "action": "Capture backend-specific AMD proof before ranking this higher.",
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_045535c4fb0921ec",
+      "source_project": "flowframes",
+      "status": "candidate",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "action": "Capture Vulkan NCNN runtime proof before treating this as ready.",
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_0538423e61f2bbe3",
+      "source_project": "flowframes",
+      "status": "candidate",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "action": "Capture Vulkan NCNN runtime proof before treating this as ready.",
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_05e41203e168acc2",
+      "source_project": "flowframes",
+      "status": "candidate",
+      "backend": [],
+      "action": "Capture backend-specific AMD proof before ranking this higher.",
+      "source_authority": false
+    }
+  ]
+}

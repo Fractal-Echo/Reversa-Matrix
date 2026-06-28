@@ -4,6 +4,8 @@ const state = {
   dossier: null,
   gpuProof: null,
   localFit: null,
+  amdProof: null,
+  amdLocalFit: null,
 };
 
 const textureSteps = [
@@ -19,18 +21,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireNavigation();
   wireAdvancedToggle();
   try {
-    const [project, library, dossier, gpuProof, localFit] = await Promise.all([
+    const [project, library, dossier, gpuProof, localFit, amdProof, amdLocalFit] = await Promise.all([
       loadJson('fixtures/sample-project.json'),
       loadJson('fixtures/sample-model-library.json'),
       loadJson('fixtures/sample-patch-dossier.json'),
       loadJson('fixtures/sample-gpu-proof.json'),
       loadJson('fixtures/sample-local-fit.json'),
+      loadJson('fixtures/sample-amd-proof.json'),
+      loadJson('fixtures/sample-amd-local-fit.json'),
     ]);
     state.project = project;
     state.library = library;
     state.dossier = dossier;
     state.gpuProof = gpuProof;
     state.localFit = localFit;
+    state.amdProof = amdProof;
+    state.amdLocalFit = amdLocalFit;
     renderAll();
   } catch (error) {
     renderError(error);
@@ -70,6 +76,7 @@ function renderAll() {
   renderProject();
   renderEvidence();
   renderGpuProof();
+  renderAmdProof();
   renderModels();
   renderTextureSteps();
   renderBackendMatrix();
@@ -103,6 +110,45 @@ function renderGpuProof() {
   document.getElementById('local-fit-actions').innerHTML = localFit.actions.map(action => (
     `<span class="label">${escapeHtml(action.label)} ${Number(action.count).toLocaleString()}</span>`
   )).join('');
+}
+
+function renderAmdProof() {
+  const proof = state.amdProof;
+  const localFit = state.amdLocalFit;
+  document.getElementById('amd-proof-cards').innerHTML = [
+    proofCard('AMD Proof', proof.classification, amdProofStatus(proof.classification)),
+    proofCard('Radeon 890M', proof.gpu.amd_visible ? proof.gpu.name : 'not detected', proof.gpu.amd_visible ? 'Safe' : 'Blocked'),
+    proofCard('64 GiB UMA', `${proof.memory.uma_status} / ${proof.memory.uma_shared_mib ?? 'unknown'} MiB shared`, proof.memory.uma_status === 'confirmed' ? 'Safe' : 'Review'),
+    proofCard('DirectML', proof.directml.tiny_op_pass ? 'tiny op passed' : (proof.directml.candidate ? 'candidate, not model-ready' : 'not proven'), proof.directml.tiny_op_pass ? 'Safe' : 'Candidate'),
+  ].join('');
+
+  document.getElementById('amd-backend-readiness').innerHTML = [
+    metric('ONNX DML', proof.directml.onnxruntime_directml_available ? 1 : 0),
+    metric('Vulkan', proof.vulkan.available ? 1 : 0),
+    metric('OpenCL', proof.opencl.available ? 1 : 0),
+    metric('ROCm/HIP', proof.rocm_hip.usable ? 1 : 0),
+    metric('Multi GPU', proof.gpu.nvidia_visible ? 1 : 0),
+    metric('WSL AMD', proof.wsl.amd_visible ? 1 : 0),
+  ].join('');
+
+  const summary = localFit.summary;
+  document.getElementById('amd-fit-summary').innerHTML = [
+    metric('Ready Candidates', summary.readyCandidates),
+    metric('DirectML Possible', summary.directmlPossible),
+    metric('ONNX DirectML', summary.onnxDirectmlPossible),
+    metric('Vulkan NCNN', summary.vulkanNcnnPossible),
+    metric('OpenCL Possible', summary.openclPossible),
+    metric('Runtime Needed', summary.runtimeNotReady),
+  ].join('');
+  document.getElementById('amd-fit-actions').innerHTML = localFit.actions.map(action => (
+    `<span class="label">${escapeHtml(action.label)} ${Number(action.count).toLocaleString()}</span>`
+  )).join('');
+}
+
+function amdProofStatus(classification) {
+  if (classification === 'AMD_PROOF_TORCH_DIRECTML_TINY_OP_PASS' || classification === 'AMD_PROOF_ONNXRUNTIME_DIRECTML_TINY_OP_PASS') return 'Safe';
+  if (classification === 'AMD_PROOF_UNAVAILABLE') return 'Blocked';
+  return 'Candidate';
 }
 
 function proofCard(title, description, status) {

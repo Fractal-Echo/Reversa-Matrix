@@ -8,6 +8,10 @@ import {
   classifyAdvisoryRecordForLocalGpu,
   summarizeJoinedRecords,
 } from './join-gpu-proof-with-advisory.js';
+import {
+  classifyAdvisoryRecordForAmdProof,
+  summarizeAmdJoinedRecords,
+} from './join-amd-proof-with-advisory.js';
 
 const __filename = fileURLToPath(import.meta.url);
 
@@ -26,12 +30,16 @@ export async function exportGpuAdvisoryUiFixtures(options) {
   const patchDossier = buildPatchDossier(records);
   const gpuProof = buildSampleGpuProofFixture();
   const localFit = buildSampleLocalFitFixture(records, labelSummary);
+  const amdProof = buildSampleAmdProofFixture();
+  const amdLocalFit = buildSampleAmdLocalFitFixture(records);
 
   await writeFile(join(outDir, 'sample-model-library.json'), JSON.stringify(modelLibrary, null, 2) + '\n', 'utf8');
   await writeFile(join(outDir, 'sample-project.json'), JSON.stringify(project, null, 2) + '\n', 'utf8');
   await writeFile(join(outDir, 'sample-patch-dossier.json'), JSON.stringify(patchDossier, null, 2) + '\n', 'utf8');
   await writeFile(join(outDir, 'sample-gpu-proof.json'), JSON.stringify(gpuProof, null, 2) + '\n', 'utf8');
   await writeFile(join(outDir, 'sample-local-fit.json'), JSON.stringify(localFit, null, 2) + '\n', 'utf8');
+  await writeFile(join(outDir, 'sample-amd-proof.json'), JSON.stringify(amdProof, null, 2) + '\n', 'utf8');
+  await writeFile(join(outDir, 'sample-amd-local-fit.json'), JSON.stringify(amdLocalFit, null, 2) + '\n', 'utf8');
 
   return {
     outDir,
@@ -40,6 +48,7 @@ export async function exportGpuAdvisoryUiFixtures(options) {
     patchChecks: patchDossier.checklist.length,
     hardBlocks: project.safetyGate.hardBlocks.length,
     localFitRecords: localFit.records.length,
+    amdLocalFitRecords: amdLocalFit.records.length,
   };
 }
 
@@ -242,6 +251,147 @@ export function buildSampleGpuProofFixture() {
     classification: 'GPU_PROOF_TENSOR_OP_PASS',
     safe_for_model_download: false,
     notes: ['Sample fixture. A tiny PyTorch CUDA tensor op passed; model artifacts and runtime pipelines remain gated.'],
+  };
+}
+
+export function buildSampleAmdProofFixture() {
+  return {
+    schema_version: 1,
+    generated_fixture: true,
+    source_authority: false,
+    timestamp: 'fixture',
+    host: 'sample-host',
+    cpu: {
+      name: 'AMD Ryzen AI 9 HX 370 w/ Radeon 890M',
+      cores: 12,
+      threads: 24,
+    },
+    memory: {
+      system_total_mib: 65536,
+      visible_system_mib: 48761,
+      uma_shared_mib: 24380,
+      uma_status: 'confirmed',
+    },
+    gpu: {
+      amd_visible: true,
+      name: 'AMD Radeon(TM) 890M Graphics',
+      driver_version: '32.0.31019.2002',
+      directx12_visible: true,
+      adapter_index: 1,
+      nvidia_visible: true,
+      adapters: [
+        { adapter_index: 0, name: 'NVIDIA GeForce RTX 5090', driver_version: '32.0.15.9597', dedicated_memory_mib: 32187, shared_memory_mib: 24380 },
+        { adapter_index: 1, name: 'AMD Radeon(TM) 890M Graphics', driver_version: '32.0.31019.2002', dedicated_memory_mib: 16209, shared_memory_mib: 24380 },
+      ],
+    },
+    directml: {
+      candidate: true,
+      torch_directml_available: false,
+      onnxruntime_directml_available: false,
+      tiny_op_pass: false,
+      torch_directml_tiny_op_pass: false,
+      onnxruntime_directml_tiny_op_pass: false,
+      available_providers: [],
+    },
+    vulkan: {
+      available: true,
+      device_name: 'AMD Vulkan driver component present',
+    },
+    opencl: {
+      available: true,
+      device_name: 'AMD OpenCL driver component present',
+    },
+    rocm_hip: {
+      hip_sdk_present: false,
+      rocminfo_present: false,
+      usable: false,
+    },
+    windows: {
+      present: true,
+      build: '26200',
+      caption: 'Microsoft Windows 11 Home',
+      dxdiag_present: true,
+      directx_version: 'DirectX 12',
+      multi_gpu_system: true,
+    },
+    wsl: {
+      dxg_present: true,
+      amd_visible: false,
+      nvidia_visible: true,
+    },
+    python: {
+      available: false,
+      requested_executable: 'unknown',
+      executable: 'unknown',
+      version: 'unknown',
+      torch_directml_available: false,
+      torch_directml_device: null,
+      torch_directml_tiny_op_pass: false,
+      onnxruntime_available: false,
+      onnxruntime_directml_available: false,
+      onnxruntime_providers: [],
+      onnxruntime_directml_tiny_op_pass: false,
+      error: null,
+    },
+    classification: 'AMD_PROOF_DIRECTML_CANDIDATE',
+    classifications: [
+      'AMD_PROOF_WINDOWS_GPU_VISIBLE',
+      'AMD_PROOF_DIRECTX12_VISIBLE',
+      'AMD_PROOF_DIRECTML_CANDIDATE',
+      'AMD_PROOF_VULKAN_VISIBLE',
+      'AMD_PROOF_OPENCL_VISIBLE',
+      'AMD_PROOF_UMA_CONFIRMED',
+    ],
+    safe_for_model_download: false,
+    notes: [
+      'Radeon 890M visibility is separated from the RTX 5090 proof lane.',
+      'DirectML is candidate evidence until an import or tiny-op proof exists.',
+    ],
+  };
+}
+
+export function buildSampleAmdLocalFitFixture(records) {
+  const proof = buildSampleAmdProofFixture();
+  const joined = records.map(record => classifyAdvisoryRecordForAmdProof(record, proof));
+  const summary = summarizeAmdJoinedRecords(joined);
+
+  return {
+    schema_version: 1,
+    generated_fixture: true,
+    source_authority: false,
+    proof_classification: proof.classification,
+    summary: {
+      totalRecords: summary.totalRecords,
+      readyCandidates: summary.readyCandidates,
+      directmlPossible: summary.directmlPossible,
+      onnxDirectmlPossible: summary.onnxDirectmlPossible,
+      vulkanNcnnPossible: summary.vulkanNcnnPossible,
+      openclPossible: summary.openclPossible,
+      hipRocmUnknown: summary.hipRocmUnknown,
+      blockedByLicense: summary.blockedByLicense,
+      deferredModelArtifacts: summary.deferredModelArtifacts,
+      runtimeNotReady: summary.runtimeNotReady,
+      linuxProtonUnproven: summary.linuxProtonUnproven,
+      windowsOnlyReview: summary.windowsOnlyReview,
+    },
+    actions: [
+      { label: 'DirectML possible', status: 'candidate', count: summary.directmlPossible },
+      { label: 'ONNX DirectML possible', status: 'candidate', count: summary.onnxDirectmlPossible },
+      { label: 'Vulkan NCNN possible', status: 'candidate', count: summary.vulkanNcnnPossible },
+      { label: 'Artifact deferred', status: 'review', count: summary.deferredModelArtifacts },
+      { label: 'Runtime proof needed', status: 'review', count: summary.runtimeNotReady },
+    ],
+    records: joined
+      .filter(row => !row.classifications.includes('NOT_AMD_RELEVANT'))
+      .slice(0, 8)
+      .map(row => ({
+        id: row.original_record_id,
+        source_project: row.source_project,
+        status: row.classifications.includes('AMD_MODEL_LICENSE_BLOCKED') ? 'review' : 'candidate',
+        backend: row.backend,
+        action: sanitizeUiText(row.recommended_action),
+        source_authority: false,
+      })),
   };
 }
 
