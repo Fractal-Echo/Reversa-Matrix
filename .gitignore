@@ -9,6 +9,7 @@ site/
 .tmp-mkdocs-site/
 specs/
 local/
+logs/
 private/
 PRIVATE_NOTES.md
 LOCAL_NOTES.md

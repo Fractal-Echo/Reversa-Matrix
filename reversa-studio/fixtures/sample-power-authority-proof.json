@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "stage": "STAGE_02_POWER_AUTHORITY",
+  "timestamp": "fixture",
+  "source_power_proof_path": "fixture/power-tdp-proof.json",
+  "source_authority": false,
+  "generated_artifact": true,
+  "read_only": true,
+  "os_layer": {
+    "detected": "wsl",
+    "kernel": "Linux microsoft-standard-WSL2",
+    "machine": "x86_64",
+    "observer_only": true,
+    "source": "power-tdp-proof"
+  },
+  "privilege_state": {
+    "user": "fixture",
+    "uid": 1000,
+    "is_root": false,
+    "is_admin": false,
+    "has_mutation_privilege": false,
+    "source": "fixture",
+    "state": "user"
+  },
+  "backend_availability": [
+    {
+      "backend": "ryzenadj",
+      "status": "present",
+      "observable_only": true,
+      "mutation_capable_in_principle": true,
+      "mutation_allowed_by_policy": false,
+      "denial_reason": "WSL_OBSERVER_ONLY"
+    },
+    {
+      "backend": "hhd",
+      "status": "missing",
+      "observable_only": true,
+      "mutation_capable_in_principle": true,
+      "mutation_allowed_by_policy": false,
+      "denial_reason": "BACKEND_NOT_PRESENT"
+    },
+    {
+      "backend": "powercfg",
+      "status": "present",
+      "observable_only": true,
+      "mutation_capable_in_principle": true,
+      "mutation_allowed_by_policy": false,
+      "denial_reason": "WSL_OBSERVER_ONLY"
+    }
+  ],
+  "authority": {
+    "detected_authority_layer": "WSL_OBSERVER",
+    "observer_layer": "WSL_OBSERVER",
+    "backend_owner": "RYZENADJ_DIRECT_AUTHORITY",
+    "mutation_status": "denied_by_policy",
+    "mutation_capable_in_principle": true,
+    "mutation_allowed_by_policy": false,
+    "denial_reason": "STAGE_02_READ_ONLY",
+    "denial_reasons": [
+      "STAGE_02_READ_ONLY",
+      "WSL_OBSERVER_ONLY",
+      "PRIVILEGE_MISSING",
+      "RUNTIME_PROOF_MISSING",
+      "APPROVAL_REQUIRED"
+    ],
+    "next_required_proof": "Rerun authority proof from Windows host or Linux bare metal outside WSL.",
+    "conflicting_backends": []
+  },
+  "proof": {
+    "tdp_write_performed": false,
+    "runtime_test_performed": false,
+    "game_launch_performed": false,
+    "phone_or_nebula_action_performed": false
+  },
+  "classification": "POWER_AUTHORITY_WSL_OBSERVER_ONLY",
+  "notes": [
+    "Stage 02 is read-only authority resolution; it performs no TDP writes, service changes, game launches, phone actions, or runtime mutations.",
+    "WSL is an observer only."
+  ]
+}

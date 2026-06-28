@@ -10,6 +10,7 @@ const state = {
   powerTdp: null,
   powerProof: null,
   powerPolicy: null,
+  powerAuthority: null,
 };
 
 const textureSteps = [
@@ -25,7 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireNavigation();
   wireAdvancedToggle();
   try {
-    const [project, library, dossier, gpuProof, localFit, amdProof, amdLocalFit, backendMatrix, powerTdp, powerProof, powerPolicy] = await Promise.all([
+    const [project, library, dossier, gpuProof, localFit, amdProof, amdLocalFit, backendMatrix, powerTdp, powerProof, powerPolicy, powerAuthority] = await Promise.all([
       loadJson('fixtures/sample-project.json'),
       loadJson('fixtures/sample-model-library.json'),
       loadJson('fixtures/sample-patch-dossier.json'),
@@ -37,6 +38,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       loadJson('fixtures/sample-power-tdp.json'),
       loadJson('fixtures/sample-power-tdp-proof.json'),
       loadJson('fixtures/sample-power-policy-matrix.json'),
+      loadJson('fixtures/sample-power-authority-proof.json'),
     ]);
     state.project = project;
     state.library = library;
@@ -49,6 +51,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     state.powerTdp = powerTdp;
     state.powerProof = powerProof;
     state.powerPolicy = powerPolicy;
+    state.powerAuthority = powerAuthority;
     renderAll();
   } catch (error) {
     renderError(error);
@@ -168,6 +171,7 @@ function renderPowerTdp() {
   const lane = state.powerTdp;
   const proof = state.powerProof;
   const policy = state.powerPolicy;
+  const authority = state.powerAuthority;
   const summary = lane.summary;
   document.getElementById('power-tdp-summary').innerHTML = [
     metric('Backends', summary.backendsDetected),
@@ -187,6 +191,15 @@ function renderPowerTdp() {
   document.getElementById('power-backend-discovery').innerHTML = Object.entries(proof.tdp_backends).map(([backend, status]) => (
     proofCard(backend, status, status === 'present' ? 'Review' : 'Candidate')
   )).join('');
+
+  document.getElementById('power-authority-proof').innerHTML = [
+    proofCard('Detected Authority Layer', authority.authority.detected_authority_layer, authority.os_layer.observer_only ? 'Review' : 'Candidate'),
+    proofCard('Observer Layer', authority.authority.observer_layer, authority.authority.observer_layer === 'none' ? 'Safe' : 'Review'),
+    proofCard('Backend Owner', authority.authority.backend_owner, authority.authority.backend_owner === 'none' ? 'Blocked' : 'Candidate'),
+    proofCard('Mutation Status', authority.authority.mutation_status, authority.authority.mutation_allowed_by_policy ? 'Safe' : 'Blocked'),
+    proofCard('Denial Reason', authority.authority.denial_reason, 'Blocked'),
+    proofCard('Next Required Proof', authority.authority.next_required_proof, 'Review'),
+  ].join('');
 
   document.getElementById('power-policy-matrix').innerHTML = [
     metric('Game Profile', policy.summary.game_profile_candidates),

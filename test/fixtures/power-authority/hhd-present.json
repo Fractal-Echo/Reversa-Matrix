@@ -1,0 +1,31 @@
+{
+  "name": "hhd_present",
+  "power_proof": {
+    "platform": {
+      "os": "linux",
+      "kernel": "6.12.0-handheld",
+      "machine": "x86_64",
+      "is_wsl": false
+    },
+    "tdp_backends": {
+      "ryzenadj": "missing",
+      "hhd": "present",
+      "acpi_call": "missing",
+      "smu": "missing",
+      "powerprofilesctl": "present",
+      "powercfg": "missing"
+    },
+    "proof": {
+      "tdp_write_performed": false,
+      "runtime_test_performed": false
+    }
+  },
+  "privilege": {
+    "user": "root",
+    "uid": 0,
+    "is_root": true,
+    "is_admin": false,
+    "has_mutation_privilege": true,
+    "state": "root"
+  }
+}

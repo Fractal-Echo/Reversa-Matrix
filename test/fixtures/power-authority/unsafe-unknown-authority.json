@@ -1,0 +1,30 @@
+{
+  "name": "unsafe_unknown_authority",
+  "power_proof": {
+    "platform": {
+      "os": "unknown",
+      "kernel": "unknown",
+      "machine": "unknown",
+      "is_wsl": false
+    },
+    "tdp_backends": {
+      "ryzenadj": "present",
+      "hhd": "missing",
+      "acpi_call": "missing",
+      "smu": "missing",
+      "powerprofilesctl": "missing",
+      "powercfg": "missing"
+    },
+    "proof": {
+      "tdp_write_performed": false,
+      "runtime_test_performed": false
+    }
+  },
+  "privilege": {
+    "user": "unknown",
+    "is_root": false,
+    "is_admin": null,
+    "has_mutation_privilege": false,
+    "state": "unknown"
+  }
+}

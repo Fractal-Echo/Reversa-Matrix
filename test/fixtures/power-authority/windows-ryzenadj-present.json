@@ -1,0 +1,30 @@
+{
+  "name": "windows_host_ryzenadj_present",
+  "power_proof": {
+    "platform": {
+      "os": "windows",
+      "kernel": "Windows 11",
+      "machine": "x64",
+      "is_wsl": false
+    },
+    "tdp_backends": {
+      "ryzenadj": "present",
+      "hhd": "missing",
+      "acpi_call": "missing",
+      "smu": "missing",
+      "powerprofilesctl": "missing",
+      "powercfg": "present"
+    },
+    "proof": {
+      "tdp_write_performed": false,
+      "runtime_test_performed": false
+    }
+  },
+  "privilege": {
+    "user": "fixture-admin",
+    "is_root": false,
+    "is_admin": true,
+    "has_mutation_privilege": true,
+    "state": "admin"
+  }
+}

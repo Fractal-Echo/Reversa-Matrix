@@ -205,6 +205,7 @@ test('scanner skips generated Reversa scan collections without skipping runtime 
   await mkdir(join(root, 'reversa-archaeology-frontier'), { recursive: true });
   await mkdir(join(root, 'reversa-known-good-raw-proof'), { recursive: true });
   await mkdir(join(root, 'reversa-runtime'), { recursive: true });
+  await mkdir(join(root, 'logs', '2026-06-28-run', 'BO3-Transformed', 'game_modding', 'agent_handoff'), { recursive: true });
   await writeFile(join(root, 'reversa_matrix_old', 'report.json'), '{"tool":"reversa"}\n', 'utf8');
   await writeFile(join(root, 'reversa_matrix_old', 'agent_handoff', 'evidence.jsonl'), 'MODEL=stale\n', 'utf8');
   await writeFile(join(root, 'reversa_scan_adapter', 'reversa_scan_core', 'live.env'), 'MODEL=adapter\n', 'utf8');
@@ -212,6 +213,9 @@ test('scanner skips generated Reversa scan collections without skipping runtime 
   await writeFile(join(root, 'reversa-archaeology-frontier', 'summary.md'), 'MODEL=archaeology-loop\n', 'utf8');
   await writeFile(join(root, 'reversa-known-good-raw-proof', 'evidence.jsonl'), 'MODEL=raw-proof-loop\n', 'utf8');
   await writeFile(join(root, 'reversa-runtime', 'runtime.env'), 'MODEL=runtime\n', 'utf8');
+  await writeFile(join(root, 'logs', '2026-06-28-run', 'BO3-Transformed', 'game_modding', 'report.json'), '{"tool":"reversa"}\n', 'utf8');
+  await writeFile(join(root, 'logs', '2026-06-28-run', 'BO3-Transformed', 'game_modding', 'evidence.jsonl'), 'MODEL=nested-log-loop\n', 'utf8');
+  await writeFile(join(root, 'logs', '2026-06-28-run', 'BO3-Transformed', 'game_modding', 'agent_handoff', 'summary.md'), 'MODEL=nested-handoff-loop\n', 'utf8');
   await writeFile(join(root, 'live.env'), 'MODEL=live\n', 'utf8');
 
   const report = await scanProject({
@@ -223,6 +227,7 @@ test('scanner skips generated Reversa scan collections without skipping runtime 
   assert(report.tree_inventory.skipped_files.some(item => item.path === 'reversa_matrix_old' && item.reason === 'generated_scan_output_directory'));
   assert(report.tree_inventory.skipped_files.some(item => item.path === 'reversa-archaeology-frontier' && item.reason === 'generated_scan_output_directory'));
   assert(report.tree_inventory.skipped_files.some(item => item.path === 'reversa-known-good-raw-proof' && item.reason === 'generated_scan_output_directory'));
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'logs/2026-06-28-run/BO3-Transformed/game_modding' && item.reason === 'generated_scan_output_directory'));
   assert(!report.tree_inventory.skipped_files.some(item => item.path === 'reversa_scan_adapter' && item.reason === 'generated_scan_output_directory'));
   assertEvidence(report, 'provider_routing_surface', 'MODEL=live');
   assertEvidence(report, 'provider_routing_surface', 'MODEL=adapter');
@@ -230,6 +235,8 @@ test('scanner skips generated Reversa scan collections without skipping runtime 
   assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=stale');
   assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=archaeology-loop');
   assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=raw-proof-loop');
+  assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=nested-log-loop');
+  assertNoEvidence(report, ['provider_routing_surface'], 'MODEL=nested-handoff-loop');
 });
 
 test('scanner honors git ignored paths unless includeIgnored is set', async () => {
@@ -306,15 +313,25 @@ test('scanner scopes fixtures and docs examples out of repo-root contradiction g
 
 test('scanner keeps output filenames and prose compounds out of missing-path checks', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-output-paths-'));
+  await mkdir(join(root, 'recovery'), { recursive: true });
+  await mkdir(join(root, 'recovery', 'device', 'docs'), { recursive: true });
+  await writeFile(join(root, 'recovery', 'README.md'), '# Recovery notes\n', 'utf8');
+  await writeFile(join(root, 'recovery', 'device', 'docs', 'notes.md'), [
+    'OrangeFox carries vendor/odm runtime services.',
+    'The release artifact mentions product/slot/size evidence.',
+  ].join('\n'), 'utf8');
   await writeFile(join(root, 'agent.js'), [
     "commandResults.push(await runCapture(options, 'device/getprop.txt', ['adb']));",
     'The kernel/userland boundary matters.',
     'A proprietary/commercial-term source is reference-only.',
     'Keep risky root/module work out of the first app cut.',
+    'Root and child compositor notes use root/child as prose.',
     'RedMagic hardware/status references remain future hook/control lanes.',
     'TensorRT engines are hardware/runtime sensitive.',
     'The setup help prints the list of packages/modules required.',
+    'Run a profile that matches this project root, or point the recovery profile at an Android recovery/device tree checkout.',
     'Recovery and device-tree context lives in recovery/device-tree notes.',
+    'Read [recovery notes](recovery/README.md).',
     'vendor/lib64/libmissing_keymint.so',
   ].join('\n'), 'utf8');
 
@@ -327,11 +344,136 @@ test('scanner keeps output filenames and prose compounds out of missing-path che
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:kernel/userland');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:proprietary/commercial-term');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:root/module');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:root/child');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/status');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/runtime');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:packages/modules');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:recovery/device');
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:recovery/device-tree');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:recovery/README.md');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:recovery/README.md).');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:vendor/odm');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:product/slot/size');
   assertEvidence(report, 'invalid_paths', 'referenced_path_missing:vendor/lib64/libmissing_keymint.so');
+});
+
+test('scanner applies explicit project path policy for release-hub recovery docks', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-release-hub-policy-'));
+  await mkdir(join(root, 'recovery', 'root'), { recursive: true });
+  await writeFile(join(root, 'reversa.project.json'), JSON.stringify({
+    schema_version: 1,
+    project_kind: 'release_hub',
+    path_policies: [
+      {
+        id: 'orangefox_checkout',
+        classification: 'external_checkout_path',
+        paths: [
+          'device/nubia/NX809J',
+          'vendor/twrp/config/common.mk',
+        ],
+        reason: 'Hydrated only inside the OrangeFox source checkout.',
+      },
+      {
+        id: 'private_hydration',
+        classification: 'local_hydration_required',
+        paths: [
+          'device/nubia/NX809J/keys/',
+          'device/nubia/NX809J/prebuilt/',
+        ],
+        reason: 'Private keys and prebuilts are intentionally excluded from the public dock.',
+      },
+      {
+        id: 'recovery_runtime_root',
+        classification: 'recovery_root_runtime_path',
+        paths: [
+          '/vendor/bin/',
+          'vendor/bin/',
+        ],
+        reason: 'Runtime recovery-root service path, not a host source checkout path.',
+      },
+    ],
+  }, null, 2), 'utf8');
+  await writeFile(join(root, 'BoardConfig.mk'), [
+    'DEVICE_PATH := device/nubia/NX809J',
+    'BOARD_AVB_RECOVERY_KEY_PATH := device/nubia/NX809J/keys/avb-test/test.pem',
+    'TARGET_PREBUILT_KERNEL := device/nubia/NX809J/prebuilt/kernel',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'device.mk'), [
+    '$(call inherit-product, vendor/twrp/config/common.mk)',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'recovery', 'root', 'init.recovery.wifi.rc'), [
+    'service vendor.qrtr-ns /vendor/bin/qrtr-ns -f',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'compare.sh'), [
+    'diff -ru stock/vendor/bin orangefox/vendor/bin',
+    'echo vendor/bin',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'android_recovery',
+  });
+
+  assertEvidence(report, 'project_path_policy', 'project_policy_loaded:release_hub');
+  assertEvidence(report, 'project_path_policy', 'path_policy:external_checkout_path:device/nubia/NX809J');
+  assertEvidence(report, 'project_path_policy', 'path_policy:local_hydration_required:device/nubia/NX809J/keys/avb-test/test.pem');
+  assertEvidence(report, 'project_path_policy', 'path_policy:recovery_root_runtime_path:/vendor/bin/qrtr-ns');
+  assertEvidence(report, 'project_path_policy', 'path_policy:recovery_root_runtime_path:vendor/bin');
+  assertNoEvidence(report, ['invalid_paths', 'missing_files'], 'referenced_path_missing:device/nubia/NX809J');
+  assertNoEvidence(report, ['invalid_paths', 'missing_files'], 'referenced_path_missing:device/nubia/NX809J/keys/avb-test/test.pem');
+  assertNoEvidence(report, ['invalid_paths', 'missing_files'], 'referenced_path_missing:/vendor/bin/qrtr-ns');
+  assertNoEvidence(report, ['invalid_paths', 'missing_files'], 'referenced_path_missing:vendor/bin');
+});
+
+test('scanner keeps Android product, board, bootloader, and OTA identity scopes separate', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-identity-scopes-'));
+  await writeFile(join(root, 'BoardConfig.mk'), [
+    'PRODUCT_PLATFORM := canoe',
+    'TARGET_BOARD_PLATFORM := sm8850',
+    'TARGET_BOOTLOADER_BOARD_NAME := canoe',
+    'PRODUCT_DEVICE := NX809J',
+    'TARGET_OTA_ASSERT_DEVICE := NX809J',
+    'ro.board.platform=canoe',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'android_recovery',
+  });
+
+  assertEvidence(report, 'soc_platform_identity', 'TARGET_BOARD_PLATFORM=sm8850');
+  assertEvidence(report, 'device_identity', 'TARGET_BOOTLOADER_BOARD_NAME=canoe');
+  assertEvidence(report, 'device_identity', 'PRODUCT_DEVICE=NX809J');
+  assert(!report.contradictions.some(item => item.title === 'Conflicting soc_platform claims across variables'));
+  assert(!report.contradictions.some(item => item.title === 'Conflicting device claims across variables'));
+});
+
+test('scanner ignores legacy target names in explicit warning and provenance docs', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-legacy-warning-scope-'));
+  await writeFile(join(root, 'README.md'), [
+    'Do not flash RM10 builds on RM11 Pro; they are not file-compatible.',
+    'RM10 appears here as upstream ancestry and comparison only.',
+    'Do not mix files across RM11 Pro and RM10 devices.',
+    'OrangeFox RM10 Pro to RM11 Pro port evidence lives in tracked notes.',
+    'This lane is not using the old RM10 Pro SoC identity.',
+    'RM11 / RM10 style boot chains are comparison-only context, not permission to mix device files.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'BoardConfig.mk'), [
+    'TARGET_DEVICE := RM10Pro',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'android_recovery',
+  });
+
+  assertNoExtractedText(report, 'Do not flash RM10');
+  assertNoExtractedText(report, 'upstream ancestry and comparison only');
+  assertNoExtractedText(report, 'Do not mix files across RM11 Pro and RM10 devices');
+  assertNoExtractedText(report, 'RM10 Pro to RM11 Pro port evidence');
+  assertNoExtractedText(report, 'not using the old RM10 Pro');
+  assertNoExtractedText(report, 'comparison-only context');
+  assertEvidence(report, 'likely_copy_paste_leftovers', 'risky_leftover:RM10');
 });
 
 test('scanner does not derive missing-path contradictions from repo test assertions', async () => {
@@ -348,6 +490,81 @@ test('scanner does not derive missing-path contradictions from repo test asserti
   });
 
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:vendor/lib64/libmissing_keymint.so');
+});
+
+test('scanner keeps vendored dependency placeholders out of patch candidates', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-vendored-placeholders-'));
+  await mkdir(join(root, 'Pkgs', 'rife-ncnn-vs', 'Lib', 'site-packages', 'pip', '_internal'), { recursive: true });
+  await mkdir(join(root, 'Pkgs', 'dain-ncnn'), { recursive: true });
+  await mkdir(join(root, 'include', 'imgui'), { recursive: true });
+  await mkdir(join(root, '.agents', 'skills', 'reversa-reviewer', 'references'), { recursive: true });
+  await mkdir(join(root, 'thirdparty', 'toml11', 'docs'), { recursive: true });
+  await mkdir(join(root, 'src'), { recursive: true });
+  await writeFile(join(root, '.gitignore'), '# FAKE - F# Make\n', 'utf8');
+  await writeFile(join(root, 'Pkgs', 'rife-ncnn-vs', 'Lib', 'site-packages', 'pip', '_internal', 'build_env.py'), [
+    '# TODO: upstream pip compatibility note',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'Pkgs', 'dain-ncnn', 'README.md'), [
+    '### TODO',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'include', 'imgui', 'imgui.cpp'), '// TODO: upstream docking note\n', 'utf8');
+  await writeFile(join(root, '.agents', 'skills', 'reversa-reviewer', 'references', 'confidence-rules.md'), '- TODO: reviewer reference note\n', 'utf8');
+  await writeFile(join(root, 'thirdparty', 'toml11', 'docs', 'config.toml'), '# TODO: upstream parser docs\n', 'utf8');
+  await writeFile(join(root, 'src', 'owned.js'), '// TODO: replace copied runtime assumption with verified evidence\n', 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'gpu_upscale_framegen',
+  });
+
+  assertNoEvidence(report, ['placeholders'], 'placeholder_marker:FAKE');
+  assertEvidence(report, 'todo_fixme_stub_markers', 'placeholder_marker:TODO');
+  assert(report.patch_candidates.some(item => item.target_file === 'src/owned.js'));
+  assert(!report.patch_candidates.some(item => item.target_file.startsWith('Pkgs/')));
+  assert(!report.patch_candidates.some(item => item.target_file.includes('site-packages')));
+  assert(!report.patch_candidates.some(item => item.target_file.startsWith('include/imgui/')));
+  assert(!report.patch_candidates.some(item => item.target_file.startsWith('.agents/')));
+  assert(!report.patch_candidates.some(item => item.target_file.startsWith('thirdparty/')));
+});
+
+test('scanner scopes submodule paths, wrapper locals, and command-line definitions out of contradictions', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-assignment-scope-'));
+  await mkdir(join(root, 'LSFG-Android-Application'), { recursive: true });
+  await mkdir(join(root, '.github', 'workflows'), { recursive: true });
+
+  await writeFile(join(root, '.gitmodules'), [
+    '[submodule "lsfg-vk-android"]',
+    '\tpath = lsfg-vk-android',
+    '\turl = https://example.invalid/lsfg-vk-android.git',
+    '[submodule "app"]',
+    '\tpath = LSFG-Android-Application',
+    '\turl = https://example.invalid/app.git',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'LSFG-Android-Application', 'gradlew'), [
+    'APP_HOME=$( cd "${APP_HOME:-./}" && pwd -P ) || exit',
+    'APP_HOME=$( cd "$APP_HOME/.." && pwd -P ) || exit',
+    'MAX_FD=maximum',
+    'MAX_FD=$( ulimit -H -n )',
+    'CLASSPATH=$APP_HOME/gradle/wrapper/gradle-wrapper.jar',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, '.github', 'workflows', 'build.yml'), [
+    'run: cmake -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_SHARED_LIBS=ON',
+    'run: cmake -B build-debug -DCMAKE_BUILD_TYPE=Debug -DBUILD_SHARED_LIBS=OFF --style=file',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'gpu_upscale_framegen',
+  });
+
+  const contradictionText = report.contradictions.map(item => item.title).join('\n');
+  assert.doesNotMatch(contradictionText, /\bpath\b/);
+  assert.doesNotMatch(contradictionText, /\bAPP_HOME\b/);
+  assert.doesNotMatch(contradictionText, /\bMAX_FD\b/);
+  assert.doesNotMatch(contradictionText, /\bCLASSPATH\b/);
+  assert.doesNotMatch(contradictionText, /-DCMAKE_BUILD_TYPE/);
+  assert.doesNotMatch(contradictionText, /-DBUILD_SHARED_LIBS/);
+  assert.doesNotMatch(contradictionText, /--style/);
 });
 
 test('scanner generates known-good mismatches, contradictions, and patch candidates', async () => {
@@ -577,6 +794,35 @@ test('known good frontier profile promotes raw counts above status-only', async 
   assertEvidence(report, 'known_good_frontier', 'known_good_frontier.raw_metric.vkGetMemoryFdKHR_failures=0');
   assertNoEvidence(report, ['known_good_frontier_guard'], 'STATUS_PROOF_REQUIRES_RAW_LOG_RECOVERY');
   assert(!report.contradictions.some(item => item.title === 'STATUS_PROOF_REQUIRES_RAW_LOG_RECOVERY'));
+});
+
+test('known good frontier profile treats per-lane runtime ids as volatile evidence', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-frontier-volatile-runtime-'));
+  await writeFile(join(root, 'current.log'), [
+    'RUN_ID=current',
+    'LANE=current',
+    'DEVICE_RUN_DIR=/tmp/nebula-current',
+    'XAUTHORITY=/tmp/xauth-current',
+    'nebula.gamescope.GAMESCOPE_PID=100',
+    'nebula.xwayland.XWAYLAND_EXIT=135',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'gslocal.log'), [
+    'RUN_ID=gslocal',
+    'LANE=gslocal-first',
+    'DEVICE_RUN_DIR=/tmp/nebula-gslocal',
+    'XAUTHORITY=/tmp/xauth-gslocal',
+    'nebula.gamescope.GAMESCOPE_PID=200',
+    'nebula.xwayland.XWAYLAND_EXIT=0',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'known_good_frontier',
+  });
+
+  assert(report.evidence.some(item => item.normalized_claim === 'RUN_ID=current'));
+  assert(report.evidence.some(item => item.normalized_claim === 'RUN_ID=gslocal'));
+  assert(!report.contradictions.some(item => /RUN_ID|LANE|DEVICE_RUN_DIR|XAUTHORITY|GAMESCOPE_PID|XWAYLAND_EXIT/.test(item.title)));
 });
 
 test('child libpath profile does not mix Nebula runtime evidence across lanes', async () => {
@@ -869,6 +1115,55 @@ test('gpu upscale framegen profile treats generated scans and training artifacts
 
   const validation = validateScanReport(report);
   assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('scanner expands GameNative style runtime JSON into graphics and mobile Linux evidence', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-gamenative-json-'));
+  await writeFile(join(root, 'Gamenative_steam_Blender_config.json'), JSON.stringify({
+    id: 'STEAM_365670',
+    screenSize: '1280x720',
+    envVars: 'WRAPPER_MAX_IMAGE_COUNT=0 ZINK_DESCRIPTORS=lazy ZINK_DEBUG=compact MESA_SHADER_CACHE_MAX_SIZE=512MB mesa_glthread=true WINEESYNC=1 MESA_VK_WSI_PRESENT_MODE=mailbox TU_DEBUG=noconform MESA_GL_VERSION_OVERRIDE=4.6',
+    cpuList: '0,1,2,3,4,5,6,7',
+    cpuListWoW64: '0,1,2,3,4,5,6,7',
+    graphicsDriver: 'Wrapper',
+    graphicsDriverConfig: 'vulkanVersion=1.3,version=v805,maxDeviceMemory=4096,presentMode=mailbox,adrenotoolsTurnip=0',
+    rendererPresentMode: 'fifo',
+    dxwrapper: 'dxvk',
+    dxwrapperConfig: 'version=2.4.1-gplasync,async=1,vkd3dVersion=2.14.1,videoMemorySize=2048,strict_shader_math=1,renderer=gl',
+    audioDriver: 'alsa',
+    emulator: 'FEXCore',
+    box64Version: '0.4.2',
+    fexcoreVersion: '2605',
+    wineVersion: 'proton-11.0-1-arm64ec-1',
+    executablePath: 'blender.exe',
+    steamType: 'normal',
+    extraData: {
+      lsfgEnabled: 'false',
+      fpsLimiterEnabled: false,
+      fpsLimiterTarget: 60,
+    },
+  }), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'gpu_upscale_framegen',
+  });
+
+  assertEvidence(report, 'game_runtime_identity', 'id=STEAM_365670');
+  assertEvidence(report, 'game_runtime_identity', 'executablePath=blender.exe');
+  assertEvidence(report, 'api_translation_layer', 'dxwrapper=dxvk');
+  assertEvidence(report, 'api_translation_layer', 'dxwrapperConfig.version=2.4.1-gplasync');
+  assertEvidence(report, 'mobile_linux_runtime', 'env.ZINK_DESCRIPTORS=lazy');
+  assertEvidence(report, 'mobile_linux_runtime', 'env.MESA_VK_WSI_PRESENT_MODE=mailbox');
+  assertEvidence(report, 'pcgw_linux_wine_proton', 'wineVersion=proton-11.0-1-arm64ec-1');
+  assertEvidence(report, 'pcgw_video_display_fixes', 'screenSize=1280x720');
+  assertEvidence(report, 'pcgw_video_display_fixes', 'rendererPresentMode=fifo');
+  assertEvidence(report, 'pcgw_input_audio_network', 'audioDriver=alsa');
+  assertEvidence(report, 'power_game_profile', 'cpuList=0,1,2,3,4,5,6,7');
+  assertEvidence(report, 'gpu_performance_tuning', 'dxwrapperConfig.videoMemorySize=2048');
+  assertEvidence(report, 'frame_generation_pipeline', 'extraData.lsfgEnabled=false');
+  assert.equal(report.contradictions.length, 0);
+  assert.equal(report.patch_candidates.length, 0);
 });
 
 test('power TDP runtime profile detects AutoTDP and handheld-daemon research surfaces', async () => {
@@ -1202,6 +1497,33 @@ test('semantic policy profile ignores documentation examples without hiding acti
   assert(!report.contradictions.some(item => item.category === 'semantic_policy_contradiction'));
 });
 
+test('semantic policy profile separates tester adb limits from device action bans', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-semantic-runtime-notes-'));
+  await mkdir(join(root, 'app', 'src', 'main', 'java', 'example'), { recursive: true });
+  await mkdir(join(root, 'scripts', 'package'), { recursive: true });
+  await writeFile(join(root, 'README.md'), 'Install with `adb install app-debug.apk`.\n', 'utf8');
+  await writeFile(join(root, 'app', 'src', 'main', 'java', 'example', 'CrashReporter.kt'), [
+    '/**',
+    " * File crash capture. We can't use logcat in the wild",
+    ' * (no adb access from remote testers), so users share a crash report.',
+    ' */',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'scripts', 'package', 'package.sh'), [
+    '# cleanup',
+    'rm -rf alpm deb rpm',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'semantic_policy',
+  });
+
+  assertEvidence(report, 'device_action_allowed', 'semantic_policy.device_action_allowed.device=device_actions_allowed');
+  assertNoEvidence(report, ['device_action_forbidden'], 'semantic_policy.device_action_forbidden.device=device_actions_forbidden');
+  assertNoEvidence(report, ['destructive_action'], 'semantic_policy.destructive_action.host_or_device_state=mutates_destructively');
+  assert(!report.contradictions.some(item => item.category === 'semantic_policy_contradiction'));
+});
+
 test('scanner downgrades local code assignments so they do not create contradictions', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-local-assignments-'));
   await writeFile(join(root, 'script.py'), [
@@ -1425,6 +1747,29 @@ test('orangefox sync tool profile treats patch targets as external checkout path
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:hardware/google/interfaces');
 });
 
+test('android recovery profile does not invent missing recovery files for non-recovery app roots', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-non-recovery-root-'));
+  await writeFile(join(root, 'README.md'), [
+    '# Droidspaces Nebula fixture',
+    '',
+    'This app has a recovery_safe lane in a control-plane UI.',
+    'It is not an Android recovery device tree checkout.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'build.gradle.kts'), 'plugins { id("com.android.application") }\n', 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'android_recovery',
+  });
+
+  assertEvidence(report, 'profile_fit', 'profile_fit:android_recovery=not_applicable');
+  assertNoEvidence(report, ['missing_files'], 'missing_expected_pattern:/(^|\\/)BoardConfig.*\\.mk$/i');
+  assertNoEvidence(report, ['missing_files'], 'missing_expected_pattern:/(^|\\/)AndroidProducts\\.mk$/i');
+  assertNoEvidence(report, ['missing_files'], 'missing_expected_pattern:/(^|\\/).*fstab.*$/i');
+  assert.equal(report.contradictions.length, 0);
+  assert.equal(report.patch_candidates.length, 0);
+});
+
 test('scan report schema is complete and agent handoff files are written', async () => {
   const report = await scanCurrent();
   const validation = validateScanReport(report);
@@ -1470,6 +1815,53 @@ test('scan report schema is complete and agent handoff files are written', async
 
   const jsonl = await readFile(join(outDir, 'evidence.jsonl'), 'utf8');
   assert.equal(jsonl.trim().split('\n').length, report.evidence.length);
+});
+
+test('scan writer compacts oversized JSON while streaming full JSONL evidence', async () => {
+  const report = await scanCurrent();
+  const template = report.evidence[0];
+  const evidence = Array.from({ length: 5 }, (_, index) => ({
+    ...template,
+    id: `EV-oversize-${index}`,
+    normalized_claim: `oversized_report_fixture:${index}`,
+  }));
+  const oversized = {
+    ...report,
+    findings: evidence,
+    evidence,
+    summary: {
+      ...report.summary,
+      total_findings: evidence.length,
+    },
+  };
+
+  const outDir = await mkdtemp(join(tmpdir(), 'reversa-compact-report-test-'));
+  await writeScanOutputs(oversized, {
+    outDir,
+    json: true,
+    jsonl: true,
+    markdown: true,
+    agentHandoff: true,
+    jsonArrayLimit: 2,
+    reportArrayLimit: 2,
+    treeArrayLimit: 2,
+  });
+
+  const compactReport = JSON.parse(await readFile(join(outDir, 'report.json'), 'utf8'));
+  assert.equal(compactReport.output_truncation.truncated, true);
+  assert.equal(compactReport.findings.length, 2);
+  assert.equal(compactReport.evidence.length, 2);
+
+  const fullEvidenceJsonl = await readFile(join(outDir, 'evidence.jsonl'), 'utf8');
+  assert.equal(fullEvidenceJsonl.trim().split('\n').length, evidence.length);
+
+  const handoffFindings = JSON.parse(await readFile(join(outDir, 'agent_handoff', 'findings.json'), 'utf8'));
+  assert.equal(handoffFindings.length, 2);
+  assert(existsSync(join(outDir, 'agent_handoff', 'findings_overflow.json')));
+  assert(existsSync(join(outDir, 'agent_handoff', 'findings.jsonl')));
+
+  const fullFindingsJsonl = await readFile(join(outDir, 'agent_handoff', 'findings.jsonl'), 'utf8');
+  assert.equal(fullFindingsJsonl.trim().split('\n').length, evidence.length);
 });
 
 test('compare mode emits classified compare artifacts', async () => {

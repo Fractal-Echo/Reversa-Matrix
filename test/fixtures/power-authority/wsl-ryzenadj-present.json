@@ -1,0 +1,30 @@
+{
+  "name": "wsl_ryzenadj_present",
+  "power_proof": {
+    "platform": {
+      "os": "wsl",
+      "kernel": "6.6.87.2-microsoft-standard-WSL2",
+      "machine": "x86_64",
+      "is_wsl": true
+    },
+    "tdp_backends": {
+      "ryzenadj": "present",
+      "hhd": "missing",
+      "acpi_call": "missing",
+      "smu": "missing",
+      "powerprofilesctl": "missing",
+      "powercfg": "present"
+    },
+    "proof": {
+      "tdp_write_performed": false,
+      "runtime_test_performed": false
+    }
+  },
+  "privilege": {
+    "user": "fixture",
+    "is_root": false,
+    "is_admin": false,
+    "has_mutation_privilege": false,
+    "state": "user"
+  }
+}

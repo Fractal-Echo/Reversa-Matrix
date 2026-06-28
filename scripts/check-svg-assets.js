@@ -7,7 +7,8 @@ import { Resvg } from "@resvg/resvg-js";
 const repoRoot = process.cwd();
 const assetDir = path.join(repoRoot, "docs", "assets");
 const renderDir = path.join(repoRoot, "local", "asset-renders");
-const heroAsset = "reversa-matrix-nebula-hero.svg";
+const landingHeroAsset = "reversa-matrix-redmagic-cross.png";
+const svgHeroAsset = "reversa-matrix-nebula-hero.svg";
 const oldHeroAssets = [
   "reversa-matrix-monogram.svg",
   "reversa-matrix-hero-v3.svg",
@@ -55,13 +56,32 @@ function checkHeroReferences() {
 
   for (const [file, text] of refs) {
     for (const oldHeroAsset of oldHeroAssets) {
-      if (text.includes(oldHeroAsset)) {
-        fail(`${file} still references stale cached hero asset ${oldHeroAsset}`);
-      }
+    if (text.includes(oldHeroAsset)) {
+      fail(`${file} still references stale cached hero asset ${oldHeroAsset}`);
     }
-    if (!text.includes(heroAsset)) {
-      fail(`${file} does not reference ${heroAsset}`);
+  }
+    if (text.includes(svgHeroAsset)) {
+      fail(`${file} still references the old generated hero ${svgHeroAsset}`);
     }
+    if (!text.includes(landingHeroAsset)) {
+      fail(`${file} does not reference ${landingHeroAsset}`);
+    }
+  }
+}
+
+function checkLandingHeroAsset() {
+  const file = path.join(assetDir, landingHeroAsset);
+  if (!fs.existsSync(file)) {
+    fail(`missing expected landing hero asset ${landingHeroAsset}`);
+    return;
+  }
+  const dims = readPngDimensions(fs.readFileSync(file));
+  if (dims.width < 1000 || dims.height < 1000) {
+    fail(`${landingHeroAsset} is too small: ${dims.width}x${dims.height}`);
+  }
+  const ratio = dims.width / dims.height;
+  if (ratio < 0.95 || ratio > 1.05) {
+    fail(`${landingHeroAsset} should remain square-ish, got ${dims.width}x${dims.height}`);
   }
 }
 
@@ -75,7 +95,7 @@ function checkHeroStructure(svg) {
   ];
   for (const fragment of staleFragments) {
     if (svg.includes(fragment)) {
-      fail(`${heroAsset} still contains clipped stale text fragment: ${fragment}`);
+      fail(`${svgHeroAsset} still contains clipped stale text fragment: ${fragment}`);
     }
   }
 
@@ -93,7 +113,7 @@ function checkHeroStructure(svg) {
   ];
   for (const fragment of requiredFragments) {
     if (!svg.includes(fragment)) {
-      fail(`${heroAsset} is missing layout guard fragment: ${fragment}`);
+      fail(`${svgHeroAsset} is missing layout guard fragment: ${fragment}`);
     }
   }
 }
@@ -125,20 +145,21 @@ function renderSvg(file) {
 }
 
 checkHeroReferences();
+checkLandingHeroAsset();
 
 const svgFiles = fs
   .readdirSync(assetDir)
   .filter((name) => name.endsWith(".svg"))
   .sort();
 
-if (!svgFiles.includes(heroAsset)) {
-  fail(`missing expected hero asset ${heroAsset}`);
+if (!svgFiles.includes(svgHeroAsset)) {
+  fail(`missing expected SVG hero archive asset ${svgHeroAsset}`);
 }
 
 for (const name of svgFiles) {
   const file = path.join(assetDir, name);
   const svg = readText(file);
-  if (name === heroAsset) {
+  if (name === svgHeroAsset) {
     checkHeroStructure(svg);
   }
   renderSvg(file);

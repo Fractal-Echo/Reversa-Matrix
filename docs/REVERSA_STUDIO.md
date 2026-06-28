@@ -95,6 +95,10 @@ Use:
 node ./bin/reversa.js studio power-proof \
   --out /path/to/power-proof
 
+node ./bin/reversa.js studio power-authority-proof \
+  --out /path/to/power-authority-proof \
+  --power-proof /path/to/power-proof/power-tdp-proof.json
+
 node scripts/build-power-tdp-policy-matrix.js \
   --proof /path/to/power-proof/power-tdp-proof.json \
   --dataset /path/to/power-tdp-runtime-advisory.jsonl \
@@ -112,8 +116,15 @@ The UI has no Apply, Run, Write, service, or power-plan mutation button.
 Disabled labels such as "Read-only proof", "Write deferred", "Approval
 required", and "Runtime test later" are deliberate blocked states.
 
+The authority proof stage resolves ownership only. It can report WSL as
+observer-only, Windows host, Linux bare-metal, HHD, ryzenadj, or unknown/unsafe
+authority states, but `mutation_allowed_by_policy` remains false until a future
+approved runtime proof and write gate exist.
+
 See [Reversa Studio Power TDP Proof](REVERSA_STUDIO_POWER_TDP_PROOF.md) for the
-proof contract.
+proof contract, and
+[Reversa Studio Power Authority Proof](reversa-studio/power-authority-proof.md)
+for the Stage 02 authority resolver.
 
 ## Backend Readiness Matrix
 

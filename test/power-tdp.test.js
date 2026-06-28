@@ -167,12 +167,17 @@ test('Power/TDP proof capture writes read-only outputs from fixture probes', asy
 test('Power/TDP Studio fixtures are display artifacts only', async () => {
   const proof = JSON.parse(await readFile(join(repoRoot, 'reversa-studio', 'fixtures', 'sample-power-tdp-proof.json'), 'utf8'));
   const matrix = JSON.parse(await readFile(join(repoRoot, 'reversa-studio', 'fixtures', 'sample-power-policy-matrix.json'), 'utf8'));
+  const authority = JSON.parse(await readFile(join(repoRoot, 'reversa-studio', 'fixtures', 'sample-power-authority-proof.json'), 'utf8'));
 
   assert.equal(proof.source_authority, false);
   assert.equal(proof.proof.tdp_write_performed, false);
   assert.equal(proof.proof.runtime_test_performed, false);
   assert.equal(matrix.source_authority, false);
   assert.equal(matrix.summary.write_allowed, false);
+  assert.equal(authority.source_authority, false);
+  assert.equal(authority.read_only, true);
+  assert.equal(authority.authority.mutation_allowed_by_policy, false);
+  assert.equal(authority.proof.tdp_write_performed, false);
 });
 
 test('Power/TDP Studio UI contains proof, backend, policy, and action-gate panels', async () => {
@@ -181,6 +186,7 @@ test('Power/TDP Studio UI contains proof, backend, policy, and action-gate panel
   assert.match(text, /Power \/ TDP Proof/);
   assert.match(text, /Host Power Proof/);
   assert.match(text, /Backend Discovery/);
+  assert.match(text, /Authority Layer Proof/);
   assert.match(text, /Policy Matrix/);
   assert.match(text, /Action Gate/);
 });
