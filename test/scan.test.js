@@ -494,6 +494,12 @@ test('scanner does not derive missing-path contradictions from repo test asserti
 
 test('scanner keeps vendored dependency placeholders out of patch candidates', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-vendored-placeholders-'));
+  await mkdir(join(root, 'BO3-Transformed', '.agents', 'skills', 'reversa-reviewer', 'references'), { recursive: true });
+  await mkdir(join(root, 'Winlator', 'app', 'src', 'main', 'cpp', 'adrenotools', 'src', 'hook'), { recursive: true });
+  await mkdir(join(root, 'Winlator', 'app', 'src', 'main', 'cpp', 'OpenXR-SDK', 'src', 'loader'), { recursive: true });
+  await mkdir(join(root, 'Winlator', 'app', 'src', 'main', 'cpp', 'patchelf', 'src'), { recursive: true });
+  await mkdir(join(root, 'Winlator', 'app', 'src', 'main', 'cpp', 'virglrenderer', 'src'), { recursive: true });
+  await mkdir(join(root, 'Winlator', 'app', 'src', 'main', 'cpp', 'winlator'), { recursive: true });
   await mkdir(join(root, 'Pkgs', 'rife-ncnn-vs', 'Lib', 'site-packages', 'pip', '_internal'), { recursive: true });
   await mkdir(join(root, 'Pkgs', 'dain-ncnn'), { recursive: true });
   await mkdir(join(root, 'include', 'imgui'), { recursive: true });
@@ -501,6 +507,24 @@ test('scanner keeps vendored dependency placeholders out of patch candidates', a
   await mkdir(join(root, 'thirdparty', 'toml11', 'docs'), { recursive: true });
   await mkdir(join(root, 'src'), { recursive: true });
   await writeFile(join(root, '.gitignore'), '# FAKE - F# Make\n', 'utf8');
+  await writeFile(join(root, 'BO3-Transformed', '.agents', 'skills', 'reversa-reviewer', 'references', 'confidence-rules.md'), [
+    '- TODO: reviewer reference note',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'Winlator', 'app', 'src', 'main', 'cpp', 'adrenotools', 'src', 'hook', 'hook_impl.cpp'), [
+    '// TODO: upstream driver hook caveat',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'Winlator', 'app', 'src', 'main', 'cpp', 'OpenXR-SDK', 'src', 'loader', 'loader_core.cpp'), [
+    '// TODO: upstream OpenXR loader note',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'Winlator', 'app', 'src', 'main', 'cpp', 'patchelf', 'src', 'patchelf.cc'), [
+    '// FIXME: upstream patchelf note',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'Winlator', 'app', 'src', 'main', 'cpp', 'virglrenderer', 'src', 'iov.c'), [
+    '/* TODO: upstream virgl note */',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'Winlator', 'app', 'src', 'main', 'cpp', 'winlator', 'patchelf_wrapper.cpp'), [
+    '// TODO: owned wrapper behavior still needs evidence',
+  ].join('\n'), 'utf8');
   await writeFile(join(root, 'Pkgs', 'rife-ncnn-vs', 'Lib', 'site-packages', 'pip', '_internal', 'build_env.py'), [
     '# TODO: upstream pip compatibility note',
   ].join('\n'), 'utf8');
@@ -520,6 +544,12 @@ test('scanner keeps vendored dependency placeholders out of patch candidates', a
   assertNoEvidence(report, ['placeholders'], 'placeholder_marker:FAKE');
   assertEvidence(report, 'todo_fixme_stub_markers', 'placeholder_marker:TODO');
   assert(report.patch_candidates.some(item => item.target_file === 'src/owned.js'));
+  assert(report.patch_candidates.some(item => item.target_file === 'Winlator/app/src/main/cpp/winlator/patchelf_wrapper.cpp'));
+  assert(!report.patch_candidates.some(item => item.target_file.startsWith('BO3-Transformed/.agents/')));
+  assert(!report.patch_candidates.some(item => item.target_file.includes('/app/src/main/cpp/adrenotools/')));
+  assert(!report.patch_candidates.some(item => item.target_file.includes('/app/src/main/cpp/OpenXR-SDK/')));
+  assert(!report.patch_candidates.some(item => item.target_file.includes('/app/src/main/cpp/patchelf/')));
+  assert(!report.patch_candidates.some(item => item.target_file.includes('/app/src/main/cpp/virglrenderer/')));
   assert(!report.patch_candidates.some(item => item.target_file.startsWith('Pkgs/')));
   assert(!report.patch_candidates.some(item => item.target_file.includes('site-packages')));
   assert(!report.patch_candidates.some(item => item.target_file.startsWith('include/imgui/')));
