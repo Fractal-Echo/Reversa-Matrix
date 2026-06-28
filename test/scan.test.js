@@ -274,6 +274,34 @@ test('scanner honors git ignored paths unless includeIgnored is set', async () =
   assertEvidence(forensicReport, 'provider_routing_surface', 'MODEL=ignored');
 });
 
+test('scanner skips Android native build intermediates even in forensic scans', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-android-native-build-'));
+  await mkdir(join(root, 'app', '.cxx', 'Debug', 'arm64-v8a', '.cmake', 'api', 'v1', 'reply'), { recursive: true });
+  await mkdir(join(root, 'app', '.externalNativeBuild', 'cmake', 'debug'), { recursive: true });
+  await mkdir(join(root, 'app', 'src', 'main', 'cpp'), { recursive: true });
+  await writeFile(join(root, 'app', '.cxx', 'Debug', 'arm64-v8a', '.cmake', 'api', 'v1', 'reply', 'codemodel-v2.json'), [
+    '{"kind":"codemodel","paths":{"build":"app/.cxx/Debug/arm64-v8a","source":"app/src/main/cpp"},"version":{"major":2,"minor":3}}',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'app', '.externalNativeBuild', 'cmake', 'debug', 'build.json'), [
+    '{"MODEL":"native-build-cache"}',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'app', 'src', 'main', 'cpp', 'wrapper.cpp'), [
+    'MODEL=owned-source',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'pcgamingwiki_runtime',
+    includeIgnored: true,
+  });
+
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'app/.cxx' && item.reason === 'excluded_directory'));
+  assert(report.tree_inventory.skipped_files.some(item => item.path === 'app/.externalNativeBuild' && item.reason === 'excluded_directory'));
+  assertNoEvidence(report, ['build_variables', 'provider_routing_surface'], 'kind=codemodel');
+  assertNoEvidence(report, ['build_variables', 'provider_routing_surface'], 'MODEL=native-build-cache');
+  assert(report.tree_inventory.files.some(item => item.path === 'app/src/main/cpp/wrapper.cpp' && item.scanned));
+});
+
 test('scanner scopes fixtures and docs examples out of repo-root contradiction groups', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-source-scope-'));
   await mkdir(join(root, 'test', 'fixtures'), { recursive: true });
