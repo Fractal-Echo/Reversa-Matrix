@@ -138,6 +138,13 @@ node ./bin/reversa.js studio amd-join \
   --proof /path/to/amd-proof/amd-uma-proof.json \
   --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
   --out /path/to/amd-local-fit
+
+node ./bin/reversa.js studio backend-matrix \
+  --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
+  --cuda-proof /path/to/gpu-proof/gpu-proof.json \
+  --amd-proof /path/to/amd-proof/amd-uma-proof.json \
+  --onnx-directml-proof /path/to/onnx-directml-proof/amd-uma-proof.json \
+  --out /path/to/backend-matrix
 ```
 
 Exports small local JSON fixtures for the Reversa Studio prototype. Reversa
@@ -151,8 +158,10 @@ Radeon 890M / UMA systems. The optional `--python` flag selects an existing
 interpreter, such as a controlled local PyTorch CUDA or DirectML proof venv. If
 `onnxruntime-directml` and `onnx` are present, AMD proof also runs a tiny local
 ONNX Add graph with memory pattern disabled and sequential execution. The
-commands themselves do not install packages. None of the Studio commands acquire
-models, launch runtimes, patch binaries, connect to phones, or mutate projects.
+backend matrix joins those local proof files with advisory rows and classifies
+CUDA, DirectML, ONNX DirectML, Vulkan NCNN, and TensorRT gates. The commands
+themselves do not install packages. None of the Studio commands acquire models,
+launch runtimes, patch binaries, connect to phones, or mutate projects.
 
 ---
 

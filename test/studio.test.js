@@ -182,6 +182,23 @@ test('studio command exposes amd-join help', () => {
   assert.match(result.stdout, /amd-uma-proof\.json/);
 });
 
+test('studio command exposes backend-matrix help', () => {
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'studio',
+    'backend-matrix',
+    '--help',
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /backend-matrix/);
+  assert.match(result.stdout, /--cuda-proof <gpu-proof\.json>/);
+  assert.match(result.stdout, /controlled/i);
+});
+
 async function readStudioSurfaceText() {
   const files = [
     join(repoRoot, 'reversa-studio', 'README.md'),

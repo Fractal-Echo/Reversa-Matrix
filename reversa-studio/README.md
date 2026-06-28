@@ -23,4 +23,12 @@ node ../bin/reversa.js studio export-fixtures \
   --out ./fixtures
 ```
 
+Refresh the backend readiness fixture from a generated matrix:
+
+```bash
+node ../scripts/export-backend-matrix-ui-fixtures.js \
+  --matrix /path/to/backend-matrix/backend-readiness-matrix.json \
+  --out ./fixtures
+```
+
 The generated fixtures are display artifacts. They are not authority records.

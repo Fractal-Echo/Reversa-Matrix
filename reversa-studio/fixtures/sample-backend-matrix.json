@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "generated_fixture": true,
+  "source_authority": false,
+  "title": "Backend Readiness Matrix",
+  "summary": {
+    "totalRecords": 774,
+    "readyForControlledTest": 100,
+    "readyForRecommendation": 0,
+    "cudaCandidates": 141,
+    "directmlCandidates": 1,
+    "onnxDirectmlCandidates": 7,
+    "vulkanNcnnCandidates": 255,
+    "tensorrtCandidates": 1,
+    "blockedLicense": 32,
+    "blockedArtifact": 48,
+    "blockedHash": 307,
+    "blockedRuntime": 0
+  },
+  "proof": {
+    "cuda": "BACKEND_TINY_OP_PROVEN",
+    "directml": "BACKEND_TINY_OP_PROVEN",
+    "onnxDirectml": "BACKEND_TINY_OP_PROVEN",
+    "vulkanNcnn": "BACKEND_CANDIDATE",
+    "tensorrt": "BACKEND_BLOCKED_RUNTIME"
+  },
+  "gates": [
+    {
+      "label": "Controlled test only",
+      "status": "Review",
+      "count": 100
+    },
+    {
+      "label": "Recommendation ready",
+      "status": "Safe",
+      "count": 0
+    },
+    {
+      "label": "License blocked",
+      "status": "Blocked",
+      "count": 32
+    },
+    {
+      "label": "Artifact blocked",
+      "status": "Blocked",
+      "count": 48
+    },
+    {
+      "label": "Hash blocked",
+      "status": "Blocked",
+      "count": 307
+    },
+    {
+      "label": "Runtime blocked",
+      "status": "Safe",
+      "count": 0
+    }
+  ],
+  "rows": [
+    {
+      "id": "gpuadvisory_02599791bb2a73ab",
+      "source_project": "flowframes",
+      "status": "Blocked",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "hard_blocks": [
+        "HASH_REQUIRED_BEFORE_USE",
+        "PROVENANCE_REQUIRED_BEFORE_USE"
+      ],
+      "soft_warnings": [
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
+        "SOURCE_AUTHORITY_REVIEW"
+      ],
+      "action": "Capture hash and provenance proof before ranking this higher.",
+      "labels": [
+        "CANDIDATE_VULKAN_NCNN",
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
+        "VIDEO_INTERPOLATION_CANDIDATE",
+        "VULKAN_NCNN_BACKEND_PRESENT"
+      ],
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_02aa3108c3df0591",
+      "source_project": "flowframes",
+      "status": "Blocked",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "hard_blocks": [
+        "HASH_REQUIRED_BEFORE_USE",
+        "PROVENANCE_REQUIRED_BEFORE_USE"
+      ],
+      "soft_warnings": [
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
+        "SOURCE_AUTHORITY_REVIEW"
+      ],
+      "action": "Capture hash and provenance proof before ranking this higher.",
+      "labels": [
+        "CANDIDATE_VULKAN_NCNN",
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
+        "VIDEO_INTERPOLATION_CANDIDATE",
+        "VULKAN_NCNN_BACKEND_PRESENT"
+      ],
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_041e8b363c9501bf",
+      "source_project": "huggingface",
+      "status": "Blocked",
+      "backend": [
+        "cuda"
+      ],
+      "readiness_level": "BACKEND_BLOCKED_LICENSE",
+      "hard_blocks": [
+        "LICENSE_REVIEW_REQUIRED",
+        "ARTIFACT_ACQUISITION_DEFERRED",
+        "HASH_REQUIRED_BEFORE_USE"
+      ],
+      "soft_warnings": [],
+      "action": "Review license metadata before controlled testing.",
+      "labels": [
+        "CANDIDATE_CUDA_5090",
+        "MODEL_LICENSE_UNKNOWN",
+        "MODEL_METADATA_ONLY"
+      ],
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_0445f9cf4316f132",
+      "source_project": "flowframes",
+      "status": "Review",
+      "backend": [
+        "cuda"
+      ],
+      "readiness_level": "BACKEND_READY_FOR_CONTROLLED_TEST",
+      "hard_blocks": [],
+      "soft_warnings": [
+        "CONTROLLED_TEST_ONLY_NOT_RECOMMENDATION"
+      ],
+      "action": "Eligible for a controlled local test plan; not a recommendation.",
+      "labels": [
+        "CUDA_BACKEND_PRESENT",
+        "FRAMEGEN_RUNTIME_CANDIDATE",
+        "VIDEO_INTERPOLATION_CANDIDATE"
+      ],
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_045535c4fb0921ec",
+      "source_project": "flowframes",
+      "status": "Blocked",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "hard_blocks": [
+        "HASH_REQUIRED_BEFORE_USE",
+        "PROVENANCE_REQUIRED_BEFORE_USE"
+      ],
+      "soft_warnings": [
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
+        "SOURCE_AUTHORITY_REVIEW"
+      ],
+      "action": "Capture hash and provenance proof before ranking this higher.",
+      "labels": [
+        "CANDIDATE_VULKAN_NCNN",
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
+        "VIDEO_INTERPOLATION_CANDIDATE",
+        "VULKAN_NCNN_BACKEND_PRESENT"
+      ],
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_0538423e61f2bbe3",
+      "source_project": "flowframes",
+      "status": "Blocked",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "hard_blocks": [
+        "HASH_REQUIRED_BEFORE_USE",
+        "PROVENANCE_REQUIRED_BEFORE_USE"
+      ],
+      "soft_warnings": [],
+      "action": "Capture hash and provenance proof before ranking this higher.",
+      "labels": [
+        "CANDIDATE_VULKAN_NCNN",
+        "FRAMEGEN_RUNTIME_CANDIDATE",
+        "VIDEO_INTERPOLATION_CANDIDATE",
+        "VULKAN_NCNN_BACKEND_PRESENT"
+      ],
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_06d5d77b9810a2e8",
+      "source_project": "flowframes",
+      "status": "Review",
+      "backend": [
+        "cuda"
+      ],
+      "readiness_level": "BACKEND_READY_FOR_CONTROLLED_TEST",
+      "hard_blocks": [],
+      "soft_warnings": [
+        "CONTROLLED_TEST_ONLY_NOT_RECOMMENDATION"
+      ],
+      "action": "Eligible for a controlled local test plan; not a recommendation.",
+      "labels": [
+        "CUDA_BACKEND_PRESENT",
+        "CUDA_CLAIM_UNVERIFIED",
+        "VIDEO_INTERPOLATION_CANDIDATE"
+      ],
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_06ed6454f4f4a052",
+      "source_project": "flowframes",
+      "status": "Blocked",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "hard_blocks": [
+        "HASH_REQUIRED_BEFORE_USE",
+        "PROVENANCE_REQUIRED_BEFORE_USE"
+      ],
+      "soft_warnings": [],
+      "action": "Capture hash and provenance proof before ranking this higher.",
+      "labels": [
+        "CANDIDATE_VULKAN_NCNN",
+        "VIDEO_INTERPOLATION_CANDIDATE",
+        "VULKAN_NCNN_BACKEND_PRESENT"
+      ],
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_07cbd1a2e5d277f5",
+      "source_project": "flowframes",
+      "status": "Blocked",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "hard_blocks": [
+        "HASH_REQUIRED_BEFORE_USE",
+        "PROVENANCE_REQUIRED_BEFORE_USE"
+      ],
+      "soft_warnings": [],
+      "action": "Capture hash and provenance proof before ranking this higher.",
+      "labels": [
+        "CANDIDATE_VULKAN_NCNN",
+        "VIDEO_INTERPOLATION_CANDIDATE",
+        "VULKAN_NCNN_BACKEND_PRESENT"
+      ],
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_086ccade586c368d",
+      "source_project": "flowframes",
+      "status": "Blocked",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "hard_blocks": [
+        "HASH_REQUIRED_BEFORE_USE",
+        "PROVENANCE_REQUIRED_BEFORE_USE"
+      ],
+      "soft_warnings": [],
+      "action": "Capture hash and provenance proof before ranking this higher.",
+      "labels": [
+        "CANDIDATE_VULKAN_NCNN",
+        "FRAMEGEN_RUNTIME_CANDIDATE",
+        "VIDEO_INTERPOLATION_CANDIDATE",
+        "VULKAN_NCNN_BACKEND_PRESENT"
+      ],
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_0913c120f972d35d",
+      "source_project": "flowframes",
+      "status": "Blocked",
+      "backend": [
+        "vulkan_ncnn"
+      ],
+      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "hard_blocks": [
+        "HASH_REQUIRED_BEFORE_USE",
+        "PROVENANCE_REQUIRED_BEFORE_USE"
+      ],
+      "soft_warnings": [],
+      "action": "Capture hash and provenance proof before ranking this higher.",
+      "labels": [
+        "CANDIDATE_VULKAN_NCNN",
+        "FRAMEGEN_RUNTIME_CANDIDATE",
+        "VIDEO_INTERPOLATION_CANDIDATE",
+        "VULKAN_NCNN_BACKEND_PRESENT"
+      ],
+      "source_authority": false
+    },
+    {
+      "id": "gpuadvisory_0a15fad4240067b4",
+      "source_project": "cupscale",
+      "status": "Blocked",
+      "backend": [
+        "cuda",
+        "vulkan_ncnn"
+      ],
+      "readiness_level": "BACKEND_BLOCKED_HASH",
+      "hard_blocks": [
+        "HASH_REQUIRED_BEFORE_USE",
+        "PROVENANCE_REQUIRED_BEFORE_USE"
+      ],
+      "soft_warnings": [
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
+        "SOURCE_AUTHORITY_REVIEW"
+      ],
+      "action": "Capture hash and provenance proof before ranking this higher.",
+      "labels": [
+        "CANDIDATE_VULKAN_NCNN",
+        "CUDA_BACKEND_PRESENT",
+        "GENERATED_EVIDENCE_NOT_SOURCE_AUTHORITY",
+        "VULKAN_NCNN_BACKEND_PRESENT"
+      ],
+      "source_authority": false
+    }
+  ]
+}

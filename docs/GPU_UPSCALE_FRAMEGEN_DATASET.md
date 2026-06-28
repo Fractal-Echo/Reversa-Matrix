@@ -132,3 +132,21 @@ node scripts/join-gpu-proof-with-advisory.js \
 The join classifies rows as local candidates, possible CUDA candidates, license
 blocked, backend unknown, Linux/Proton unproven, or not GPU relevant. It does not
 acquire model artifacts or run any model pipeline.
+
+## Backend Readiness Matrix
+
+When local CUDA, AMD, and ONNX Runtime DirectML proof files exist, build a
+cross-backend gate matrix:
+
+```bash
+node ./bin/reversa.js studio backend-matrix \
+  --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
+  --cuda-proof /path/to/gpu-proof.json \
+  --amd-proof /path/to/amd-uma-proof.json \
+  --onnx-directml-proof /path/to/amd-uma-proof.json \
+  --out /path/to/backend-matrix
+```
+
+The matrix preserves dataset authority rules. Generated rows are useful for
+planning, but source files, licenses, hashes, provenance, and runtime proof still
+control promotion.

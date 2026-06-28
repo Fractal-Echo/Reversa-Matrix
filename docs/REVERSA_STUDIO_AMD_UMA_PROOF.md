@@ -164,3 +164,13 @@ Possible AMD fit classes include:
 Unknown licenses, deferred model artifacts, candidate-only DirectML, and missing
 backend runtime evidence block readiness. Linux and Proton remain unproven until
 direct runtime evidence exists.
+
+## Backend Matrix Role
+
+The backend readiness matrix consumes AMD proof for DirectML visibility and ONNX
+Runtime DirectML tiny-op status. Passing ONNX Runtime DirectML proof may promote
+eligible ONNX/DirectML rows to `BACKEND_READY_FOR_CONTROLLED_TEST`.
+
+Vulkan visibility remains `BACKEND_CANDIDATE` until Vulkan NCNN runtime proof
+exists. HIP/ROCm visibility remains advisory until a direct backend proof lane
+exists.

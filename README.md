@@ -225,6 +225,13 @@ node ./bin/reversa.js studio amd-join \
   --proof /path/to/amd-proof/amd-uma-proof.json \
   --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
   --out /path/to/amd-local-fit
+
+node ./bin/reversa.js studio backend-matrix \
+  --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
+  --cuda-proof /path/to/gpu-proof/gpu-proof.json \
+  --amd-proof /path/to/amd-proof/amd-uma-proof.json \
+  --onnx-directml-proof /path/to/onnx-directml-proof/amd-uma-proof.json \
+  --out /path/to/backend-matrix
 ```
 
 Reversa Studio is an early local dashboard prototype for evidence, model
@@ -236,7 +243,9 @@ Reversa Studio can capture local GPU proof and use it to rank advisory
 candidates. The 5090 proof lane records Nvidia/CUDA/Python/backend evidence. The
 AMD proof lane records HX 370 / Radeon 890M / UMA, DirectX 12, DirectML
 candidate, ONNX Runtime DirectML tiny-op proof when available, Vulkan, and
-OpenCL evidence. Model acquisition stays disabled by default.
+OpenCL evidence. The backend matrix combines those proof files with advisory
+rows and separates controlled-test candidates from license, artifact, hash, and
+runtime blocks. Model acquisition stays disabled by default.
 
 Compare two trees:
 

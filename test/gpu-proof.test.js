@@ -191,6 +191,8 @@ test('GPU proof scripts do not contain installer or network acquisition commands
     join(repoRoot, 'scripts', 'join-gpu-proof-with-advisory.js'),
     join(repoRoot, 'scripts', 'capture-amd-uma-proof.js'),
     join(repoRoot, 'scripts', 'join-amd-proof-with-advisory.js'),
+    join(repoRoot, 'scripts', 'build-backend-readiness-matrix.js'),
+    join(repoRoot, 'scripts', 'export-backend-matrix-ui-fixtures.js'),
   ];
   const text = (await Promise.all(scripts.map(file => readFile(file, 'utf8')))).join('\n');
 

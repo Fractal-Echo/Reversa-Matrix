@@ -125,3 +125,10 @@ Possible fit classes include:
 Unknown licenses and deferred model artifacts block readiness. A CUDA candidate
 is only marked possible when proof shows CUDA visibility or a passing CUDA tensor
 operation.
+
+## Backend Matrix Role
+
+The backend readiness matrix consumes `gpu-proof.json` as the CUDA proof input.
+`GPU_PROOF_TENSOR_OP_PASS` may promote eligible CUDA rows to
+`BACKEND_READY_FOR_CONTROLLED_TEST`, but it does not prove TensorRT, Vulkan NCNN,
+model artifact suitability, Linux runtime behavior, or production readiness.

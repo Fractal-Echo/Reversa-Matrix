@@ -28,6 +28,7 @@
         <button class="rail__button" type="button" data-panel="models">Models</button>
         <button class="rail__button" type="button" data-panel="texture">Textures</button>
         <button class="rail__button" type="button" data-panel="framegen">Framegen</button>
+        <button class="rail__button" type="button" data-panel="readiness">Readiness</button>
         <button class="rail__button" type="button" data-panel="patch">Patch</button>
         <button class="rail__button" type="button" data-panel="safety">Safety</button>
       </nav>
@@ -118,6 +119,24 @@
           <p>CUDA, Vulkan NCNN, ONNX, TensorRT, and DirectML are candidates until direct proof exists.</p>
         </div>
         <div class="metric-grid" id="backend-matrix"></div>
+      </section>
+
+      <section class="panel" id="panel-readiness" data-panel-view="readiness">
+        <div class="section-head">
+          <p class="eyebrow">Backend Matrix</p>
+          <h2>Controlled Test Gates</h2>
+          <p>Local proof can unlock controlled tests; recommendation remains blocked until authority, license, hash, and runtime proof line up.</p>
+        </div>
+        <div class="metric-grid" id="backend-readiness-summary"></div>
+        <div class="band">
+          <h3>Proof Status</h3>
+          <div class="label-cloud" id="backend-readiness-proof"></div>
+        </div>
+        <div class="band">
+          <h3>Gate Counts</h3>
+          <div class="metric-grid" id="backend-readiness-gates"></div>
+        </div>
+        <div class="dossier-list" id="backend-readiness-rows"></div>
       </section>
 
       <section class="panel" id="panel-patch" data-panel-view="patch">

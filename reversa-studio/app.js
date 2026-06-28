@@ -6,6 +6,7 @@ const state = {
   localFit: null,
   amdProof: null,
   amdLocalFit: null,
+  backendMatrix: null,
 };
 
 const textureSteps = [
@@ -21,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireNavigation();
   wireAdvancedToggle();
   try {
-    const [project, library, dossier, gpuProof, localFit, amdProof, amdLocalFit] = await Promise.all([
+    const [project, library, dossier, gpuProof, localFit, amdProof, amdLocalFit, backendMatrix] = await Promise.all([
       loadJson('fixtures/sample-project.json'),
       loadJson('fixtures/sample-model-library.json'),
       loadJson('fixtures/sample-patch-dossier.json'),
@@ -29,6 +30,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       loadJson('fixtures/sample-local-fit.json'),
       loadJson('fixtures/sample-amd-proof.json'),
       loadJson('fixtures/sample-amd-local-fit.json'),
+      loadJson('fixtures/sample-backend-matrix.json'),
     ]);
     state.project = project;
     state.library = library;
@@ -37,6 +39,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     state.localFit = localFit;
     state.amdProof = amdProof;
     state.amdLocalFit = amdLocalFit;
+    state.backendMatrix = backendMatrix;
     renderAll();
   } catch (error) {
     renderError(error);
@@ -80,6 +83,7 @@ function renderAll() {
   renderModels();
   renderTextureSteps();
   renderBackendMatrix();
+  renderBackendReadinessMatrix();
   renderPatchDossier();
   renderSafetyGate();
 }
@@ -236,6 +240,46 @@ function renderBackendMatrix() {
     metric('DirectML', matrix.directml),
     metric('Linux Candidate', matrix.linuxOrProtonUnproven),
   ].join('');
+}
+
+function renderBackendReadinessMatrix() {
+  const matrix = state.backendMatrix;
+  const summary = matrix.summary;
+  document.getElementById('backend-readiness-summary').innerHTML = [
+    metric('Total Records', summary.totalRecords),
+    metric('Controlled Test', summary.readyForControlledTest),
+    metric('Recommendation', summary.readyForRecommendation),
+    metric('CUDA', summary.cudaCandidates),
+    metric('DirectML', summary.directmlCandidates),
+    metric('ONNX DML', summary.onnxDirectmlCandidates),
+    metric('Vulkan NCNN', summary.vulkanNcnnCandidates),
+    metric('TensorRT', summary.tensorrtCandidates),
+  ].join('');
+
+  document.getElementById('backend-readiness-proof').innerHTML = Object.entries(matrix.proof).map(([backend, status]) => (
+    `<span class="label">${escapeHtml(backend)} ${escapeHtml(status)}</span>`
+  )).join('');
+
+  document.getElementById('backend-readiness-gates').innerHTML = matrix.gates.map(gate => (
+    metric(gate.label, gate.count)
+  )).join('');
+
+  document.getElementById('backend-readiness-rows').innerHTML = matrix.rows.map(row => `
+    <article class="dossier">
+      ${chip(row.status)}
+      <h3>${escapeHtml(row.id)}</h3>
+      <p>${escapeHtml(row.action)}</p>
+      <div class="dossier__meta">
+        <span>Backend: ${escapeHtml(row.backend.join(', ') || 'none')}</span>
+        <span>Readiness: ${escapeHtml(row.readiness_level)}</span>
+      </div>
+      <div class="advanced">
+        hard_blocks=${escapeHtml(row.hard_blocks.join(', ') || 'none')}
+        soft_warnings=${escapeHtml(row.soft_warnings.join(', ') || 'none')}
+        labels=${escapeHtml(row.labels.join(', ') || 'none')}
+      </div>
+    </article>
+  `).join('');
 }
 
 function renderPatchDossier() {

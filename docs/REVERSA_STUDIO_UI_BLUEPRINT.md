@@ -15,6 +15,7 @@ Primary navigation:
 - Models
 - Textures
 - Framegen
+- Readiness
 - Patch
 - Safety
 - Reports
@@ -161,6 +162,17 @@ GPU Proof:
 - tiny tensor operation result
 - backend readiness
 - local advisory fit summary
+
+Backend Readiness:
+
+- total records
+- controlled-test candidates
+- recommendation-ready candidates
+- CUDA / DirectML / ONNX DirectML counts
+- Vulkan NCNN and TensorRT candidate counts
+- license, artifact, hash, and runtime block counts
+- proof status labels
+- representative gated rows
 
 Model Library:
 

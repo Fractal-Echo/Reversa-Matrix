@@ -80,6 +80,24 @@ node ./bin/reversa.js studio amd-join \
   --out /path/to/amd-local-fit
 ```
 
+## Backend Readiness Matrix
+
+After CUDA, AMD, and ONNX Runtime DirectML proof files exist, Studio can build a
+single generated matrix that ranks advisory rows by backend gate status:
+
+```bash
+node ./bin/reversa.js studio backend-matrix \
+  --dataset /path/to/gpu-upscale-framegen-advisory.jsonl \
+  --cuda-proof /path/to/gpu-proof/gpu-proof.json \
+  --amd-proof /path/to/amd-proof/amd-uma-proof.json \
+  --onnx-directml-proof /path/to/onnx-directml-proof/amd-uma-proof.json \
+  --out /path/to/backend-matrix
+```
+
+`BACKEND_READY_FOR_CONTROLLED_TEST` means planning can continue for a controlled
+local test. It is not a recommendation, production-ready claim, model-artifact
+approval, or runtime launch permission.
+
 ## What Version 01 Does Not Do
 
 - no game launch;
