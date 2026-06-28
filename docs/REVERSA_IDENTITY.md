@@ -36,6 +36,7 @@ Reversa prevents regressions by preserving and enforcing known-good frontiers.
 
 Current practical lanes include:
 
+- `claude_code_modern`
 - `agentic_toolchain`
 - `agentic_gateway`
 - `semantic_policy`
@@ -51,7 +52,10 @@ Additional domain profiles cover userspace graphics, Gamescope, Vulkan loader
 state, PCGamingWiki-style game fixes, widescreen/framegen evidence, graphics
 wrappers, BO3 diagnostics, render-enhancement plugins, Windows system trees,
 Android kernels, OrangeFox/TWRP recovery trees, and RM11Pro gaming runtime
-evidence.
+evidence. The modern Claude/Codex lane understands settings scopes, CLAUDE.md
+memory, AGENTS.md policy, hooks, skills, slash commands, subagents, MCP/plugins,
+Agent SDK/CI automation, generated artifacts, stale agents, approval/sandbox
+policy, and active-first frontier guards.
 
 ## Evidence Model
 
@@ -142,7 +146,7 @@ Reversa is designed for cross-domain engineering:
 | Windows | services, drivers, PE metadata, registry assumptions, MSBuild/Visual Studio trees |
 | Games | modding runtimes, graphics wrappers, Vulkan loader state, compatibility fixes, offline/private co-op stability evidence |
 | Cross-platform | C/C++/Rust/Java/Kotlin/Python/JS projects, generated artifacts, build scripts, copied constants |
-| Agent workflows | AGENTS/CLAUDE/SKILL files, hooks, permissions, provider routing, memory, gateways, attribution |
+| Agent workflows | AGENTS/CLAUDE/SKILL files, settings scopes, hooks, slash commands, subagents, MCP/plugins, permissions, provider routing, memory, gateways, generated artifacts, attribution |
 
 ## Safety Boundaries
 
@@ -166,6 +170,15 @@ node ./bin/reversa.js scan \
   --project-root /path/to/project \
   --profile semantic_policy \
   --out reversa_policy_out
+```
+
+Scan modern Claude/Codex workflow state:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root /path/to/project \
+  --profile claude_code_modern \
+  --out reversa_claude_modern_out
 ```
 
 Scan provider gateway state:

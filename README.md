@@ -90,8 +90,9 @@ JSON and JSONL are the source of truth.
 | Windows | services, drivers, PE metadata, registry assumptions, MSBuild/Visual Studio trees |
 | Games | PCGamingWiki-style fixes, modding runtimes, graphics wrappers, widescreen/framegen evidence, Vulkan loader state, private co-op stability evidence |
 | Cross-platform | C/C++/Rust/Java/Kotlin/Python/JS projects, generated artifacts, build scripts, copied constants |
+| Agent workflows | Claude/Codex settings, CLAUDE.md/AGENTS.md, hooks, skills, subagents, MCP, plugins, command approvals, generated artifacts |
 
-Current strongest lanes: Android recovery evidence mapping with known-good comparison and tree compare mode; Claude/Codex-style agent tooling and provider-gateway audits; Windows service/driver/registry/MSBuild evidence; and PC gaming runtime profiles that classify PCGamingWiki-style fixes, wrappers, widescreen/framegen state, Vulkan loader facts, Linux/Proton paths, and offline/private patch evidence without performing patching or bypass workflows.
+Current strongest lanes: Android recovery evidence mapping with known-good comparison and tree compare mode; modern Claude/Codex workflow audits; provider-gateway audits; Windows service/driver/registry/MSBuild evidence; and PC gaming runtime profiles that classify PCGamingWiki-style fixes, wrappers, widescreen/framegen state, Vulkan loader facts, Linux/Proton paths, and offline/private patch evidence without performing patching or bypass workflows.
 
 ---
 
@@ -162,12 +163,12 @@ node ./bin/reversa.js scan \
   --out reversa_game_out
 ```
 
-Scan a Claude/Codex/agent tooling tree:
+Scan a modern Claude/Codex/agent workflow tree:
 
 ```bash
 node ./bin/reversa.js scan \
   --project-root ./test/fixtures/agentic-toolchain \
-  --profile agentic_toolchain \
+  --profile claude_code_modern \
   --out reversa_agentic_out
 ```
 
@@ -328,6 +329,10 @@ See:
 ```text
 generic_source_tree
 agentic_toolchain
+claude_code_modern
+claude_code
+codex_agent
+agent_workflow
 agentic_gateway
 semantic_policy
 windows_system
@@ -355,11 +360,14 @@ rm11pro_gaming_runtime
 
 Use `generic_source_tree` when you are not sure which profile fits yet.
 
-For Claude/Codex-style projects, start with `agentic_toolchain`. Use
-`agentic_gateway` when the repo contains provider catalogs, Claude/Codex
-launchers, Anthropic Messages/OpenAI Responses adapters, smoke matrices,
-messaging bridges, or secret-redaction code. Pair both with
-`templates/engines/CLAUDE_CODEX_REVERSA_PATTERNS.md`.
+For Claude/Codex-style projects, start with `claude_code_modern`. It classifies
+CLAUDE.md/AGENTS.md memory, settings scopes, hooks, skills, slash commands,
+subagents, MCP/plugin surfaces, approval/sandbox claims, generated artifacts,
+stale-agent references, and active-first frontier guards. Use `agentic_toolchain`
+as the broader compatibility sweep, and use `agentic_gateway` when the repo
+contains provider catalogs, Claude/Codex launchers, Anthropic Messages/OpenAI
+Responses adapters, smoke matrices, messaging bridges, or secret-redaction code.
+Pair these with `templates/engines/CLAUDE_CODEX_REVERSA_PATTERNS.md`.
 
 Use `semantic_policy` when a repo has AGENTS/CLAUDE/SKILL files, memories,
 handoffs, hooks, or project docs that may disagree about approvals, destructive

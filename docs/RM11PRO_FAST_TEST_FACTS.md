@@ -130,6 +130,11 @@ Do not prefer `modules_update` by default. That recreates the stale staged-modul
 regression path where a pending update can override a proven active module before
 reboot.
 
+Reversa's `claude_code_modern` profile should flag any agent command plan that
+puts `modules_update` before the active module as a frontier regression risk,
+unless the plan is explicitly a guarded dry-check/probe with anti-regression
+comparison.
+
 Known-good active proof:
 
 ```text

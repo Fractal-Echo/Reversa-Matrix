@@ -232,6 +232,10 @@ Current practical profiles include:
 
 - `generic_source_tree`
 - `agentic_toolchain`
+- `claude_code_modern`
+- `claude_code`
+- `codex_agent`
+- `agent_workflow`
 - `agentic_gateway`
 - `semantic_policy`
 - `windows_system`
@@ -257,7 +261,16 @@ Current practical profiles include:
 
 Game and graphics-runtime profiles classify evidence for PCGamingWiki-style fixes, wrappers, frame timing, render hook surfaces, texture injection, HDR, API translation, Vulkan loader state, widescreen/framegen layers, offline/private patch manifests, and mobile Linux runtime assumptions.
 
-The `agentic_toolchain` profile classifies Claude/Codex-style instruction
+The `claude_code_modern` profile is the best first pass for modern Claude/Codex
+agent workflow repos. It classifies `CLAUDE.md` memory, `AGENTS.md`, managed,
+project, and local settings scopes, hooks, skills, slash commands, subagents,
+MCP/plugin surfaces, Agent SDK/CI automation, generated artifacts, stale-agent
+references, approval/sandbox policy, active-first module authority, and
+`modules_update` regression risk. Aliases: `claude_code`, `codex_agent`,
+`agent_workflow`, `ai_coding_surface`, and `claude_matrix`.
+
+The `agentic_toolchain` profile remains the broad compatibility sweep for
+Claude/Codex-style instruction
 files, skills, hooks, permissions, provider routing, memory/context injection,
 subagent orchestration, worktree isolation, MCP/plugin surfaces, attribution
 requirements, and proprietary-source import risk.
@@ -296,6 +309,15 @@ Equivalent short form:
 
 ```bash
 node ./bin/reversa.js scan --profiles semantic_policy /path/to/project
+```
+
+Scan a modern Claude/Codex workflow repo:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root /path/to/project \
+  --profile claude_code_modern \
+  --out reversa_claude_modern_out
 ```
 
 Scan a real provider gateway or agent launcher tree:

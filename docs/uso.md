@@ -24,6 +24,10 @@ Current practical profiles include:
 
 - `generic_source_tree`
 - `agentic_toolchain`
+- `claude_code_modern`
+- `claude_code`
+- `codex_agent`
+- `agent_workflow`
 - `agentic_gateway`
 - `windows_system`
 - `android_recovery`
@@ -71,20 +75,21 @@ The scanner is read-only against `/path/to/source/tree`.
 
 ---
 
-## 3. Try An Agentic Toolchain Scan
+## 3. Try A Modern Claude/Codex Workflow Scan
 
-Use this profile for Claude/Codex-style repos, skills, hooks, plugins, memory,
-provider routing, and source-ingestion audits:
+Use this profile first for Claude/Codex-style repos with CLAUDE.md/AGENTS.md,
+settings scopes, hooks, skills, slash commands, subagents, MCP/plugins,
+generated artifacts, stale-agent references, and approval/sandbox policy:
 
 ```bash
 node ./bin/reversa.js scan \
   --project-root ./test/fixtures/agentic-toolchain \
-  --profile agentic_toolchain \
+  --profile claude_code_modern \
   --out reversa_agentic_out
 ```
 
-This profile flags import boundaries such as `NOASSERTION`, restored
-sourcemap source, custom commercial terms, and missing attribution lanes.
+Use `agentic_toolchain` as the broader compatibility sweep when you also want
+older Claude/Codex source-ingestion and attribution heuristics.
 
 ---
 

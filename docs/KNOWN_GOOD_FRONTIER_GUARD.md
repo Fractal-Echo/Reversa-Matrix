@@ -65,6 +65,11 @@ It must not recommend source patches, new graphics lanes, broad archaeology,
 runtime integration, Proton/Wine/Steam jumps, or graphics-source changes before
 the exact working harness is recovered or replayed.
 
+The `claude_code_modern` profile also carries this rule into agent workflow
+audits. If a command plan prefers `modules_update` before the active module, it
+must classify the plan as `FRONTIER_REGRESSION_RISK` or `COMMAND_PLAN_UNSAFE`
+unless the text explicitly describes a guarded pending-module dry-check.
+
 ## Nebula R6 Markers
 
 Known-good proof markers:

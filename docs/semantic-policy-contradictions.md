@@ -3,6 +3,11 @@
 Use `semantic_policy` when agent instructions, memories, handoffs, hooks, or
 project docs may disagree about what an agent is allowed to do.
 
+Use `claude_code_modern` first when the repo is a Claude/Codex workflow tree
+with settings scopes, slash commands, subagents, MCP/plugins, skills, generated
+transcripts, active-first module rules, or stale-agent cleanup concerns. It
+includes semantic policy checks and adds modern Claude/Codex surface categories.
+
 ```bash
 node ./bin/reversa.js scan \
   --project-root /path/to/repo \

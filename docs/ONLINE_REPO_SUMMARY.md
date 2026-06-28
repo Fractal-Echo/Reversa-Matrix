@@ -86,6 +86,15 @@ List profiles:
 node ./bin/reversa.js scan --profiles
 ```
 
+Scan modern Claude/Codex workflow state:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root /path/to/project \
+  --profile claude_code_modern \
+  --out reversa_claude_modern_out
+```
+
 Scan agent policy drift:
 
 ```bash

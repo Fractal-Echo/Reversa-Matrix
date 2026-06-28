@@ -929,6 +929,90 @@ test('agentic gateway profile detects provider, launcher, protocol, smoke, and s
   assert.equal(validation.valid, true, validation.errors.join('\n'));
 });
 
+test('claude_code_modern detects modern Claude surfaces and unsafe workflow conflicts', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-claude-modern-'));
+  await mkdir(join(root, '.claude', 'commands'), { recursive: true });
+  await mkdir(join(root, '.claude', 'agents'), { recursive: true });
+  await mkdir(join(root, '.claude', 'hooks'), { recursive: true });
+  await mkdir(join(root, 'skills', 'reversa-audit'), { recursive: true });
+  await mkdir(join(root, 'transcripts'), { recursive: true });
+
+  await writeFile(join(root, 'CLAUDE.md'), 'Project memory: ask before destructive commands.\n', 'utf8');
+  await writeFile(join(root, 'AGENTS.md'), 'Use sandbox required for write-capable tasks.\n', 'utf8');
+  await writeFile(join(root, '.claude', 'settings.json'), '{"permissions":{"defaultMode":"ask"}}\n', 'utf8');
+  await writeFile(join(root, '.claude', 'settings.local.json'), '{"permissions":{"allow":["Read"]}}\n', 'utf8');
+  await writeFile(join(root, '.claude', 'settings.managed.json'), '{"permissions":{"deny":["Bash(rm -rf:*)"]}}\n', 'utf8');
+  await writeFile(join(root, '.claude', 'commands', 'review.md'), 'Slash command /review runs a code review checklist.\n', 'utf8');
+  await writeFile(join(root, '.claude', 'agents', 'reviewer.md'), 'Subagent reviewer owns one file and writes a handoff.\n', 'utf8');
+  await writeFile(join(root, '.claude', 'hooks', 'hooks.json'), [
+    '{"event":"PostToolUse","command":"ruff format ."}',
+    '{"event":"PreToolUse","command":"rm -rf /tmp/reversa-danger"}',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, '.mcp.json'), '{"mcpServers":{"local":{"command":"node","args":["server.js"]}}}\n', 'utf8');
+  await writeFile(join(root, 'skills', 'reversa-audit', 'SKILL.md'), 'Skill workflow with progressive disclosure.\n', 'utf8');
+  await writeFile(join(root, 'transcripts', 'session.md'), 'Generated transcript; source_authority=false.\n', 'utf8');
+  await writeFile(join(root, 'PLAN.md'), [
+    'This is a read-only task.',
+    'Next command would apply_patch to edit files.',
+    'approval_policy=never with rm -rf /tmp/reversa-danger is forbidden.',
+    'Run /data/adb/modules_update/nebula_core/bin/nebula-core before /data/adb/modules/nebula_core/bin/nebula-core.',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'claude_code_modern',
+  });
+
+  assert.equal(report.scan.profile, 'claude_code_modern');
+  assertEvidence(report, 'claude_memory_instruction', 'CLAUDE_MD_MEMORY');
+  assertEvidence(report, 'claude_settings_scope', 'SETTINGS_SCOPE_PROJECT');
+  assertEvidence(report, 'claude_settings_scope', 'SETTINGS_SCOPE_LOCAL');
+  assertEvidence(report, 'claude_settings_scope', 'SETTINGS_SCOPE_MANAGED');
+  assertEvidence(report, 'claude_hook_policy', 'HOOK_SAFE_FORMATTER');
+  assertEvidence(report, 'claude_hook_policy', 'HOOK_MUTATION_RISK');
+  assertEvidence(report, 'claude_command_plan_guard', 'COMMAND_PLAN_UNSAFE');
+  assertEvidence(report, 'claude_subagent_surface', 'SUBAGENT_SCOPE_BOUNDARY');
+  assertEvidence(report, 'claude_mcp_surface', 'MCP_TOOL_SURFACE');
+  assertEvidence(report, 'claude_skill_surface', 'SKILL_WORKFLOW');
+  assertEvidence(report, 'claude_command_surface', 'SLASH_COMMAND_SURFACE');
+  assertEvidence(report, 'claude_generated_boundary', 'GENERATED_ARTIFACT_NOT_AUTHORITY');
+  assertEvidence(report, 'claude_frontier_guard', 'FRONTIER_REGRESSION_RISK');
+  assertEvidence(report, 'claude_code_modern_guard', 'PERMISSION_POLICY_CONFLICT:read_only_vs_patch_plan');
+  assertEvidence(report, 'claude_code_modern_guard', 'PERMISSION_POLICY_CONFLICT:auto_approve_vs_unsafe_command');
+  assertEvidence(report, 'claude_code_modern_guard', 'FRONTIER_REGRESSION_RISK:modules_update_first');
+  assert(report.contradictions.some(item => item.category === 'claude_code_modern_guard'
+    && item.title.includes('Read-only Claude/Codex task conflicts')));
+  assert(report.contradictions.some(item => item.category === 'claude_code_modern_guard'
+    && item.title.includes('Auto-approval policy conflicts')));
+  assert(report.contradictions.some(item => item.category === 'claude_code_modern_guard'
+    && item.title.includes('Pending modules_update plan risks')));
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('claude_code_modern aliases and active-first module plans stay valid', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-claude-modern-active-'));
+  await writeFile(join(root, 'CLAUDE.md'), 'Active module is authoritative. Ask before destructive commands.\n', 'utf8');
+  await writeFile(join(root, 'PLAN.md'), [
+    'Read /data/adb/modules/nebula_core/bin/nebula-core first.',
+    'Only after explicit guarded dry-check read /data/adb/modules_update/nebula_core/bin/nebula-core.',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'claude_code',
+  });
+
+  assert.equal(report.scan.profile, 'claude_code');
+  assertEvidence(report, 'claude_memory_instruction', 'CLAUDE_MD_MEMORY');
+  assertEvidence(report, 'claude_frontier_guard', 'ACTIVE_FIRST_AUTHORITY');
+  assert(!report.contradictions.some(item => item.category === 'claude_code_modern_guard'));
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
 test('semantic policy profile emits normalized claims and contradictions', async () => {
   const report = await scanProject({
     projectRoot: semanticPolicyFixture,
