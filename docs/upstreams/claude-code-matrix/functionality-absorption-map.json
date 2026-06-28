@@ -1,0 +1,74 @@
+{
+  "schema": "reversa.functionality_absorption_map.v1",
+  "generated_at": "2026-06-28",
+  "target_repo": "Fractal-Echo/claude-code-matrix",
+  "target_commit": "b8dd346f9c3f98abc90a27c0654dc1a48e76b6ba",
+  "source_text_policy": "metadata_only_no_third_party_source_text",
+  "purpose": "Map Claude-code-matrix mechanisms into Reversa-owned profiles, datasets, tests, and future UI surfaces without vendoring implementation code.",
+  "capabilities": [
+    {
+      "id": "provider_catalog_and_registry",
+      "source_paths": ["config/provider_catalog.py", "providers/registry.py", "providers/defaults.py", "tests/providers/"],
+      "reversa_targets": ["agentic_gateway profile", "provider_catalog_surface evidence", "model_routing_surface evidence"],
+      "absorption_stance": "reimplement_detector_patterns",
+      "test_targets": ["provider catalog fixture", "provider route smoke fixture"],
+      "notes": "Learn the shape of multi-provider catalogs, registry health, and per-provider test coverage. Do not copy provider client code."
+    },
+    {
+      "id": "model_router_and_gateway_ids",
+      "source_paths": ["api/model_router.py", "api/model_catalog.py", "api/gateway_model_ids.py", "tests/providers/test_model_validation.py"],
+      "reversa_targets": ["model routing contradiction checks", "gateway model-id provenance evidence"],
+      "absorption_stance": "adapt_mechanism_with_attribution",
+      "test_targets": ["model id encoding fixture", "route capability fixture"],
+      "notes": "Teach Reversa to detect advertised model IDs, compatibility aliases, and route provenance."
+    },
+    {
+      "id": "admin_control_surface",
+      "source_paths": ["api/admin_routes.py", "api/admin_config.py", "api/admin_static/", "assets/admin-page.png"],
+      "reversa_targets": ["Reversa Studio admin/control-plane panels", "admin_config_surface evidence"],
+      "absorption_stance": "ui_pattern_reference_then_reimplement",
+      "test_targets": ["read-only admin config fixture", "secret masking fixture"],
+      "notes": "Absorb layout and control-plane concepts, not code. Secret fields must remain masked and write-gated."
+    },
+    {
+      "id": "messaging_bridge_and_turn_intake",
+      "source_paths": ["messaging/command_dispatcher.py", "messaging/turn_intake.py", "messaging/transcript.py", "messaging/workflow.py", "tests/messaging/"],
+      "reversa_targets": ["agentic command-plan artifacts", "companion-link message schema", "transcript non-authority guard"],
+      "absorption_stance": "reimplement_as_reversa_command_plan_layer",
+      "test_targets": ["turn intake fixture", "transcript non-authority fixture"],
+      "notes": "Use this to improve Reversa's own command suggestions while preserving evidence authority boundaries."
+    },
+    {
+      "id": "safe_diagnostics_and_redaction",
+      "source_paths": ["messaging/safe_diagnostics.py", "api/request_pipeline.py", "providers/error_mapping.py", "tests/providers/test_provider_transport_logging.py"],
+      "reversa_targets": ["secret_redaction_surface evidence", "safe diagnostics report writer"],
+      "absorption_stance": "must_reimplement",
+      "test_targets": ["secret redaction fixture", "provider error mapping fixture"],
+      "notes": "High priority for Reversa. Diagnostics must show mechanisms without leaking tokens, URLs, or private payloads."
+    },
+    {
+      "id": "smoke_capabilities",
+      "source_paths": ["smoke/capabilities.py", "smoke/features.py", "smoke/README.md", "tests/scripts/"],
+      "reversa_targets": ["profile validation command generator", "bounded smoke proof manifests"],
+      "absorption_stance": "adapt_test_taxonomy",
+      "test_targets": ["capability matrix fixture", "bounded smoke output fixture"],
+      "notes": "Convert smoke capability ideas into Reversa read-only proof stages and repeatable fixtures."
+    },
+    {
+      "id": "process_registry_runtime_boundary",
+      "source_paths": ["cli/process_registry.py", "api/runtime.py", "server.py", "scripts/install.sh", "scripts/uninstall.sh"],
+      "reversa_targets": ["runtime authority resolver", "process lifecycle evidence", "install mutation guard"],
+      "absorption_stance": "reference_for_boundaries_only",
+      "test_targets": ["process registry fixture", "installer mutation guard fixture"],
+      "notes": "Useful for lifecycle classification. Installer behavior is not copied into Reversa."
+    },
+    {
+      "id": "voice_and_transcription_lane",
+      "source_paths": ["messaging/voice.py", "messaging/transcription.py", "tests/messaging/test_voice_handlers.py"],
+      "reversa_targets": ["future optional companion app voice lane"],
+      "absorption_stance": "defer_optional_plugin",
+      "test_targets": ["voice metadata fixture"],
+      "notes": "Keep optional. Do not mix voice features into core scanner truth."
+    }
+  ]
+}

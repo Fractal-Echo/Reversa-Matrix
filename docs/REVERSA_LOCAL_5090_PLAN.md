@@ -338,3 +338,54 @@ Model artifact hashes are stored in the local run directory:
 ```text
 /home/richtofen/.android/repositories/nebula-assets/logs/2026-06-27-reversa-nebula-seal-pass-01/claude-code-matrix-refresh/policy-classifier-01/sha256sums.txt
 ```
+
+## Tesseract Training Mode
+
+Reversa training must use four independent proof faces before learned behavior
+is promoted:
+
+1. **Corpus face:** build a metadata/evidence-only pack with source URL,
+   commit, provenance, copy boundary, and hashes.
+2. **GPU face:** run the training job on the declared backend and capture
+   device, CUDA/runtime versions, metrics, and model hashes.
+3. **Adversarial face:** test against held-out labels, wrong-domain scanner
+   fixtures, and source-boundary cases that should stay blocked.
+4. **Frontier face:** replay known-good regression-frontier evidence so a
+   learned rule cannot demote older raw proof just because a newer run failed.
+
+The policy classifier is real training. It is not a full LLM fine-tune. Full
+fine-tuning, retrieval indexing, or local agent memory must remain separate
+lanes with their own hashes, evals, and write gates.
+
+## Claude-Code-Matrix Functionality Absorption Proof 02
+
+The 2026-06-28 pass added a functionality absorption map for
+`Fractal-Echo/claude-code-matrix` at commit
+`b8dd346f9c3f98abc90a27c0654dc1a48e76b6ba`.
+
+The training pack now includes:
+
+```text
+functionality_absorption_map: 1
+functionality_capability: 8
+source_import_policy: 9
+evidence_category_weight: 108
+```
+
+The second CUDA training proof used the existing PyTorch CUDA 12.8 environment:
+
+```text
+device: cuda:0 NVIDIA GeForce RTX 5090 total_memory=34190458880
+samples: 125
+train/test: 97/28
+labels: allowlist, blocked, notice_required, permissive
+test accuracy: 1.0000
+test macro F1: 1.0000
+policy-classifier.pt sha256:
+58ddd5c7f7ffd45528c2cff313d7e4e86f9f92333177463cea6e08dfbc8abe64
+```
+
+The added samples teach Reversa mechanism categories such as provider catalogs,
+model routing, admin surfaces, messaging bridges, safe diagnostics, smoke
+capabilities, runtime boundaries, and optional voice lanes without copying
+third-party implementation code.

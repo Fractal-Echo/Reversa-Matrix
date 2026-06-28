@@ -1,16 +1,19 @@
 {
-  "generated_at": "2026-06-26",
+  "generated_at": "2026-06-28",
   "target": {
     "repo": "Fractal-Echo/claude-code-matrix",
     "url": "https://github.com/Fractal-Echo/claude-code-matrix",
     "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix",
     "default_branch": "main",
+    "commit": "b8dd346f9c3f98abc90a27c0654dc1a48e76b6ba",
+    "synced_at": "2026-06-28",
     "license": "MIT",
     "fork_parent": "Alishahryar1/free-claude-code",
     "naming_note": "User-linked target is claude-code-matrix; claude-codex-matrix was a typo and does not exist under Fractal-Echo."
   },
   "local_cache_root": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26",
   "reversa_profile": "agentic_toolchain",
+  "functionality_absorption_map": "docs/upstreams/claude-code-matrix/functionality-absorption-map.json",
   "sources": [
     {
       "repo": "shanraisshan/claude-code-best-practice",

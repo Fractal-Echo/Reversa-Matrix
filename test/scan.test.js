@@ -1744,6 +1744,43 @@ test('agentic gateway profile detects provider, launcher, protocol, smoke, and s
   assert.equal(validation.valid, true, validation.errors.join('\n'));
 });
 
+test('agentic training pack absorbs Claude-code-matrix functionality map', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-agentic-training-pack-'));
+  const manifest = join(repoRoot, 'docs/upstreams/claude-code-matrix/source-sync.json');
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'scripts/build-agentic-training-pack.js'),
+    '--manifest',
+    manifest,
+    '--out',
+    root,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+
+  const pack = (await readFile(join(root, 'agentic-training-pack.jsonl'), 'utf8'))
+    .trim()
+    .split('\n')
+    .map(line => JSON.parse(line));
+  const capabilities = pack.filter(record => record.type === 'functionality_capability');
+  const packHeader = pack.find(record => record.type === 'training_pack');
+  const mapHeader = pack.find(record => record.type === 'functionality_absorption_map');
+
+  assert(packHeader.functionality_absorption_map.endsWith('functionality-absorption-map.json'));
+  assert.equal(mapHeader.capability_count, 8);
+  assert.equal(capabilities.length, 8);
+  assert(capabilities.some(record => record.capability_id === 'safe_diagnostics_and_redaction'));
+  assert(capabilities.some(record => record.capability_id === 'provider_catalog_and_registry'));
+  assert(capabilities.every(record => record.copy_boundary === 'metadata_only_no_third_party_source_text'));
+  assert(capabilities.every(record => record.source_paths.length > 0));
+
+  const labels = JSON.parse(await readFile(join(root, 'agentic-training-labels.json'), 'utf8'));
+  assert(labels.evidence_categories.includes('functionality_capability'));
+  assert(labels.evidence_categories.includes('safe_diagnostics_and_redaction'));
+});
+
 test('claude_code_modern detects modern Claude surfaces and unsafe workflow conflicts', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-claude-modern-'));
   await mkdir(join(root, '.claude', 'commands'), { recursive: true });

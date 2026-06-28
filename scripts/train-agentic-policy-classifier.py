@@ -241,6 +241,31 @@ def build_samples(records: list[dict[str, Any]]) -> list[Sample]:
         ))
         category_index += 1
 
+    capability_index = 0
+    for record in records:
+        if record.get("type") != "functionality_capability":
+            continue
+        repo = record.get("target_repo", "functionality")
+        text = " ".join([
+            str(repo),
+            str(record.get("capability_id", "")),
+            " ".join(record.get("source_paths", []) or []),
+            " ".join(record.get("reversa_targets", []) or []),
+            str(record.get("absorption_stance", "")),
+            " ".join(record.get("test_targets", []) or []),
+            str(record.get("notes", "")),
+            str(record.get("copy_boundary", "")),
+        ])
+        samples.append(Sample(
+            sample_id=f"functionality:{capability_index}:{repo}:{record.get('capability_id', '')}",
+            group=str(repo),
+            label=str(record.get("import_policy_class") or "permissive"),
+            text=text,
+            count=float(record.get("training_weight") or 1),
+            kind="functionality",
+        ))
+        capability_index += 1
+
     return samples
 
 
@@ -273,11 +298,50 @@ def split_by_repo(samples: list[Sample], seed: int) -> tuple[list[int], list[int
         split = max(1, int(len(indices) * 0.80))
         train_indices = sorted(indices[:split])
         test_indices = sorted(indices[split:])
-    return train_indices, test_indices
+    return ensure_label_coverage(samples, train_indices, test_indices, rng)
+
+
+def ensure_label_coverage(
+    samples: list[Sample],
+    train_indices: list[int],
+    test_indices: list[int],
+    rng: random.Random,
+) -> tuple[list[int], list[int]]:
+    train_set = set(train_indices)
+    test_set = set(test_indices)
+    all_labels = sorted({sample.label for sample in samples})
+
+    for label in all_labels:
+        label_indices = [index for index, sample in enumerate(samples) if sample.label == label]
+        if len(label_indices) < 2:
+            continue
+        if any(index in test_set for index in label_indices):
+            continue
+        candidates = [index for index in label_indices if index in train_set]
+        if len(candidates) < 2:
+            continue
+        chosen = rng.choice(candidates)
+        train_set.remove(chosen)
+        test_set.add(chosen)
+
+    for label in all_labels:
+        label_indices = [index for index, sample in enumerate(samples) if sample.label == label]
+        if len(label_indices) < 2:
+            continue
+        if any(index in train_set for index in label_indices):
+            continue
+        candidates = [index for index in label_indices if index in test_set]
+        if len(candidates) < 2:
+            continue
+        chosen = rng.choice(candidates)
+        test_set.remove(chosen)
+        train_set.add(chosen)
+
+    return sorted(train_set), sorted(test_set)
 
 
 def vectorize(samples: list[Sample], buckets: int) -> torch.Tensor:
-    matrix = np.zeros((len(samples), buckets + 3), dtype=np.float32)
+    matrix = np.zeros((len(samples), buckets + 4), dtype=np.float32)
     for row, sample in enumerate(samples):
         for token in TOKEN_RE.findall(sample.text.lower()):
             digest = hashlib.sha256(token.encode("utf-8")).digest()
@@ -289,6 +353,7 @@ def vectorize(samples: list[Sample], buckets: int) -> torch.Tensor:
         matrix[row, buckets] = math.log1p(sample.count) / 12.0
         matrix[row, buckets + 1] = 1.0 if sample.kind == "source" else 0.0
         matrix[row, buckets + 2] = 1.0 if sample.kind == "category" else 0.0
+        matrix[row, buckets + 3] = 1.0 if sample.kind == "functionality" else 0.0
     return torch.tensor(matrix, dtype=torch.float32)
 
 

@@ -23,6 +23,10 @@ keeping the import lane license-clean and source-clean.
 - Provider catalog fields such as `credential_env`, `credential_attr`, and
   `static_credential` are treated as per-provider catalog data instead of
   repo-level contradictions.
+- Follow-up 2026-06-28: added
+  `functionality-absorption-map.json` so Reversa can ingest the
+  Claude-code-matrix capability shape as metadata-only training/profile
+  evidence.
 
 ## Not Copied
 

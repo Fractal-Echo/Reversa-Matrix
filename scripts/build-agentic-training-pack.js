@@ -4,7 +4,7 @@ import { createHash } from 'crypto';
 import { execFileSync } from 'child_process';
 import { existsSync } from 'fs';
 import { mkdir, readFile, writeFile } from 'fs/promises';
-import { basename, join, resolve } from 'path';
+import { basename, dirname, join, resolve } from 'path';
 
 const args = parseArgs(process.argv.slice(2));
 
@@ -20,6 +20,7 @@ await mkdir(outDir, { recursive: true });
 const manifest = await readJson(manifestPath);
 const generatedAt = new Date().toISOString();
 const records = [];
+const functionalityMap = await readFunctionalityMap(manifest, manifestPath);
 
 records.push({
   type: 'training_pack',
@@ -29,6 +30,7 @@ records.push({
   target: manifest.target,
   license_mode: 'metadata_and_evidence_only',
   source_text_policy: 'No third-party source text is copied into this pack.',
+  functionality_absorption_map: manifest.functionality_absorption_map ?? null,
 });
 
 const rows = [];
@@ -88,6 +90,35 @@ for (const source of manifest.sources ?? []) {
       import_policy_class: policy.class,
       training_weight: policy.weight,
       use_in_profile: policy.class !== 'blocked',
+    });
+  }
+}
+
+if (functionalityMap) {
+  records.push({
+    type: 'functionality_absorption_map',
+    generated_at: generatedAt,
+    target_repo: functionalityMap.target_repo,
+    target_commit: functionalityMap.target_commit,
+    source_text_policy: functionalityMap.source_text_policy,
+    capability_count: functionalityMap.capabilities?.length ?? 0,
+    purpose: functionalityMap.purpose,
+  });
+
+  for (const capability of functionalityMap.capabilities ?? []) {
+    records.push({
+      type: 'functionality_capability',
+      target_repo: functionalityMap.target_repo,
+      target_commit: functionalityMap.target_commit,
+      capability_id: capability.id,
+      source_paths: capability.source_paths ?? [],
+      reversa_targets: capability.reversa_targets ?? [],
+      absorption_stance: capability.absorption_stance,
+      test_targets: capability.test_targets ?? [],
+      notes: capability.notes,
+      import_policy_class: 'permissive',
+      training_weight: 70,
+      copy_boundary: functionalityMap.source_text_policy,
     });
   }
 }
@@ -162,6 +193,21 @@ The pack is metadata/evidence only. It does not copy third-party source text.
 
 async function readJson(path) {
   return JSON.parse(await readFile(path, 'utf8'));
+}
+
+async function readFunctionalityMap(manifest, sourcePath) {
+  if (!manifest.functionality_absorption_map) {
+    return null;
+  }
+  const mapPath = [
+    resolve(dirname(sourcePath), manifest.functionality_absorption_map),
+    resolve(process.cwd(), manifest.functionality_absorption_map),
+    resolve(dirname(sourcePath), '..', '..', '..', manifest.functionality_absorption_map),
+  ].find(candidate => existsSync(candidate));
+  if (!mapPath) {
+    throw new Error(`Functionality absorption map does not exist: ${manifest.functionality_absorption_map}`);
+  }
+  return readJson(mapPath);
 }
 
 function classifyImportPolicy(stance = '') {
@@ -249,6 +295,7 @@ function collectGpuProbe() {
 function buildSummary(manifest, generatedAt, rows, records) {
   const sourceCount = manifest.sources?.length ?? 0;
   const labelCounts = countBy(records.filter(record => record.type === 'source_import_policy'), record => record.import_policy_class);
+  const capabilityCount = records.filter(record => record.type === 'functionality_capability').length;
 
   return [
     '# Agentic Toolchain Training Pack',
@@ -257,6 +304,7 @@ function buildSummary(manifest, generatedAt, rows, records) {
     `- Target: \`${manifest.target?.repo ?? '(unknown)'}\``,
     `- Profile: \`${manifest.reversa_profile ?? 'agentic_toolchain'}\``,
     `- Sources: ${sourceCount}`,
+    `- Functionality capabilities: ${capabilityCount}`,
     '- Source text policy: no third-party source text is copied into this pack.',
     '',
     '## Policy Counts',
@@ -277,6 +325,7 @@ function buildSummary(manifest, generatedAt, rows, records) {
     '',
     'Use `agentic-training-pack.jsonl` as a deterministic profile-training and review dataset.',
     'Blocked/reference-only lanes may inform classifiers but must not contribute copied source text.',
+    'Functionality capability records teach mechanism shape and test targets without copying implementation source.',
     '',
   ].join('\n');
 }
@@ -303,6 +352,10 @@ function buildLabels() {
       'mcp_plugin_surface',
       'proprietary_source_risk',
       'attribution_license_surface',
+      'functionality_capability',
+      'safe_diagnostics_and_redaction',
+      'provider_catalog_and_registry',
+      'smoke_capabilities',
     ],
   };
 }
