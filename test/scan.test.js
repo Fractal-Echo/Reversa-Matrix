@@ -925,6 +925,52 @@ test('known good frontier profile promotes raw counts above status-only', async 
   assert(!report.contradictions.some(item => item.title === 'STATUS_PROOF_REQUIRES_RAW_LOG_RECOVERY'));
 });
 
+test('decoded media evidence profile reads JSONL proof without patch candidates', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-decoded-media-'));
+  await writeFile(join(root, 'decoded-media-manifest.jsonl'), [
+    JSON.stringify({
+      kind: 'hashed_video_artifact',
+      path: 'D:/Downloads/dock-proof.mp4',
+      sha256: 'a'.repeat(64),
+      tags: ['EVIDENCE:VIDEO_DECODED', 'PROJECT:DROIDSPACES_NEBULA', 'DRM:LEASE', 'WAYLAND:LABWC'],
+      frame_paths: ['frames/dock-proof.frame1.png'],
+      content_summary: 'AnLandKDE userspace boot in DRM lease mode; connector 89; CRTC 285; mode 1920x1080@75; fd3 lease received; /dev/dri/card0; /dev/dri/renderD128; scanout plane 133; Mesa KGSL render device; renderer gles2; wayland=wayland-0; wlroots DRM backend; labwc compositor; graphical target reached.',
+    }),
+    JSON.stringify({
+      kind: 'hashed_video_artifact',
+      path: 'D:/Downloads/fps-context.mp4',
+      sha256: 'b'.repeat(64),
+      tags: ['EVIDENCE:VIDEO_DECODED', 'RUNTIME:GAME_COMPAT', 'PERF:FPS'],
+      content_summary: 'FPS around 75/75/76 with ping 0ms; app/config/launch path unknown; not standalone runtime-lane proof.',
+    }),
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'decoded_media_evidence',
+  });
+
+  assert.equal(report.scan.profile, 'decoded_media_evidence');
+  assertEvidence(report, 'decoded_media_artifact', 'decoded_media.artifact.sha256=');
+  assertEvidence(report, 'decoded_media_drm_lease_proof', 'decoded_media.drm_lease=true');
+  assertEvidence(report, 'decoded_media_drm_lease_proof', 'decoded_media.drm_lease.connector=89');
+  assertEvidence(report, 'decoded_media_drm_lease_proof', 'decoded_media.drm_lease.crtc=285');
+  assertEvidence(report, 'decoded_media_drm_lease_proof', 'decoded_media.drm_lease.mode=1920x1080@75');
+  assertEvidence(report, 'decoded_media_drm_lease_proof', 'decoded_media.drm_lease.fd=fd3');
+  assertEvidence(report, 'decoded_media_drm_lease_proof', 'decoded_media.drm_lease.render_node=/dev/dri/renderD128');
+  assertEvidence(report, 'decoded_media_drm_lease_proof', 'decoded_media.drm_lease.scanout_plane=133');
+  assertEvidence(report, 'decoded_media_wayland_compositor_proof', 'decoded_media.wlroots_drm_backend=true');
+  assertEvidence(report, 'decoded_media_wayland_compositor_proof', 'decoded_media.compositor=labwc');
+  assertEvidence(report, 'decoded_media_wayland_compositor_proof', 'decoded_media.wayland.socket=wayland-0');
+  assertEvidence(report, 'decoded_media_gpu_render_proof', 'decoded_media.kgsl_render_device=true');
+  assertEvidence(report, 'decoded_media_gpu_render_proof', 'decoded_media.renderer=gles2');
+  assertEvidence(report, 'decoded_media_performance_context', 'decoded_media.fps_overlay=75/75/76');
+  assertEvidence(report, 'decoded_media_performance_context', 'decoded_media.ping_ms=0');
+  assertEvidence(report, 'decoded_media_guard', 'decoded_media.guard.not_standalone_runtime_proof=true');
+  assert.equal(report.patch_candidates.length, 0);
+  assert.equal(validateScanReport(report).valid, true);
+});
+
 test('known good frontier profile treats per-lane runtime ids as volatile evidence', async () => {
   const root = await mkdtemp(join(tmpdir(), 'reversa-frontier-volatile-runtime-'));
   await writeFile(join(root, 'current.log'), [

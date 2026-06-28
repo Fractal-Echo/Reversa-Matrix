@@ -179,6 +179,19 @@ node ./bin/reversa.js dataset telegram-promotion \
   --out /path/to/telegram-promotion-gate
 ```
 
+Scan decoded screenshots/video OCR as artifact-backed evidence:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root /path/to/media-extraction-output \
+  --profile decoded_media_evidence \
+  --include-ignored \
+  --out reversa_media_out
+```
+
+This records hashes, DRM lease details, wlroots/labwc/KGSL evidence, and FPS
+context. It does not emit patch candidates or authorize runtime/device actions.
+
 Capture passive local GPU proof for Reversa Studio:
 
 ```bash
