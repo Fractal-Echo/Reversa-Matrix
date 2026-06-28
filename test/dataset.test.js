@@ -14,6 +14,7 @@ import {
   recordsFromScanReport,
   syntheticNegativeRecords,
 } from '../scripts/build-gpu-upscale-framegen-dataset.js';
+import { buildPrivateCorpus } from '../scripts/build-private-corpus.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(__dirname, '..');
@@ -163,6 +164,132 @@ test('dataset command exposes gpu-upscale-framegen help', () => {
   assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.match(result.stdout, /gpu-upscale-framegen/);
   assert.match(result.stdout, /does not download model weights/);
+});
+
+test('private corpus builder writes local-only hashed retrieval chunks', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-private-corpus-'));
+  const project = join(root, 'project');
+  const notes = join(root, 'telegram-notes');
+  const outDir = join(root, 'corpus');
+  await mkdir(join(project, 'docs'), { recursive: true });
+  await mkdir(join(project, 'reversa-scans'), { recursive: true });
+  await mkdir(join(project, 'node_modules', 'pkg'), { recursive: true });
+  await mkdir(notes, { recursive: true });
+
+  await writeFile(join(project, 'docs', 'NEBULA.md'), [
+    'NEBULA_R6_WAYLAND_WORKING_REAL_BUFFER_PASS',
+    'vkGetMemoryFdKHR=0',
+    'real_buffer_commits=2',
+    'sidecar-14 sidecar-06 force-composition',
+  ].join('\n'), 'utf8');
+  await writeFile(join(project, 'docs', 'secret.txt'), [
+    'token=sk-test_123456789012345678901234567890',
+    'nebula private corpus redaction proof',
+  ].join('\n'), 'utf8');
+  await writeFile(join(project, 'reversa-scans', 'report.json'), JSON.stringify({
+    generated: true,
+    classification: 'stale blocked_export report',
+  }), 'utf8');
+  await writeFile(join(project, 'node_modules', 'pkg', 'ignored.md'), 'ignore me', 'utf8');
+  await writeFile(join(project, 'image.bin'), Buffer.from([0, 1, 2, 3, 0]));
+  await writeFile(join(notes, 'telegram-note.md'), 'Nebula note says Wayland needs corroboration before source authority.', 'utf8');
+
+  const manifestPath = join(root, 'manifest.json');
+  await writeFile(manifestPath, JSON.stringify({
+    schema: 'reversa.private_corpus_manifest.v1',
+    corpus_id: 'fixture-corpus',
+    max_file_bytes: 8192,
+    max_chunk_chars: 256,
+    sources: [{
+      id: 'fixture_project',
+      root: project,
+      role: 'repo_source',
+      tags: ['nebula', 'fixture'],
+    }, {
+      id: 'operator_notes',
+      root: notes,
+      role: 'telegram_notes',
+      tags: ['telegram', 'nebula'],
+    }],
+  }, null, 2), 'utf8');
+
+  const result = await buildPrivateCorpus({
+    manifest: manifestPath,
+    out: outDir,
+  });
+
+  assert.equal(result.totalRecords, 4);
+  assert(existsSync(join(outDir, 'private-corpus-records.jsonl')));
+  assert(existsSync(join(outDir, 'private-corpus-train.jsonl')));
+  assert(existsSync(join(outDir, 'private-corpus-val.jsonl')));
+  assert(existsSync(join(outDir, 'private-corpus-test.jsonl')));
+  assert(existsSync(join(outDir, 'private-corpus-index.json')));
+  assert(existsSync(join(outDir, 'private-corpus-summary.md')));
+  assert(existsSync(join(outDir, 'source-summary.tsv')));
+  assert(existsSync(join(outDir, 'label-summary.tsv')));
+  assert(existsSync(join(outDir, 'rejected-records.tsv')));
+  assert(existsSync(join(outDir, 'privacy-summary.tsv')));
+  assert(existsSync(join(outDir, 'result.md')));
+  assert(existsSync(join(outDir, 'sha256sums.txt')));
+
+  const records = await readJsonl(join(outDir, 'private-corpus-records.jsonl'));
+  assert(records.every(record => record.local_only === true));
+  assert(records.every(record => record.commit_allowed === false));
+  assert(records.every(record => record.export_allowed === false));
+  assert(records.every(record => record.content_sha256 && record.chunk_sha256));
+  assert(records.every(record => record.manifest_sha256));
+
+  const knownGood = records.find(record => record.relative_path === 'docs/NEBULA.md');
+  assert(knownGood);
+  assert.equal(knownGood.source_authority, true);
+  assert.equal(knownGood.generated_artifact, false);
+  assert.equal(knownGood.authority_class, 'repo_source');
+  assert.equal(knownGood.training_allowed, true);
+  assert(knownGood.retrieval_tags.includes('graphics'));
+
+  const redacted = records.find(record => record.relative_path === 'docs/secret.txt');
+  assert(redacted);
+  assert.equal(redacted.redaction_status, 'redacted');
+  assert.equal(redacted.training_allowed, false);
+  assert(!redacted.text.includes('sk-test_123456789012345678901234567890'));
+  assert(redacted.text.includes('[REDACTED]'));
+
+  const generated = records.find(record => record.relative_path === 'reversa-scans/report.json');
+  assert(generated);
+  assert.equal(generated.source_authority, false);
+  assert.equal(generated.generated_artifact, true);
+  assert.equal(generated.authority_class, 'generated_artifact');
+  assert.equal(generated.training_allowed, false);
+
+  const operatorNote = records.find(record => record.source_id === 'operator_notes');
+  assert(operatorNote);
+  assert.equal(operatorNote.source_authority, false);
+  assert.equal(operatorNote.telegram_source_authority, false);
+  assert.equal(operatorNote.training_allowed, false);
+  assert.equal(operatorNote.promotion_state, 'retrieval_only_requires_corroboration');
+
+  const skipped = await readFile(join(outDir, 'rejected-records.tsv'), 'utf8');
+  assert.match(skipped, /node_modules/);
+  assert.match(skipped, /extension_not_indexed|binary_or_non_text/);
+
+  const privacy = await readFile(join(outDir, 'privacy-summary.tsv'), 'utf8');
+  assert.match(privacy, /docs\/secret\.txt/);
+});
+
+test('dataset command exposes private-corpus help', () => {
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'dataset',
+    'private-corpus',
+    '--help',
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /private local retrieval\/training corpus/);
+  assert.match(result.stdout, /Do not\s+commit generated corpus outputs/);
 });
 
 function fakeReport(projectRoot, evidenceRows, patchCandidates = []) {
