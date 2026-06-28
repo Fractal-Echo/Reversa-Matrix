@@ -25,6 +25,7 @@
         <button class="rail__button" type="button" data-panel="evidence">Evidence</button>
         <button class="rail__button" type="button" data-panel="gpu">GPU Proof</button>
         <button class="rail__button" type="button" data-panel="amd">AMD / UMA</button>
+        <button class="rail__button" type="button" data-panel="power">Power / TDP</button>
         <button class="rail__button" type="button" data-panel="models">Models</button>
         <button class="rail__button" type="button" data-panel="texture">Textures</button>
         <button class="rail__button" type="button" data-panel="framegen">Framegen</button>
@@ -88,6 +89,20 @@
           <h3>AMD Advisory Fit</h3>
           <div class="metric-grid" id="amd-fit-summary"></div>
           <div class="model__meta" id="amd-fit-actions"></div>
+        </div>
+      </section>
+
+      <section class="panel" id="panel-power" data-panel-view="power">
+        <div class="section-head">
+          <p class="eyebrow">Power / TDP Research</p>
+          <h2>Handheld Runtime Lane</h2>
+          <p>Power backends, device profiles, game matching, and mutation guards stay read-only until controlled proof exists.</p>
+        </div>
+        <div class="metric-grid" id="power-tdp-summary"></div>
+        <div class="card-grid" id="power-tdp-cards"></div>
+        <div class="band">
+          <h3>Deferred Controls</h3>
+          <div class="label-cloud" id="power-tdp-placeholders"></div>
         </div>
       </section>
 

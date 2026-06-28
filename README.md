@@ -32,6 +32,7 @@ Reversa-Matrix is designed for evidence-heavy work across:
 - Linux containers and userspace graphics stacks.
 - Windows services, drivers, registry assumptions, PE metadata, and MSBuild trees.
 - PC game compatibility evidence, wrappers, Vulkan loader state, widescreen/frame-generation notes, and private/offline patch dossiers.
+- Power/TDP research for handheld daemons, game-aware tuning profiles, battery caps, and mutation guards.
 - Claude/Codex-style agent workflows, settings, hooks, skills, subagents, MCP, plugins, and approval policies.
 - Generic C/C++/Rust/Java/Kotlin/Python/JavaScript projects with copied constants, generated artifacts, and stale assumptions.
 
@@ -52,7 +53,7 @@ Profiles may mention projects or ecosystems such as Android, OrangeFox, TWRP, Ga
 - Git.
 - A local tree, log folder, config bundle, or extracted project to inspect.
 
-Optional commands depend on your task. Reversa-Matrix does not bundle ADB, compilers, SDKs, debuggers, platform drivers, game files, model weights, or device flashing tools.
+Optional commands depend on your task. Reversa-Matrix does not bundle ADB, compilers, SDKs, debuggers, platform drivers, game files, model weights, power-control binaries, or device flashing tools.
 
 ## Quick Start
 
@@ -124,6 +125,15 @@ node ./bin/reversa.js scan \
   --project-root ./test/fixtures/bo3-runtime-diagnostics \
   --profile rm11pro_gaming_runtime \
   --out reversa_game_out
+```
+
+Scan an AutoTDP, handheld-daemon, or game power-profile tree:
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root /path/to/power-project \
+  --profile power_tdp_runtime \
+  --out reversa_power_out
 ```
 
 Compare two trees:
@@ -225,12 +235,15 @@ Current profile families include:
 - Windows: `windows_system`, `windows_compat`.
 - Game/runtime: `game_modding`, `pcgamingwiki_runtime`, `widescreen_framegen_runtime`, `game_exe_patch_runtime`, `graphics_wrapper`, `vulkan_loader`, `bo3_zombies_diagnostics`, `render_enhancement_plugin`, `rm11pro_gaming_runtime`.
 - GPU/upscale/frame generation: `gpu_upscale_framegen`, `upscale_runtime`, `framegen_runtime`, `game_upscale`, `flowframes`, `cupscale`.
+- Power/TDP research: `power_tdp_runtime`, `autotdp`, `hhd_autotdp`, `tdp_control`, `handheld_daemon`, `game_power_profile`, `battery_perf_profile`.
 
 Use `generic_source_tree` when you are not sure where to start.
 
 ## Safety Model
 
 `scan`, `compare`, and `gui` are read-only against the inspected project tree.
+
+Power/TDP profiles detect mutation-capable surfaces such as TDP writes, service changes, ACPI calls, SMU/ALIB paths, charge controls, and plugin moves. They do not execute those surfaces.
 
 Some commands intentionally write Reversa-owned artifacts when explicitly invoked:
 
@@ -296,6 +309,7 @@ Planned work is tracked as docs, tests, and profile additions before it is adver
 - More evidence profiles for Linux graphics/container runtime boundaries.
 - More Windows driver/service/install metadata coverage.
 - Stronger game compatibility evidence around frame pacing, HDR, texture replacement, wrapper chains, and Linux/Proton validation.
+- Game-aware power/TDP advisory evidence that keeps backend proof, device profiles, and approval gates separated.
 - A more complete Reversa Studio UI fed by local JSON evidence.
 - Better local-model advisory evaluation while keeping scanner output deterministic.
 

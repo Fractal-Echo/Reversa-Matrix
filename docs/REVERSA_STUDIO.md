@@ -1,7 +1,8 @@
 # Reversa Studio
 
 Reversa Studio is a local-first evidence and workflow UI for GPU upscaling,
-frame generation, texture workflows, and guarded patch proposals.
+frame generation, texture workflows, Power/TDP research, and guarded patch
+proposals.
 
 It is the desktop/host brain for complex enhancement work. It reads evidence,
 advisory datasets, model metadata, and patch dossiers, then turns them into
@@ -32,7 +33,7 @@ The focus is mechanism over guesswork:
 - flags missing proof;
 - refuses unsafe EXE patch plans;
 - refuses unsupported Linux/Proton claims;
-- refuses unknown-license model downloads.
+- keeps unknown provenance research-only and blocks redistribution decisions until reviewed.
 
 Version 01 may show proposed workflow steps, but every future patch,
 reinjection, or runtime-adjacent action stays proposal-only.
@@ -80,6 +81,24 @@ node ./bin/reversa.js studio amd-join \
   --out /path/to/amd-local-fit
 ```
 
+## Power/TDP Research Lane
+
+Reversa Studio also has a read-only Power/TDP panel for handheld and laptop
+power-control research. It displays detected backends, device profiles, game
+profile sources, performance modes, battery caps, stable-sample/hysteresis
+guards, mutation guards, and the next controlled-test status.
+
+This lane is metadata only. It can show `TDP_BACKEND_RYZENADJ`,
+`TDP_BACKEND_HHD_PLUGIN`, `TDP_BACKEND_ACPI_CALL`, `TDP_BACKEND_SMU`,
+`GAME_PROFILE_STEAM_APPID`, `GAME_PROFILE_EXECUTABLE`,
+`GAME_PROFILE_WINE_PROTON`, `DEVICE_PROFILE_PRESENT`,
+`DEVICE_AUTODETECT_DMI`, `PLUGIN_CONFLICT_DETECTED`,
+`MUTATION_REQUIRES_APPROVAL`, and `RUNTIME_PROOF_MISSING`.
+
+The UI has no apply buttons. Placeholder labels such as "TDP write deferred",
+"Proof required", "Approval required", and "Runtime test later" are deliberate
+blocked states.
+
 ## Backend Readiness Matrix
 
 After CUDA, AMD, and ONNX Runtime DirectML proof files exist, Studio can build a
@@ -108,6 +127,9 @@ permission.
 - no DRM bypass;
 - no model weight download;
 - no automatic reinjection;
+- no TDP write;
+- no systemd service install;
+- no handheld-daemon install;
 - no runtime mutation.
 
 ## UI Inspiration Boundaries
@@ -124,6 +146,8 @@ packages. It must not copy third-party UI assets or source code wholesale.
 - Home / Project Intake
 - Evidence Board
 - GPU Proof
+- AMD / UMA Proof
+- Power / TDP Research
 - Model Library
 - Texture Pipeline
 - Upscale Pipeline
@@ -145,8 +169,10 @@ The following proof is required before any future patch or reinject step:
 - game version;
 - offset/signature;
 - patch provenance;
-- model license;
+- model provenance and redistribution status;
 - model hash;
+- power backend proof;
+- mutation approval for TDP, ACPI, SMU, service, charge, or plugin actions;
 - rollback plan;
 - offline/private scope;
 - no anti-cheat/DRM bypass.

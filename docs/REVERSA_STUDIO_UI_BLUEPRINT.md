@@ -1,7 +1,7 @@
 # Reversa Studio UI Blueprint
 
 Reversa Studio is an evidence-console dashboard for GPU upscale, framegen,
-texture workflow, and patch dossier planning.
+texture workflow, Power/TDP research, and patch dossier planning.
 
 The first prototype is local and static. It reads fixture JSON only.
 
@@ -12,6 +12,8 @@ Primary navigation:
 - Home
 - Evidence
 - GPU Proof
+- AMD / UMA
+- Power / TDP
 - Models
 - Textures
 - Framegen
@@ -43,9 +45,9 @@ page sections should stay full-width bands or unframed grids.
 2. Import Reversa scan output or advisory dataset fixture.
 3. Review evidence health and known-good frontier.
 4. Capture or import local GPU proof.
-5. Review model metadata and license risk.
-6. Select a texture/upscale/framegen planning lane.
-7. Build a patch or reinjection checklist.
+5. Review model metadata, provenance, and redistribution status.
+6. Select a texture/upscale/framegen or Power/TDP planning lane.
+7. Build a patch, reinjection, or controlled-test checklist.
 8. Stop at the Safety Gate until required proof exists.
 9. Export a report.
 
@@ -74,9 +76,12 @@ No third-party UI assets are copied.
 
 Use plain labels:
 
-- "Missing model license"
+- "Provenance unknown"
+- "Redistribution not decided"
 - "CUDA proof missing"
 - "Linux/Proton not proven"
+- "TDP write deferred"
+- "Approval required"
 - "Patch cannot be applied"
 - "Review-only package"
 - "Next safe action"
@@ -170,15 +175,27 @@ Backend Readiness:
 - recommendation-ready candidates
 - CUDA / DirectML / ONNX DirectML counts
 - Vulkan NCNN and TensorRT candidate counts
-- license, artifact, hash, and runtime block counts
+- provenance, redistribution, artifact, hash, and runtime block counts
 - proof status labels
 - representative gated rows
+
+Power / TDP:
+
+- detected power backends
+- device profile
+- game profile source
+- performance mode
+- battery cap
+- stable sample / hysteresis
+- mutation guard
+- next controlled test
 
 Model Library:
 
 - Hugging Face metadata
 - local models
-- license status
+- provenance status
+- redistribution status
 - hash status
 - backend
 - VRAM estimate

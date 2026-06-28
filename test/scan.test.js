@@ -871,6 +871,95 @@ test('gpu upscale framegen profile treats generated scans and training artifacts
   assert.equal(validation.valid, true, validation.errors.join('\n'));
 });
 
+test('power TDP runtime profile detects AutoTDP and handheld-daemon research surfaces', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-power-tdp-runtime-'));
+  await mkdir(join(root, 'src', 'adjustor', 'core'), { recursive: true });
+  await writeFile(join(root, 'AutoTDP.sh'), [
+    'REQUIRED_PACKAGES=("jq" "sudo" "ryzenadj")',
+    'RYZENADJ_EXEC=ryzenadj',
+    'set_tdp() { "$RYZENADJ_EXEC" --stapm-limit "$1" --fast-limit "$1" --slow-limit "$1"; }',
+    'read_cpu_times() { read -r _ user nice system idle rest < /proc/stat; }',
+    'for supply in /sys/class/power_supply/*; do echo "$supply"; done',
+    'MIN_TDP=8000 DEFAULT_TDP=15000 MAX_CPU_TDP=30000 STEP_TDP=1000 BATTERY_MAX_TDP=12000',
+    'MONITOR_INTERVAL=5 STABLE_SAMPLE_COUNT=3 RYZENADJ_DELAY=2',
+    'PERFORMANCE_MODE=balanced POWER_MODE=turbo',
+    'SteamAppId=${SteamAppId:-${SteamGameId:-${STEAM_COMPAT_APP_ID:-}}}',
+    'wine64-preloader and wineserver are launcher helpers for Proton.',
+    'Runtime proof missing until a controlled test later.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'game_profiles.json'), JSON.stringify({
+    steam_appids: { 1091500: 'cyberpunk_2077' },
+    executables: { 'cyberpunk2077.exe': 'cyberpunk_2077' },
+    launcher_types: { wine: 'generic_wine' },
+  }, null, 2), 'utf8');
+  await writeFile(join(root, 'known_devices.json'), JSON.stringify({
+    hx370: {
+      DEVICE_PROFILE: 'hx370',
+      MIN_TDP: 8000,
+      DEFAULT_TDP: 18000,
+      MAX_CPU_TDP: 33000,
+      BATTERY_MAX_TDP: 15000,
+    },
+  }, null, 2), 'utf8');
+  await writeFile(join(root, 'src', 'adjustor', 'hhd.py'), [
+    'from hhd.plugins import HHDPlugin',
+    'class AdjustorInitPlugin(HHDPlugin): pass',
+    'CONFLICTING_PLUGINS = {"SimpleDeckyTDP": "conflict", "PowerControl": "conflict"}',
+    'with open("/sys/devices/virtual/dmi/id/product_name") as product_name: pass',
+    'with open("/proc/cpuinfo") as cpuinfo: pass',
+    'os.system("systemctl stop plugin_loader")',
+    'os.rename(path, new_path)',
+    'os.system("systemctl start plugin_loader")',
+    'os.system("rm -rf /home/user/homebrew/plugins/hhd-disabled")',
+    'SmuDriverPlugin and SmuQamPlugin select an SMU backend.',
+    'BatteryPlugin and GpuPlugin attach battery and GPU controls.',
+    'RESEARCH_READY_FOR_CONTROLLED_TEST after profile import and daemon model review.',
+  ].join('\n'), 'utf8');
+  await writeFile(join(root, 'src', 'adjustor', 'core', 'acpi.py'), [
+    'os.system("modprobe acpi_call")',
+    'with open("/proc/acpi/call", "wb") as acpi_call: pass',
+    'with open("/sys/firmware/acpi/platform_profile", "w") as platform_profile: pass',
+    'charge_control_end_threshold and charge_type writes are approval gated.',
+    'with open(os.path.join(entry.path, "device/power/wakeup"), "r") as wakeup: pass',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'power_tdp_runtime',
+  });
+
+  assert.equal(report.scan.profile, 'power_tdp_runtime');
+  assertEvidence(report, 'power_tdp_backend', 'TDP_BACKEND_RYZENADJ');
+  assertEvidence(report, 'power_tdp_backend', 'TDP_BACKEND_HHD_PLUGIN');
+  assertEvidence(report, 'power_tdp_backend', 'TDP_BACKEND_ACPI_CALL');
+  assertEvidence(report, 'power_tdp_backend', 'TDP_BACKEND_SMU');
+  assertEvidence(report, 'power_game_profile', 'GAME_PROFILE_STEAM_APPID');
+  assertEvidence(report, 'power_game_profile', 'GAME_PROFILE_EXECUTABLE');
+  assertEvidence(report, 'power_game_profile', 'GAME_PROFILE_WINE_PROTON');
+  assertEvidence(report, 'power_mode_profile', 'POWER_MODE_PROFILE');
+  assertEvidence(report, 'power_battery_profile', 'BATTERY_CAP_PRESENT');
+  assertEvidence(report, 'power_sampling_policy', 'STABLE_SAMPLE_HYSTERESIS');
+  assertEvidence(report, 'power_device_profile', 'DEVICE_PROFILE_PRESENT');
+  assertEvidence(report, 'power_device_profile', 'DEVICE_AUTODETECT_DMI');
+  assertEvidence(report, 'power_plugin_conflict', 'PLUGIN_CONFLICT_DETECTED');
+  assertEvidence(report, 'power_mutation_guard', 'MUTATION_REQUIRES_APPROVAL');
+  assertEvidence(report, 'power_runtime_proof', 'RUNTIME_PROOF_MISSING');
+  assertEvidence(report, 'power_research_status', 'RESEARCH_READY_FOR_CONTROLLED_TEST');
+  assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:device/power/wakeup');
+  assert(report.commands_to_run.some(command => command.includes('ryzenadj')));
+  assert(report.commands_to_run.some(command => command.includes('SimpleDeckyTDP')));
+
+  const aliasReport = await scanProject({
+    projectRoot: root,
+    profile: 'hhd_autotdp',
+  });
+  assert.equal(aliasReport.scan.profile, 'hhd_autotdp');
+  assertEvidence(aliasReport, 'power_tdp_backend', 'TDP_BACKEND_HHD_PLUGIN');
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
 test('agentic toolchain profile detects skills, hooks, memory, providers, and import risk', async () => {
   const report = await scanProject({
     projectRoot: agenticFixture,

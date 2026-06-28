@@ -80,9 +80,9 @@ The current scanner already understands Android recovery-style trees and generic
 | Platform | What Reversa-Matrix should map |
 |---|---|
 | Android | recovery trees, kernels, vendor blobs, fstab, init rc, BoardConfig, device facts |
-| Linux | containers, distro roots, desktop graphics stacks, systemd, kernel/userland boundaries |
+| Linux | containers, distro roots, desktop graphics stacks, systemd, kernel/userland boundaries, handheld power daemons |
 | Windows | source projects, drivers, services, registry assumptions, PE metadata, build scripts |
-| Games | PCGamingWiki-style fixes, modding runtimes, graphics wrappers, widescreen/framegen evidence, Vulkan loader state, render enhancement manifests |
+| Games | PCGamingWiki-style fixes, modding runtimes, graphics wrappers, widescreen/framegen evidence, Vulkan loader state, render enhancement manifests, game-aware Power/TDP profiles |
 | Cross-platform | C/C++/Rust/Java/Kotlin/Python/JS projects, generated artifacts, copied constants, risky assumptions |
 
 Reversa-Matrix is a platform-aware evidence and patch-intelligence engine, not a website modernization wrapper.
@@ -200,5 +200,6 @@ That safety boundary matters because Reversa-Matrix is meant for kernel, recover
 
 - Runtime compatibility matrix across desktop and mobile Linux gaming profiles
 - More render enhancement evidence for frame timing, texture replacement, HDR, and API translation
+- Power/TDP research lanes for handheld daemons, battery caps, game profiles, and approval-gated tuning tests
 - Broader Windows services, drivers, PE metadata, and registry-profile support
 - Stronger Linux graphics and container diagnostics

@@ -232,6 +232,12 @@ button {
   font-size: 0.78rem;
 }
 
+.label.is-disabled {
+  border-color: rgba(147, 165, 184, 0.24);
+  color: var(--muted);
+  opacity: 0.72;
+}
+
 .toolbar {
   display: flex;
   justify-content: flex-end;

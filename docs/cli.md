@@ -163,6 +163,11 @@ CUDA, DirectML, ONNX DirectML, Vulkan NCNN, and TensorRT gates. The commands
 themselves do not install packages. None of the Studio commands acquire models,
 launch runtimes, patch binaries, connect to phones, or mutate projects.
 
+The static Studio prototype also includes a Power/TDP panel backed by local
+fixture JSON. It displays detected power backends, device profiles, game profile
+sources, battery caps, hysteresis guards, mutation guards, and deferred-control
+labels. It has no TDP write, service install, or handheld-daemon install path.
+
 ---
 
 ### `patterns`
@@ -258,8 +263,30 @@ Current practical profiles include:
 - `bo3_zombies_diagnostics`
 - `render_enhancement_plugin`
 - `rm11pro_gaming_runtime`
+- `power_tdp_runtime`
+- `autotdp`
+- `hhd_autotdp`
+- `tdp_control`
+- `handheld_daemon`
+- `game_power_profile`
+- `battery_perf_profile`
 
 Game and graphics-runtime profiles classify evidence for PCGamingWiki-style fixes, wrappers, frame timing, render hook surfaces, texture injection, HDR, API translation, Vulkan loader state, widescreen/framegen layers, offline/private patch manifests, and mobile Linux runtime assumptions.
+
+The `power_tdp_runtime` profile classifies AutoTDP, HHD, handheld-daemon, and
+game-aware power evidence. It detects `ryzenadj`, HHD plugin providers, ACPI
+call, SMU/ALIB, Steam AppID, executable, Wine/Proton, power mode, battery cap,
+stable-sample/hysteresis, device profile, DMI autodetect, plugin conflicts,
+mutation-requires-approval surfaces, runtime-proof gaps, and controlled-test
+readiness. Aliases: `autotdp`, `hhd_autotdp`, `tdp_control`,
+`handheld_daemon`, `game_power_profile`, and `battery_perf_profile`.
+
+```bash
+node ./bin/reversa.js scan \
+  --project-root /path/to/power-project \
+  --profile power_tdp_runtime \
+  --out reversa_power_out
+```
 
 The `claude_code_modern` profile is the best first pass for modern Claude/Codex
 agent workflow repos. It classifies `CLAUDE.md` memory, `AGENTS.md`, managed,

@@ -7,6 +7,7 @@ const state = {
   amdProof: null,
   amdLocalFit: null,
   backendMatrix: null,
+  powerTdp: null,
 };
 
 const textureSteps = [
@@ -22,7 +23,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   wireNavigation();
   wireAdvancedToggle();
   try {
-    const [project, library, dossier, gpuProof, localFit, amdProof, amdLocalFit, backendMatrix] = await Promise.all([
+    const [project, library, dossier, gpuProof, localFit, amdProof, amdLocalFit, backendMatrix, powerTdp] = await Promise.all([
       loadJson('fixtures/sample-project.json'),
       loadJson('fixtures/sample-model-library.json'),
       loadJson('fixtures/sample-patch-dossier.json'),
@@ -31,6 +32,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       loadJson('fixtures/sample-amd-proof.json'),
       loadJson('fixtures/sample-amd-local-fit.json'),
       loadJson('fixtures/sample-backend-matrix.json'),
+      loadJson('fixtures/sample-power-tdp.json'),
     ]);
     state.project = project;
     state.library = library;
@@ -40,6 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     state.amdProof = amdProof;
     state.amdLocalFit = amdLocalFit;
     state.backendMatrix = backendMatrix;
+    state.powerTdp = powerTdp;
     renderAll();
   } catch (error) {
     renderError(error);
@@ -80,6 +83,7 @@ function renderAll() {
   renderEvidence();
   renderGpuProof();
   renderAmdProof();
+  renderPowerTdp();
   renderModels();
   renderTextureSteps();
   renderBackendMatrix();
@@ -151,6 +155,33 @@ function renderAmdProof() {
   ].join('');
   document.getElementById('amd-fit-actions').innerHTML = localFit.actions.map(action => (
     `<span class="label">${escapeHtml(action.label)} ${Number(action.count).toLocaleString()}</span>`
+  )).join('');
+}
+
+function renderPowerTdp() {
+  const lane = state.powerTdp;
+  const summary = lane.summary;
+  document.getElementById('power-tdp-summary').innerHTML = [
+    metric('Backends', summary.backendsDetected),
+    metric('Device Profiles', summary.deviceProfiles),
+    metric('Game Sources', summary.gameProfileSources),
+    metric('Mutation Guards', summary.mutationGuards),
+    metric('Runtime Proofs', summary.runtimeProofs),
+  ].join('');
+
+  document.getElementById('power-tdp-cards').innerHTML = lane.cards.map(card => `
+    <article class="card">
+      ${chip(card.status)}
+      <h3>${escapeHtml(card.title)}</h3>
+      <p>${escapeHtml(card.description)}</p>
+      <div class="model__meta">
+        ${card.details.map(detail => `<span>${escapeHtml(detail)}</span>`).join('')}
+      </div>
+    </article>
+  `).join('');
+
+  document.getElementById('power-tdp-placeholders').innerHTML = lane.placeholders.map(item => (
+    `<span class="label is-disabled">${escapeHtml(item)}</span>`
   )).join('');
 }
 

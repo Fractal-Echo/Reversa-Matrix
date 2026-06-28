@@ -1,0 +1,90 @@
+{
+  "classification": "RESEARCH_READY_FOR_CONTROLLED_TEST",
+  "summary": {
+    "backendsDetected": 4,
+    "deviceProfiles": 2,
+    "gameProfileSources": 3,
+    "mutationGuards": 5,
+    "runtimeProofs": 0
+  },
+  "cards": [
+    {
+      "title": "Detected power backends",
+      "status": "Review",
+      "description": "ryzenadj, HHD plugin, ACPI call, and SMU/ALIB are recognized as research backends.",
+      "details": [
+        "TDP_BACKEND_RYZENADJ",
+        "TDP_BACKEND_HHD_PLUGIN",
+        "TDP_BACKEND_ACPI_CALL",
+        "TDP_BACKEND_SMU"
+      ]
+    },
+    {
+      "title": "Device profile",
+      "status": "Candidate",
+      "description": "Known-device profiles and DMI autodetect are evidence inputs, not generated authority.",
+      "details": [
+        "DEVICE_PROFILE_PRESENT",
+        "DEVICE_AUTODETECT_DMI"
+      ]
+    },
+    {
+      "title": "Game profile source",
+      "status": "Candidate",
+      "description": "Steam AppID, executable, and Wine/Proton profile keys stay separated.",
+      "details": [
+        "GAME_PROFILE_STEAM_APPID",
+        "GAME_PROFILE_EXECUTABLE",
+        "GAME_PROFILE_WINE_PROTON"
+      ]
+    },
+    {
+      "title": "Performance mode",
+      "status": "Review",
+      "description": "Silent, battery, balanced, performance, and turbo modes require numeric cap evidence.",
+      "details": [
+        "POWER_MODE_PROFILE"
+      ]
+    },
+    {
+      "title": "Battery cap",
+      "status": "Review",
+      "description": "Battery-aware caps are research evidence until power-supply state is proven at runtime.",
+      "details": [
+        "BATTERY_CAP_PRESENT"
+      ]
+    },
+    {
+      "title": "Stable sample/hysteresis",
+      "status": "Candidate",
+      "description": "Sample count, monitor interval, and ryzenadj delay are preserved as anti-oscillation guards.",
+      "details": [
+        "STABLE_SAMPLE_HYSTERESIS"
+      ]
+    },
+    {
+      "title": "Mutation guard",
+      "status": "Blocked",
+      "description": "TDP writes, service changes, ACPI calls, SMU commands, and plugin moves require approval.",
+      "details": [
+        "MUTATION_REQUIRES_APPROVAL",
+        "PLUGIN_CONFLICT_DETECTED"
+      ]
+    },
+    {
+      "title": "Next controlled test",
+      "status": "Review",
+      "description": "A controlled test can be designed after backend, profile, and mutation boundaries are reviewed.",
+      "details": [
+        "RESEARCH_READY_FOR_CONTROLLED_TEST",
+        "RUNTIME_PROOF_MISSING"
+      ]
+    }
+  ],
+  "placeholders": [
+    "TDP write deferred",
+    "Proof required",
+    "Approval required",
+    "Runtime test later"
+  ]
+}
