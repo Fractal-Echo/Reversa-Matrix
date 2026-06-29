@@ -77,3 +77,15 @@ PKG files also get a header probe that records the first little-endian `u32`
 words from the file prefix. Those words are structure reconnaissance only; a
 future extractor still needs independent table-size, offset, compression, and
 entry-boundary proof.
+
+## PlayStation Reference Assets
+
+The PlayStation release can be used as an owned local reference lane for better
+assets. Reversa tracks this separately from the PC runtime:
+
+- cue/bin integrity, sector mode, `CD001`, and `SYSTEM.CNF` prove the disc map;
+- `SLUS_002.32` and `PS-X EXE` identify the PS1 executable lane;
+- `INTRO.STR`, `LOGO.STR`, `OUTRO.STR`, and `DUMMY.STR` are FMV reference
+  candidates to compare against PC AVI/Xan files;
+- PS1 `JESTERS.PKG` size and header words are compared against PC
+  `JESTERS.PKG`, but raw assets stay local and are not committed.

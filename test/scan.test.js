@@ -1463,6 +1463,10 @@ test('pandemonium PC runtime profile learns wrapper, asset, video, and remaster 
   assertEvidence(report, 'pandemonium_music_assets', 'pandemonium.inventory.music:MUSIC/10.mp3');
   assertEvidence(report, 'pandemonium_cnf_manifest', 'pandemonium.cnf.archive:FULL3.CNF:level21.pkg:fields=0,21,21,42,8,0');
   assertEvidence(report, 'pandemonium_cnf_manifest', 'pandemonium.cnf.archive:RESOURCE.CNF:SJESTERS.PKG:fields=1,0,0,0,0,0');
+  assertEvidence(report, 'pandemonium_ps1_disc_reference', 'MODE2/2352');
+  assertEvidence(report, 'pandemonium_ps1_fmv_assets', 'INTRO.STR');
+  assertEvidence(report, 'pandemonium_ps1_pkg_reference', 'PS1 JESTERS.PKG');
+  assertNoEvidence(report, ['placeholders'], 'DUMMY');
   assert(report.commands_to_run.some(command => command.includes('PANDY3')));
   assert(report.commands_to_run.some(command => command.includes('XanLib')));
   assert(report.commands_to_run.some(command => command.includes('JESTERS.PKG')));
