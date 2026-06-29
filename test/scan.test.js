@@ -1458,6 +1458,7 @@ test('pandemonium PC runtime profile learns wrapper, asset, video, and remaster 
   assertEvidence(report, 'pandemonium_remaster_lane', 'Unreal Engine 5');
   assertEvidence(report, 'pandemonium_identity_surface', 'pandemonium.inventory.exe:PANDY3.EXE');
   assertEvidence(report, 'pandemonium_pkg_asset_archives', 'pandemonium.inventory.pkg:JESTERS.PKG');
+  assertEvidence(report, 'pandemonium_pkg_header_probe', 'pandemonium.pkg.header:JESTERS.PKG:u32le=');
   assertEvidence(report, 'pandemonium_xan_video_assets', 'pandemonium.inventory.video:INTROS.AVI');
   assertEvidence(report, 'pandemonium_music_assets', 'pandemonium.inventory.music:MUSIC/10.mp3');
   assertEvidence(report, 'pandemonium_cnf_manifest', 'pandemonium.cnf.archive:FULL3.CNF:level21.pkg:fields=0,21,21,42,8,0');

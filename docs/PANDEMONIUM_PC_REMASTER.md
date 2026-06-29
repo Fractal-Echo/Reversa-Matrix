@@ -72,3 +72,8 @@ CNF manifests are parsed as archive-routing evidence. A row such as
 `level21.pkg 0 21 21 42 8 0` proves the install points at a PKG archive with
 six numeric routing fields, but it does not prove the internal PKG table has
 been decoded.
+
+PKG files also get a header probe that records the first little-endian `u32`
+words from the file prefix. Those words are structure reconnaissance only; a
+future extractor still needs independent table-size, offset, compression, and
+entry-boundary proof.
