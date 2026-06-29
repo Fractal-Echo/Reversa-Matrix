@@ -43,7 +43,7 @@ const rows = [];
 for (const source of manifest.sources ?? []) {
   const reportPath = resolveReportPath(source, manifest.reversa_profile);
   const report = existsSync(reportPath) ? await readJson(reportPath) : null;
-  const policy = classifyImportPolicy(source.import_stance);
+  const policy = classifyImportPolicy(source.import_stance, source);
   const topCategories = topEntries(report?.summary?.by_category ?? {}, 12);
   const severity = report?.summary?.highest_severity ?? 'UNKNOWN';
   const importantFiles = safeImportantFiles(report?.tree_inventory?.important_files ?? [], source.import_stance);
@@ -73,6 +73,9 @@ for (const source of manifest.sources ?? []) {
     safe_important_files: importantFiles,
     recommended_goodies: source.recommended_goodies ?? [],
     copy_boundary: policy.copyBoundary,
+    local_experimental_training_allowed: policy.localExperimentalTrainingAllowed,
+    redistribution_allowed: false,
+    commercial_use_allowed: false,
   };
   records.push(sourceRecord);
 
@@ -225,11 +228,20 @@ async function readFunctionalityMap(manifest, sourcePath) {
   return readJson(mapPath);
 }
 
-function classifyImportPolicy(stance = '') {
+function classifyImportPolicy(stance = '', source = {}) {
+  if ((/personal_local_training/.test(stance) || source.local_experimental_training_allowed) && /reference_only|no_copy/.test(stance)) {
+    return {
+      class: 'personal_local',
+      weight: 35,
+      localExperimentalTrainingAllowed: true,
+      copyBoundary: 'Personal local pattern training only. Do not copy, sell, redistribute, or commit source text.',
+    };
+  }
   if (/reference_only|no_copy/.test(stance)) {
     return {
       class: 'blocked',
       weight: 10,
+      localExperimentalTrainingAllowed: false,
       copyBoundary: 'Reference-only. Do not copy code or docs into Reversa.',
     };
   }
@@ -237,6 +249,7 @@ function classifyImportPolicy(stance = '') {
     return {
       class: 'allowlist',
       weight: 45,
+      localExperimentalTrainingAllowed: false,
       copyBoundary: 'Only use folders with explicit compatible license evidence.',
     };
   }
@@ -244,6 +257,7 @@ function classifyImportPolicy(stance = '') {
     return {
       class: 'notice_required',
       weight: 80,
+      localExperimentalTrainingAllowed: false,
       copyBoundary: 'Selective adaptation allowed with Apache-2.0 license and NOTICE preservation.',
     };
   }
@@ -251,12 +265,14 @@ function classifyImportPolicy(stance = '') {
     return {
       class: 'permissive',
       weight: 90,
+      localExperimentalTrainingAllowed: false,
       copyBoundary: 'Selective adaptation allowed with source URL, commit, and license attribution.',
     };
   }
   return {
     class: 'unknown',
     weight: 25,
+    localExperimentalTrainingAllowed: false,
     copyBoundary: 'Manual license review required before reuse.',
   };
 }
@@ -358,6 +374,7 @@ function buildLabels() {
       permissive: 'MIT or equivalent selective adaptation with attribution.',
       notice_required: 'Apache-2.0 or similar; preserve NOTICE when copying.',
       allowlist: 'Repo-level license ambiguous; only explicitly licensed folders are importable.',
+      personal_local: 'Personal local pattern training only; no copying, sale, redistribution, or committed source text.',
       blocked: 'Reference-only; no code/doc copying.',
       unknown: 'Manual review required.',
     },

@@ -1,0 +1,88 @@
+{
+  "generated_at": "2026-06-29",
+  "target": {
+    "repo": "Fractal-Echo/Reversa-Matrix",
+    "local_path": "/home/richtofen/.android/repositories/tool-repos/reversa-fractal-echo",
+    "default_branch": "main",
+    "training_goal": "Teach Reversa Claude/Codex skill and plugin shape while keeping all reusable implementation Reversa-owned."
+  },
+  "local_cache_root": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29",
+  "reversa_profile": "claude_code_modern",
+  "source_text_policy": "metadata_evidence_pack_committed_local_source_cache_only_personal_experimental_training_allowed",
+  "copy_boundary": "Use third-party repos as pattern examples for a personal local tool. Reimplement Reversa-owned plugins, skills, checks, manifests, and tests from scratch. Do not sell, redistribute, or commit copied third-party source text.",
+  "sources": [
+    {
+      "repo": "mattpocock/skills",
+      "url": "https://github.com/mattpocock/skills",
+      "default_branch": "main",
+      "commit": "448d0adee7cb797db5a2ad278e9e8d6c874e12af",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29/repos/mattpocock__skills",
+      "claude_code_modern_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29/reversa/mattpocock__skills/claude_code_modern",
+      "semantic_policy_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29/reversa/mattpocock__skills/semantic_policy",
+      "license_evidence": "MIT LICENSE in repo root; GitHub metadata reports MIT.",
+      "import_stance": "selective_adapt_with_attribution_reversa_owned_rewrite",
+      "recommended_goodies": [
+        "compact skill taxonomy",
+        "engineering skill workflow shape",
+        "plugin manifest layout",
+        "skill writing guidance",
+        "small composable workflow names"
+      ]
+    },
+    {
+      "repo": "ComposioHQ/awesome-claude-skills",
+      "url": "https://github.com/ComposioHQ/awesome-claude-skills",
+      "default_branch": "master",
+      "commit": "92568c1edaff1bde5371154f036d959346c145a8",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29/repos/ComposioHQ__awesome-claude-skills",
+      "claude_code_modern_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29/reversa/ComposioHQ__awesome-claude-skills/claude_code_modern",
+      "semantic_policy_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29/reversa/ComposioHQ__awesome-claude-skills/semantic_policy",
+      "license_evidence": "GitHub metadata reports NOASSERTION; selected folders include their own LICENSE.txt files.",
+      "import_stance": "per_folder_allowlist_only_reversa_owned_rewrite",
+      "recommended_goodies": [
+        "large-scale skill taxonomy",
+        "marketplace index shape",
+        "automation naming conventions",
+        "license boundary test cases",
+        "skill catalog stress test"
+      ]
+    },
+    {
+      "repo": "multica-ai/andrej-karpathy-skills",
+      "url": "https://github.com/multica-ai/andrej-karpathy-skills",
+      "default_branch": "main",
+      "commit": "2c606141936f1eeef17fa3043a72095b4765b9c2",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29/repos/multica-ai__andrej-karpathy-skills",
+      "claude_code_modern_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29/reversa/multica-ai__andrej-karpathy-skills/claude_code_modern",
+      "semantic_policy_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29/reversa/multica-ai__andrej-karpathy-skills/semantic_policy",
+      "license_evidence": "GitHub metadata reports NOASSERTION; no root LICENSE file observed in local cache.",
+      "import_stance": "reference_only_no_copy_personal_local_training_reversa_owned_rewrite",
+      "local_experimental_training_allowed": true,
+      "recommended_goodies": [
+        "minimal single-skill packaging",
+        "CLAUDE.md plus skill bridge",
+        "coding pitfall checklist shape",
+        "concise rule style"
+      ]
+    },
+    {
+      "repo": "anthropics/claude-plugins-official",
+      "url": "https://github.com/anthropics/claude-plugins-official",
+      "default_branch": "main",
+      "commit": "d0c131bd2b109bd6ff6928b11b28eda1fb5b8a8e",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29/repos/anthropics__claude-plugins-official",
+      "claude_code_modern_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29/reversa/anthropics__claude-plugins-official/claude_code_modern",
+      "semantic_policy_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-skill-upstreams/2026-06-29/reversa/anthropics__claude-plugins-official/semantic_policy",
+      "license_evidence": "Apache-2.0 LICENSE in repo root; many plugins carry their own LICENSE files.",
+      "import_stance": "reference_only_no_copy_personal_local_training_reversa_owned_rewrite",
+      "local_experimental_training_allowed": true,
+      "recommended_goodies": [
+        "official plugin directory shape",
+        "marketplace metadata shape",
+        "plugin validation policy examples",
+        "MCP plugin folder conventions",
+        "plugin surface test cases"
+      ]
+    }
+  ]
+}

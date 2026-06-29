@@ -205,6 +205,13 @@ def build_samples(records: list[dict[str, Any]]) -> list[Sample]:
             record.get("repo", ""),
             record.get("url", ""),
             record.get("license_evidence", ""),
+            record.get("import_stance", ""),
+            record.get("copy_boundary", ""),
+            "local_experimental_training_allowed"
+            if record.get("local_experimental_training_allowed")
+            else "local_experimental_training_not_allowed",
+            "redistribution_allowed" if record.get("redistribution_allowed") else "redistribution_not_allowed",
+            "commercial_use_allowed" if record.get("commercial_use_allowed") else "commercial_use_not_allowed",
             " ".join(record.get("recommended_goodies", []) or []),
             " ".join(category for category, _count in top_categories),
         ]
@@ -229,6 +236,13 @@ def build_samples(records: list[dict[str, Any]]) -> list[Sample]:
             str(repo),
             str(record.get("category", "")),
             str(source.get("license_evidence", "")),
+            str(source.get("import_stance", "")),
+            str(source.get("copy_boundary", "")),
+            "local_experimental_training_allowed"
+            if source.get("local_experimental_training_allowed")
+            else "local_experimental_training_not_allowed",
+            "redistribution_allowed" if source.get("redistribution_allowed") else "redistribution_not_allowed",
+            "commercial_use_allowed" if source.get("commercial_use_allowed") else "commercial_use_not_allowed",
             " ".join(source.get("recommended_goodies", []) or []),
         ])
         samples.append(Sample(

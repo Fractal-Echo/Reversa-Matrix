@@ -277,6 +277,114 @@ test('private corpus builder writes local-only hashed retrieval chunks', async (
   assert.match(privacy, /docs\/secret\.txt/);
 });
 
+test('private corpus can mark reference material as local experimental training only', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-private-corpus-local-training-'));
+  const reference = join(root, 'reference');
+  const outDir = join(root, 'corpus');
+  await mkdir(reference, { recursive: true });
+  await writeFile(join(reference, 'SKILL.md'), [
+    '# Reference Skill',
+    '',
+    'Observe patterns, cluster failures, predict the next test, and verify with proof.',
+  ].join('\n'), 'utf8');
+
+  const manifestPath = join(root, 'manifest.json');
+  await writeFile(manifestPath, JSON.stringify({
+    schema: 'reversa.private_corpus_manifest.v1',
+    corpus_id: 'local-training-fixture',
+    max_file_bytes: 8192,
+    max_chunk_chars: 512,
+    sources: [{
+      id: 'reference_only_skill',
+      root: reference,
+      role: 'operator_note',
+      tags: ['skills', 'reference_only'],
+      training_allowed: true,
+      local_experimental_training_allowed: true,
+    }],
+  }, null, 2), 'utf8');
+
+  await buildPrivateCorpus({
+    manifest: manifestPath,
+    out: outDir,
+  });
+
+  const records = await readJsonl(join(outDir, 'private-corpus-records.jsonl'));
+  assert.equal(records.length, 1);
+  assert.equal(records[0].source_authority, false);
+  assert.equal(records[0].authority_class, 'operator_note');
+  assert.equal(records[0].training_allowed, true);
+  assert.equal(records[0].local_experimental_training_allowed, true);
+  assert.equal(records[0].training_scope, 'personal_local_experimental_only_no_redistribution');
+  assert.equal(records[0].export_allowed, false);
+  assert.equal(records[0].redistribution_allowed, false);
+  assert.equal(records[0].commercial_use_allowed, false);
+  assert.equal(records[0].fine_tune_allowed, false);
+});
+
+test('agentic pack keeps personal-local no-copy references trainable as pattern signal', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-agentic-pack-personal-local-'));
+  const scanOut = join(root, 'scan', 'claude_code_modern');
+  const outDir = join(root, 'pack');
+  await mkdir(scanOut, { recursive: true });
+  await writeFile(join(scanOut, 'report.json'), JSON.stringify({
+    summary: {
+      total_findings: 12,
+      total_contradictions: 0,
+      total_patch_candidates: 1,
+      highest_severity: 'LOW',
+      by_category: {
+        agent_skill_contracts: 7,
+        permission_safety_policy: 5,
+      },
+    },
+    tree_inventory: {
+      important_files: ['skills/example/SKILL.md'],
+    },
+  }, null, 2), 'utf8');
+
+  const manifestPath = join(root, 'source-sync.json');
+  await writeFile(manifestPath, JSON.stringify({
+    generated_at: '2026-06-29',
+    target: {
+      repo: 'Fractal-Echo/Reversa-Matrix',
+    },
+    reversa_profile: 'claude_code_modern',
+    sources: [{
+      repo: 'example/reference-skills',
+      url: 'https://example.test/reference-skills',
+      default_branch: 'main',
+      commit: 'abc123',
+      local_path: join(root, 'reference'),
+      claude_code_modern_scan_output: scanOut,
+      license_evidence: 'No root license observed.',
+      import_stance: 'reference_only_no_copy_personal_local_training_reversa_owned_rewrite',
+      local_experimental_training_allowed: true,
+    }],
+  }, null, 2), 'utf8');
+
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'scripts/build-agentic-training-pack.js'),
+    '--manifest',
+    manifestPath,
+    '--out',
+    outDir,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const records = await readJsonl(join(outDir, 'agentic-training-pack.jsonl'));
+  const sourcePolicy = records.find(record => record.type === 'source_import_policy');
+  assert.equal(sourcePolicy.import_policy_class, 'personal_local');
+  assert.equal(sourcePolicy.training_weight, 35);
+  assert.equal(sourcePolicy.local_experimental_training_allowed, true);
+  assert.equal(sourcePolicy.redistribution_allowed, false);
+  assert.equal(sourcePolicy.commercial_use_allowed, false);
+  assert.match(sourcePolicy.copy_boundary, /Do not copy/);
+});
+
 test('dataset command exposes private-corpus help', () => {
   const result = spawnSync(process.execPath, [
     join(repoRoot, 'bin/reversa.js'),

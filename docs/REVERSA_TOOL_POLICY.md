@@ -97,3 +97,69 @@ artifacts/evidence_manifest.json
 
 Those files are the proof that the report can be tied back to exact local
 inputs.
+
+## Compatibility Wrapper Rule
+
+Wrapper work is evidence work. Reversa must identify the actual runtime and
+graphics/input layer before recommending a wrapper.
+
+Required order:
+
+1. Identify executable type, bitness, launch host, and render/audio/input API.
+2. Record the current wrapper version, hash, source URL, and release date.
+3. Change one wrapper variable per test run.
+4. Record stop conditions and rollback steps.
+5. Promote only results backed by logs, screenshots, hashes, or repeated
+   controlled runs.
+
+Examples:
+
+- A DOSBox-packaged game starts with DOSBox Staging and config evidence, not
+  Direct3D/Vulkan DLL swapping.
+- A Direct3D 9 game may enter the DXVK lane only after the D3D9 API and bitness
+  are observed.
+- A DirectDraw game may enter the dgVoodoo, DDrawCompat, dxwrapper, or cnc-ddraw
+  lanes only after DirectDraw evidence exists.
+- Old DXVK Async builds are historical evidence unless a current supported fork
+  or driver feature proves a reason to test them.
+
+This wrapper rule applies across BO3-Transformed, Pandemonium!-Transformed,
+D-Transformed, RM11Pro gaming runtime work, and future game projects.
+
+## Shell Host Rule
+
+Tool friction is training data. When a repo lives in WSL and the command needs
+Unix tools, pipes, quoting, `sed`, `rg`, `find`, or shell expansion, run it
+inside the WSL shell:
+
+```text
+wsl.exe --cd <repo> bash -lc '<command>'
+```
+
+Avoid mixing PowerShell parsing with Unix pipelines. If a command fails because
+the host shell interpreted it incorrectly, record the mismatch and rerun the
+smallest corrected command. Do not turn shell-host friction into speculative
+debugging.
+
+When Codex is already running through PowerShell, avoid passing Bash variables
+such as `$pack`, `$out`, `$1`, or `$d` through the command string unless they are
+proven escaped. Prefer explicit paths or a checked script file for multi-step
+training sweeps. PowerShell-side variable expansion can silently turn a valid
+Bash command into empty arguments.
+
+## Personal Local Training Rule
+
+Reversa may train locally on reference material for a personal non-commercial
+tool when the corpus manifest explicitly marks the source as local experimental
+training material.
+
+Hard boundaries:
+
+- personal use only;
+- cannot be sold;
+- do not redistribute copied third-party source text;
+- do not commit copied third-party prompt/source text;
+- generated outputs must be Reversa-owned rewrites;
+- source authority still comes from corroborated artifacts, not training memory.
+
+This is the anti-copy boundary: learn patterns, create original mechanisms.

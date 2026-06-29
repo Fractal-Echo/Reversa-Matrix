@@ -99,6 +99,8 @@ export async function buildPrivateCorpus(options) {
       chunks += fileChunks.length;
 
       fileChunks.forEach((chunk, index) => {
+        const trainingAllowed = authority.trainingAllowed && redaction.count === 0;
+        const localTrainingAllowed = authority.localExperimentalTrainingAllowed && redaction.count === 0;
         const recordId = sha256(`${source.id}:${relPath}:${index}:${chunk.text}`);
         records.push({
           id: recordId,
@@ -143,12 +145,20 @@ export async function buildPrivateCorpus(options) {
           contains_payload: true,
           payload_inline: true,
           retrieval_allowed: true,
-          training_allowed: authority.trainingAllowed && redaction.count === 0,
+          training_allowed: trainingAllowed,
+          local_experimental_training_allowed: localTrainingAllowed,
+          training_scope: trainingAllowed
+            ? localTrainingAllowed
+              ? 'personal_local_experimental_only_no_redistribution'
+              : 'normal_source_authority_training'
+            : null,
           fine_tune_allowed: false,
           eval_allowed: true,
-          reason_not_trainable: authority.trainingAllowed && redaction.count === 0
+          reason_not_trainable: trainingAllowed
             ? null
             : authority.reasonNotTrainable ?? (redaction.count > 0 ? 'secret_redactions_present' : null),
+          redistribution_allowed: false,
+          commercial_use_allowed: false,
           required_proof: authority.requiredProof,
           promotion_state: authority.promotionState,
           corroboration_ids: [],
@@ -256,6 +266,7 @@ export function normalizeSources(sources, baseDir = process.cwd()) {
       artifactHashAuthority: Boolean(source.artifact_hash_authority),
       contentAuthority: source.content_authority !== false,
       trainingAllowed: source.training_allowed !== false,
+      localExperimentalTrainingAllowed: Boolean(source.local_experimental_training_allowed),
       tags: source.tags ?? [],
       includeExtensions: new Set((source.include_extensions ?? [...DEFAULT_EXTENSIONS]).map(item => item.toLowerCase())),
       excludeDirs: new Set([...(source.exclude_dirs ?? []), ...DEFAULT_SKIP_DIRS]),
@@ -311,7 +322,22 @@ function classifyAuthority(source, relPath) {
   const rawProof = authorityClass === 'raw_proof' || RAW_PROOF_RE.test(relPath);
   const operatorNote = authorityClass === 'operator_note';
   const sourceAuthority = !operatorNote && !generatedArtifact && ['repo_source', 'raw_proof', 'artifact_extract'].includes(authorityClass);
-  const trainingAllowed = source.trainingAllowed && sourceAuthority && !generatedArtifact && !operatorNote;
+  const localExperimentalTrainingAllowed = source.localExperimentalTrainingAllowed && !generatedArtifact;
+  const trainingAllowed = source.trainingAllowed
+    && !generatedArtifact
+    && (sourceAuthority || localExperimentalTrainingAllowed);
+  let reasonNotTrainable = null;
+  if (!trainingAllowed) {
+    if (operatorNote) {
+      reasonNotTrainable = 'operator_note_requires_corroboration';
+    } else if (generatedArtifact) {
+      reasonNotTrainable = 'generated_artifact_not_source_authority';
+    } else if (source.trainingAllowed) {
+      reasonNotTrainable = 'not_source_authority';
+    } else {
+      reasonNotTrainable = 'source_training_disabled_by_manifest';
+    }
+  }
   return {
     authorityClass,
     generatedArtifact,
@@ -320,17 +346,10 @@ function classifyAuthority(source, relPath) {
     contentAuthority: source.contentAuthority && !generatedArtifact,
     sourceAuthority,
     trainingAllowed,
+    localExperimentalTrainingAllowed,
     promotionState: operatorNote ? 'retrieval_only_requires_corroboration' : null,
     requiredProof: operatorNote ? ['corroborating_source_or_raw_artifact'] : [],
-    reasonNotTrainable: !trainingAllowed
-      ? operatorNote
-        ? 'operator_note_requires_corroboration'
-        : generatedArtifact
-          ? 'generated_artifact_not_source_authority'
-          : source.trainingAllowed
-            ? 'not_source_authority'
-            : 'source_training_disabled_by_manifest'
-      : null,
+    reasonNotTrainable,
   };
 }
 
