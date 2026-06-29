@@ -67,3 +67,8 @@ The profile records both text evidence and file-inventory evidence. Binary
 archives and media are not extracted during scanning; Reversa records their
 paths and sizes as guard evidence, then requires separate PKG/FMV decode proof
 before texture, model, music, or movie replacement is treated as ready.
+
+CNF manifests are parsed as archive-routing evidence. A row such as
+`level21.pkg 0 21 21 42 8 0` proves the install points at a PKG archive with
+six numeric routing fields, but it does not prove the internal PKG table has
+been decoded.
