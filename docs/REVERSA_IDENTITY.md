@@ -44,6 +44,7 @@ Current practical lanes include:
 - `child_libpath`
 - `nebula_vulkan_loader`
 - `game_exe_patch_runtime`
+- `pandemonium_pc_runtime`
 - `windows_compat`
 - `linux_container`
 - `android_recovery`

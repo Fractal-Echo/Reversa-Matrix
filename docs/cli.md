@@ -325,6 +325,7 @@ Current practical profiles include:
 - `pcgamingwiki_runtime`
 - `widescreen_framegen_runtime`
 - `game_exe_patch_runtime`
+- `pandemonium_pc_runtime`
 - `graphics_wrapper`
 - `vulkan_loader`
 - `bo3_zombies_diagnostics`

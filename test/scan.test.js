@@ -27,6 +27,7 @@ const currentFixture = join(repoRoot, 'test/fixtures/android-recovery-current');
 const referenceFixture = join(repoRoot, 'test/fixtures/android-recovery-reference');
 const bo3Fixture = join(repoRoot, 'test/fixtures/bo3-runtime-diagnostics');
 const pcgwFixture = join(repoRoot, 'test/fixtures/pcgamingwiki-runtime');
+const pandemoniumFixture = join(repoRoot, 'test/fixtures/pandemonium-pc-runtime');
 const agenticFixture = join(repoRoot, 'test/fixtures/agentic-toolchain');
 const agenticGatewayFixture = join(repoRoot, 'test/fixtures/agentic-gateway');
 const semanticPolicyFixture = join(repoRoot, 'test/fixtures/semantic-policy');
@@ -1436,6 +1437,32 @@ test('game exe patch profile detects Linux-focused executable patch evidence and
   assert(report.commands_to_run.some(command => command.includes('SHA256Before')));
   assert(report.commands_to_run.some(command => command.includes('LinuxPatchTarget')));
   assert(report.commands_to_run.some(command => command.includes('DRM')));
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('pandemonium PC runtime profile learns wrapper, asset, video, and remaster boundaries', async () => {
+  const report = await scanProject({
+    projectRoot: pandemoniumFixture,
+    profile: 'pandemonium_pc_runtime',
+  });
+
+  assert.equal(report.scan.profile, 'pandemonium_pc_runtime');
+  assertEvidence(report, 'pandemonium_identity_surface', 'PANDY3.EXE');
+  assertEvidence(report, 'pandemonium_wrapper_chain', 'glide.dll');
+  assertEvidence(report, 'pandemonium_32bit_boundary', 'PE32');
+  assertEvidence(report, 'pandemonium_xan_video_assets', 'xan_wc4');
+  assertEvidence(report, 'pandemonium_pkg_asset_archives', 'JESTERS.PKG');
+  assertEvidence(report, 'pandemonium_settings_input_audio_risk', 'HKCU\\SOFTWARE\\Crystal Dynamics\\Pandemonium');
+  assertEvidence(report, 'pandemonium_remaster_lane', 'Unreal Engine 5');
+  assertEvidence(report, 'pandemonium_identity_surface', 'pandemonium.inventory.exe:PANDY3.EXE');
+  assertEvidence(report, 'pandemonium_pkg_asset_archives', 'pandemonium.inventory.pkg:JESTERS.PKG');
+  assertEvidence(report, 'pandemonium_xan_video_assets', 'pandemonium.inventory.video:INTROS.AVI');
+  assertEvidence(report, 'pandemonium_music_assets', 'pandemonium.inventory.music:MUSIC/10.mp3');
+  assert(report.commands_to_run.some(command => command.includes('PANDY3')));
+  assert(report.commands_to_run.some(command => command.includes('XanLib')));
+  assert(report.commands_to_run.some(command => command.includes('JESTERS.PKG')));
 
   const validation = validateScanReport(report);
   assert.equal(validation.valid, true, validation.errors.join('\n'));
