@@ -12,6 +12,11 @@ import guiCommand from '../lib/commands/gui.js';
 import { generateDashboard } from '../lib/gui/dashboard.js';
 import { ENGINES } from '../lib/installer/detector.js';
 import { Writer } from '../lib/installer/writer.js';
+import {
+  CLAUDE_CODE_BASE_ALIASES,
+  CLAUDE_CODE_BASE_CAPABILITY_IDS,
+  CLAUDE_CODE_BASE_CONTRACT,
+} from '../lib/core/claude-code-base.js';
 import { scanProject } from '../lib/scan/scanner.js';
 import { validateScanReport } from '../lib/scan/schema.js';
 import { writeScanOutputs } from '../lib/scan/writers.js';
@@ -1769,16 +1774,28 @@ test('agentic training pack absorbs Claude-code-matrix functionality map', async
   const mapHeader = pack.find(record => record.type === 'functionality_absorption_map');
 
   assert(packHeader.functionality_absorption_map.endsWith('functionality-absorption-map.json'));
-  assert.equal(mapHeader.capability_count, 8);
-  assert.equal(capabilities.length, 8);
+  assert.equal(packHeader.base_contract.id, CLAUDE_CODE_BASE_CONTRACT.id);
+  assert.equal(mapHeader.trained_base_contract, CLAUDE_CODE_BASE_CONTRACT.id);
+  assert.equal(mapHeader.base_contract_valid, true);
+  assert.deepEqual(mapHeader.missing_base_capabilities, []);
+  assert.equal(mapHeader.capability_count, CLAUDE_CODE_BASE_CAPABILITY_IDS.length);
+  assert.equal(capabilities.length, CLAUDE_CODE_BASE_CAPABILITY_IDS.length);
   assert(capabilities.some(record => record.capability_id === 'safe_diagnostics_and_redaction'));
   assert(capabilities.some(record => record.capability_id === 'provider_catalog_and_registry'));
+  assert(capabilities.some(record => record.capability_id === 'dual_protocol_proxy_contract'));
+  assert(capabilities.some(record => record.capability_id === 'client_launcher_and_model_catalog_contract'));
+  assert(capabilities.some(record => record.capability_id === 'agent_instruction_and_permission_base'));
   assert(capabilities.every(record => record.copy_boundary === 'metadata_only_no_third_party_source_text'));
   assert(capabilities.every(record => record.source_paths.length > 0));
 
   const labels = JSON.parse(await readFile(join(root, 'agentic-training-labels.json'), 'utf8'));
+  assert.equal(labels.profile, CLAUDE_CODE_BASE_CONTRACT.profileId);
+  assert.equal(labels.base_contract, CLAUDE_CODE_BASE_CONTRACT.id);
+  assert.deepEqual(labels.aliases, [...CLAUDE_CODE_BASE_ALIASES]);
+  assert.deepEqual(labels.capability_ids, [...CLAUDE_CODE_BASE_CAPABILITY_IDS]);
   assert(labels.evidence_categories.includes('functionality_capability'));
   assert(labels.evidence_categories.includes('safe_diagnostics_and_redaction'));
+  assert(labels.evidence_categories.includes('protocol_adapter_surface'));
 });
 
 test('claude_code_modern detects modern Claude surfaces and unsafe workflow conflicts', async () => {

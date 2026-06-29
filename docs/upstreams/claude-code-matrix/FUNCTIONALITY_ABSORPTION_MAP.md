@@ -1,6 +1,6 @@
 # Claude Code Matrix Functionality Absorption Map
 
-This note records how Reversa-Matrix should learn from
+This note records how Reversa-Matrix uses the trained Claude/Codex base from
 `Fractal-Echo/claude-code-matrix` without vendoring its Python gateway,
 admin UI, provider clients, or messaging implementation.
 
@@ -25,12 +25,24 @@ taxonomy. Reversa must not bulk-copy gateway source, decompiled/restored source,
 ambiguous-license source, provider clients, admin UI code, or commercial-terms
 compatibility code.
 
+The Reversa-owned base contract lives in:
+
+```text
+lib/core/claude-code-base.js
+```
+
+That contract feeds `claude_code_modern`, the Claude/Codex aliases, training-pack
+labels, and the functionality absorption validation gate.
+
 ## Capability Lanes
 
 | Lane | Reversa target | Stance |
 | --- | --- | --- |
 | Provider catalog and registry | `agentic_gateway`, provider evidence | Reimplement detector patterns |
 | Model router and gateway IDs | model route provenance | Adapt mechanism with attribution |
+| Dual protocol proxy contract | Anthropic Messages / OpenAI Responses adapter evidence | Reimplement contract shape |
+| Client launcher and model catalog contract | launcher env and model catalog provenance | Reimplement detector patterns |
+| Agent instruction and permission base | `claude_code_modern`, semantic guards | Reimplement as core contract |
 | Admin control surface | Reversa Studio panels | UI pattern reference, reimplement |
 | Messaging bridge and turn intake | command-plan artifacts | Reimplement as Reversa layer |
 | Safe diagnostics and redaction | secret-safe reports | Must reimplement |
@@ -53,3 +65,11 @@ Output root:
 local/current-tests-2026-06-28/claude-code-matrix-absorption-quick
 ```
 
+Core rebuild on 2026-06-29:
+
+```text
+trained_base_contract=trained_claude_code_base
+base_profile=claude_code_modern
+capability_count=11
+source_text_policy=metadata_only_no_third_party_source_text
+```

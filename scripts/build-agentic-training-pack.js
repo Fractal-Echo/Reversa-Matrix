@@ -5,6 +5,11 @@ import { execFileSync } from 'child_process';
 import { existsSync } from 'fs';
 import { mkdir, readFile, writeFile } from 'fs/promises';
 import { basename, dirname, join, resolve } from 'path';
+import {
+  CLAUDE_CODE_BASE_CONTRACT,
+  buildClaudeCodeBaseTrainingLabels,
+  validateClaudeCodeBaseCapabilities,
+} from '../lib/core/claude-code-base.js';
 
 const args = parseArgs(process.argv.slice(2));
 
@@ -30,6 +35,7 @@ records.push({
   target: manifest.target,
   license_mode: 'metadata_and_evidence_only',
   source_text_policy: 'No third-party source text is copied into this pack.',
+  base_contract: CLAUDE_CODE_BASE_CONTRACT,
   functionality_absorption_map: manifest.functionality_absorption_map ?? null,
 });
 
@@ -95,6 +101,7 @@ for (const source of manifest.sources ?? []) {
 }
 
 if (functionalityMap) {
+  const baseValidation = validateClaudeCodeBaseCapabilities(functionalityMap.capabilities ?? []);
   records.push({
     type: 'functionality_absorption_map',
     generated_at: generatedAt,
@@ -103,7 +110,15 @@ if (functionalityMap) {
     source_text_policy: functionalityMap.source_text_policy,
     capability_count: functionalityMap.capabilities?.length ?? 0,
     purpose: functionalityMap.purpose,
+    trained_base_contract: CLAUDE_CODE_BASE_CONTRACT.id,
+    base_contract_valid: baseValidation.valid,
+    missing_base_capabilities: baseValidation.missing,
+    extra_capabilities: baseValidation.extra,
   });
+
+  if (!baseValidation.valid) {
+    throw new Error(`Functionality absorption map is missing trained base capabilities: ${baseValidation.missing.join(', ')}`);
+  }
 
   for (const capability of functionalityMap.capabilities ?? []) {
     records.push({
@@ -331,8 +346,14 @@ function buildSummary(manifest, generatedAt, rows, records) {
 }
 
 function buildLabels() {
+  const baseLabels = buildClaudeCodeBaseTrainingLabels();
   return {
-    profile: 'agentic_toolchain',
+    profile: baseLabels.profile,
+    base_contract: baseLabels.base_contract,
+    profile_id: baseLabels.profile_id,
+    aliases: baseLabels.aliases,
+    capability_ids: baseLabels.capability_ids,
+    guard_claims: baseLabels.guard_claims,
     policy_classes: {
       permissive: 'MIT or equivalent selective adaptation with attribution.',
       notice_required: 'Apache-2.0 or similar; preserve NOTICE when copying.',
@@ -340,7 +361,7 @@ function buildLabels() {
       blocked: 'Reference-only; no code/doc copying.',
       unknown: 'Manual review required.',
     },
-    evidence_categories: [
+    evidence_categories: [...new Set([
       'agent_instruction_surface',
       'agent_skill_contracts',
       'hook_lifecycle_policy',
@@ -356,7 +377,8 @@ function buildLabels() {
       'safe_diagnostics_and_redaction',
       'provider_catalog_and_registry',
       'smoke_capabilities',
-    ],
+      ...baseLabels.evidence_categories,
+    ])],
   };
 }
 

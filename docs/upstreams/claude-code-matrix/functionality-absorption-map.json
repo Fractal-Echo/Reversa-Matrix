@@ -1,10 +1,10 @@
 {
   "schema": "reversa.functionality_absorption_map.v1",
-  "generated_at": "2026-06-28",
+  "generated_at": "2026-06-29",
   "target_repo": "Fractal-Echo/claude-code-matrix",
   "target_commit": "b8dd346f9c3f98abc90a27c0654dc1a48e76b6ba",
   "source_text_policy": "metadata_only_no_third_party_source_text",
-  "purpose": "Map Claude-code-matrix mechanisms into Reversa-owned profiles, datasets, tests, and future UI surfaces without vendoring implementation code.",
+  "purpose": "Use Claude-code-matrix mechanisms as the trained base for Reversa-owned profiles, datasets, tests, and future UI surfaces without vendoring implementation code.",
   "capabilities": [
     {
       "id": "provider_catalog_and_registry",
@@ -21,6 +21,30 @@
       "absorption_stance": "adapt_mechanism_with_attribution",
       "test_targets": ["model id encoding fixture", "route capability fixture"],
       "notes": "Teach Reversa to detect advertised model IDs, compatibility aliases, and route provenance."
+    },
+    {
+      "id": "dual_protocol_proxy_contract",
+      "source_paths": ["api/routes.py", "api/models/anthropic.py", "api/models/openai_responses.py", "core/anthropic/", "core/openai_responses/"],
+      "reversa_targets": ["protocol_adapter_surface evidence", "Claude Messages to Codex Responses boundary checks"],
+      "absorption_stance": "reimplement_contract_shape",
+      "test_targets": ["anthropic messages fixture", "openai responses fixture", "streaming tool-call fixture"],
+      "notes": "Base Reversa around explicit protocol seams: Anthropic Messages, OpenAI Responses, streaming, tools, reasoning/thinking, and error-shape drift."
+    },
+    {
+      "id": "client_launcher_and_model_catalog_contract",
+      "source_paths": ["cli/launchers/claude.py", "cli/launchers/codex.py", "cli/launchers/codex_model_catalog.py", "cli/claude_env.py"],
+      "reversa_targets": ["client_launcher_surface evidence", "model catalog provenance evidence", "credential stripping guard"],
+      "absorption_stance": "reimplement_detector_patterns",
+      "test_targets": ["claude launcher env fixture", "codex launcher catalog fixture", "credential boundary fixture"],
+      "notes": "Train Reversa to understand launcher env rewriting, generated model catalogs, local proxy URLs, and official credential stripping boundaries."
+    },
+    {
+      "id": "agent_instruction_and_permission_base",
+      "source_paths": ["AGENTS.md", "CLAUDE.md", ".github/workflows/", "docs/AGENTIC_UPSTREAM_GOODIES.md"],
+      "reversa_targets": ["claude_code_modern base profile", "semantic policy contradictions", "agent handoff guard vocabulary"],
+      "absorption_stance": "reimplement_as_core_contract",
+      "test_targets": ["AGENTS/CLAUDE conflict fixture", "approval policy fixture", "generated artifact authority fixture"],
+      "notes": "Make project instructions, memory files, settings scopes, hooks, skills, MCP, plugins, and permission gates the base Reversa reasoning layer."
     },
     {
       "id": "admin_control_surface",
