@@ -1,16 +1,17 @@
 # Reversa-Matrix Identity
 
-Reversa-Matrix is an AI evidence, contradiction, and guarded patch-intelligence engine.
+Reversa-Matrix is a local AI evidence engine, contradiction detector, and guarded patch-intelligence workbench.
 
 It exists to keep complex engineering work from losing the thread. Reversa reads
-repositories, logs, runtime traces, device reports, generated artifacts, and
-agent instructions, then turns them into traceable findings, contradiction
-maps, project memory/frontiers, guarded patch dossiers, review-only patch diffs,
-and agent-ready operating rules.
+repositories, logs, runtime traces, device reports, game compatibility dossiers,
+generated artifacts, and agent instructions, then turns them into traceable
+findings, contradiction maps, project memory/frontiers, guarded patch dossiers,
+review-only patch diffs, and agent-ready operating rules.
 
-The long-term direction is a local Jarvis-style engineering cockpit: evidence
-memory, contradiction detection, domain profiles, local model evals, command
-plans, and patch review artifacts working together under human approval.
+The current direction is a Claude/Codex-aware engineering cockpit: deterministic
+scanner truth, evidence memory, contradiction detection, domain profiles, local
+model evals, command plans, and patch review artifacts working together under
+human approval.
 
 ## Mission
 

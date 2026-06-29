@@ -1,12 +1,12 @@
 # Reversa-Matrix
 
-![Reversa-Matrix RedMagic Nebula cross logo](assets/reversa-matrix-redmagic-cross.png){ .rm-hero-art }
+![Reversa-Matrix evidence core hero](assets/reversa-matrix-nebula-hero.svg){ .rm-hero-art }
 
-Reversa-Matrix is an AI evidence, contradiction, and guarded patch-intelligence engine.
+Reversa-Matrix is a local AI evidence engine, contradiction detector, and guarded patch-intelligence workbench.
 
-It turns messy repositories, logs, runtime traces, device reports, and agent instructions into traceable findings, contradiction maps, project memory/frontiers, guarded patch dossiers, review-only patch diffs, and agent-ready operating rules.
+It turns messy repositories, logs, runtime traces, device reports, game compatibility dossiers, and agent instructions into traceable findings, contradiction maps, project memory/frontiers, guarded patch dossiers, review-only patch diffs, and agent-ready operating rules.
 
-It is built to stop regressions, stale assumptions, and AI amnesia during complex engineering work. It starts with files, symbols, build declarations, device facts, paths, configs, logs, runtime traces, agent policies, and contradictions.
+It is built to stop regressions, stale assumptions, and AI amnesia during complex engineering work. The current base is trained around Claude/Codex-style agent systems, but Reversa keeps a hard boundary: model output can advise, while source artifacts, logs, hashes, configs, symbols, and reproducible scans decide.
 
 ## Example Shots
 
@@ -18,11 +18,12 @@ These static examples show the current Reversa-Matrix visual direction:
 
 ## What Reversa Is Now
 
-- An AI evidence engine for codebases, devices, runtimes, games, and agent workflows.
+- A local AI evidence engine for codebases, devices, runtimes, games, and agent workflows.
 - A contradiction detector for stale claims, policy drift, unsafe command plans, and copied constants.
 - A guarded patch-intelligence layer that writes review artifacts before any source change.
 - A project-memory and frontier tracker for long-running engineering work.
-- A local model/eval lane for 5090/vLLM-backed advisory reasoning, with deterministic scanner truth preserved.
+- A Claude/Codex-aware scanner for provider catalogs, model routing, MCP/plugin surfaces, hooks, permissions, skills, memory files, and agent handoffs.
+- A local model/eval lane for advisory reasoning, with deterministic scanner truth preserved.
 - A domain profile system for Android, Linux, Windows, games, containers, Vulkan/Wayland, kernels, and agent tooling.
 
 ## What Reversa Is Not
@@ -67,7 +68,7 @@ The generated report and offline dashboard share the Reversa-Matrix console iden
 <div class="rm-console-preview" aria-label="Reversa-Matrix console preview">
   <div class="rm-console-copy">
     <strong>Reversa-Matrix Console</strong>
-    <span>AI evidence, contradiction, and guarded patch-intelligence engine.</span>
+    <span>Local AI evidence, contradiction, and guarded patch-intelligence workbench.</span>
   </div>
   <div class="rm-console-graph" aria-hidden="true">
     <span class="rm-node evidence"></span>

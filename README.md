@@ -1,14 +1,16 @@
 # Reversa-Matrix
 
-Reversa-Matrix is a local evidence scanner, contradiction detector, and guarded patch-planning toolkit for complicated engineering projects.
+Reversa-Matrix is a local AI evidence engine, contradiction detector, and guarded patch-intelligence workbench for codebases, devices, games, runtimes, and agent workflows.
 
 [![Docs](https://img.shields.io/badge/DOCS-Reversa--Matrix-009c3b?style=for-the-badge&logo=material-for-mkdocs&logoColor=white&labelColor=2d2d2d)](https://fractal-echo.github.io/Reversa-Matrix/)
 
 <p align="center">
-  <img src="docs/assets/reversa-matrix-redmagic-cross.png" alt="Reversa-Matrix RedMagic Nebula cross logo" width="760">
+  <img src="docs/assets/reversa-matrix-nebula-hero.svg" alt="Reversa-Matrix evidence core hero" width="920">
 </p>
 
-It scans repositories, extracted project trees, config folders, logs, runtime notes, and agent instructions. It writes structured reports that help a human or coding agent see what is known, what conflicts, what needs proof, and what should not be patched yet.
+It scans repositories, extracted project trees, config folders, logs, runtime notes, game compatibility dossiers, and agent instructions. It writes structured reports that show what is known, what conflicts, what needs proof, and what should not be patched yet.
+
+The current engine is trained around a Claude/Codex-style agent base: provider catalogs, model-routing contracts, memory/frontier rules, command policies, hook/plugin boundaries, and deterministic scanner output are treated as first-class evidence. Model output can advise; source artifacts decide.
 
 Core rule:
 
@@ -17,11 +19,20 @@ HTML is a view.
 JSON and JSONL are the source of truth.
 ```
 
+## Current Identity
+
+- Evidence first: source files, logs, hashes, configs, symbols, and runtime traces outrank claims.
+- Agent-aware: Claude/Codex-style workflows, skills, hooks, MCP, plugins, subagents, permissions, and memory files are scanned as real architecture.
+- Guarded by default: patch candidates become review dossiers before anything writes to a target project.
+- Profile-driven: Android, Linux, Windows, games, containers, Vulkan/Wayland, kernels, power/TDP, and agent tooling each get domain-specific checks.
+- Research friendly: Reversa can build datasets, compare trees, generate dashboards, and preserve handoff bundles without pretending advisory output is proof.
+
 ## Current Scope
 
-Implemented today:
+Current engine surface:
 
 - `scan`: read a tree and emit findings, contradictions, patch candidates, known-good comparisons, and agent handoff files.
+- `scan-fleet`: scan many repos with isolated outputs, timeout/OOM classification, and aggregate summaries.
 - `compare`: compare two trees and classify safe/risky import candidates.
 - `gui`: build an offline `dashboard.html` from existing scan or compare output.
 - `agent`: create local run scaffolds, memory templates, safe command proposals, review-only patch plans, model eval reports, and read-only ADB evidence snapshots.

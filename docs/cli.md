@@ -12,7 +12,7 @@ When installed as a package, use:
 npx reversa <command>
 ```
 
-Reversa is an AI evidence, contradiction, and guarded patch-intelligence engine.
+Reversa is a local AI evidence, contradiction, and guarded patch-intelligence workbench.
 It scans first, writes artifacts second, and keeps patch or command execution
 behind review gates.
 

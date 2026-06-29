@@ -9,7 +9,7 @@ https://github.com/Fractal-Echo/Reversa-Matrix
 GitHub description:
 
 ```text
-AI evidence, contradiction, and guarded patch-intelligence engine for codebases, devices, runtimes, games, and agent workflows
+Local AI evidence and guarded patch-intelligence workbench for agent workflows, codebases, devices, games, runtimes, and reproducible research
 ```
 
 GitHub topics:
@@ -31,12 +31,13 @@ static-analysis
 
 ## Public Identity
 
-Reversa-Matrix is now presented as more than a scanner:
+Reversa-Matrix is now presented as a local evidence workbench:
 
 - an evidence engine;
 - a contradiction detector;
 - a project-memory/frontier tracker;
 - a guarded patch-intelligence layer;
+- a Claude/Codex-aware agent workflow scanner;
 - a local model/eval lane;
 - a domain profile system for Android, Linux, Windows, games, containers,
   Vulkan/Wayland, kernels, and agent workflows.

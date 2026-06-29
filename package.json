@@ -1,7 +1,7 @@
 {
   "name": "reversa",
   "version": "1.2.44",
-  "description": "AI evidence, contradiction, and guarded patch-intelligence engine for codebases, devices, runtimes, games, and agent workflows",
+  "description": "Local AI evidence and guarded patch-intelligence workbench for agent workflows, codebases, devices, games, runtimes, and reproducible research",
   "bin": {
     "reversa": "bin/reversa.js"
   },
