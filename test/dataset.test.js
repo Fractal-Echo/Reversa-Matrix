@@ -509,6 +509,68 @@ test('private corpus search ranks source and raw proof above generated artifacts
   assert(existsSync(join(root, 'query-out', 'private-corpus-query-results.md')));
 });
 
+test('private corpus search performs facet-aware reranking for confirmed kernel blockers', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-private-corpus-facet-search-'));
+  const corpusDir = join(root, 'corpus');
+  await mkdir(corpusDir, { recursive: true });
+
+  const blockerText = [
+    'DROIDSPACES_KERNEL_BLOCKER_CURRENT_KERNEL',
+    'Droidspaces v6.3.0 reports PID namespace missing and IPC namespace missing.',
+    'Required targets: CONFIG_PID_NS=y and CONFIG_IPC_NS=y.',
+  ].join(' ');
+  const records = [
+    corpusRecord({
+      id: 'raw-kernel',
+      sourceId: 'requirements_raw',
+      authorityClass: 'raw_proof',
+      sourceAuthority: true,
+      rawProof: true,
+      generated: false,
+      path: 'droidspaces-v6.3.0-requirements.txt',
+      text: blockerText,
+      tags: ['droidspaces', 'kernel', 'known_good'],
+    }),
+    corpusRecord({
+      id: 'generated-kernel',
+      sourceId: 'generated_scan',
+      authorityClass: 'generated_artifact',
+      sourceAuthority: false,
+      rawProof: false,
+      generated: true,
+      path: 'report.json',
+      text: `Generated report repeats ${blockerText}`,
+      tags: ['droidspaces', 'kernel'],
+    }),
+  ];
+  await writeFile(join(corpusDir, 'private-corpus-records.jsonl'), records.map(record => JSON.stringify(record)).join('\n') + '\n', 'utf8');
+
+  const result = await queryPrivateCorpus({
+    corpus: corpusDir,
+    query: 'confirmed kernel blocker PID namespace IPC namespace',
+    facets: ['subsystem=kernel'],
+    top: 2,
+    out: join(root, 'query-out'),
+  });
+
+  assert.equal(result.returned, 2);
+  assert.deepEqual(result.facet_filters, [{ key: 'subsystem', value: 'kernel' }]);
+  assert.equal(result.query_facet_intent.subsystem, 'kernel');
+  assert.equal(result.query_facet_intent.required_next_artifact, 'running_kernel_config_and_requirements_check');
+  assert.equal(result.results[0].source_id, 'requirements_raw');
+  assert.equal(result.results[0].facets.subsystem, 'kernel');
+  assert.equal(result.results[0].facets.authority, 'raw_artifact');
+  assert.equal(result.results[0].facets.source_boundary, 'source_authority');
+  assert.equal(result.results[0].facets.proof_level, 'artifact_backed');
+  assert.equal(result.results[0].facets.operator_steer_state, 'confirmed_or_locked');
+  assert.equal(result.results[0].facets.deterministic_truth_above_model, true);
+  assert(result.results[0].facet_score > result.results[1].facet_score);
+  assert.equal(result.results[1].source_id, 'generated_scan');
+  assert.equal(result.results[1].facets.source_boundary, 'generated_non_authority');
+  assert.equal(result.facet_summary.subsystem.kernel, 2);
+  assert(existsSync(join(root, 'query-out', 'private-corpus-query-results.md')));
+});
+
 test('dataset command exposes private-corpus-search help', () => {
   const result = spawnSync(process.execPath, [
     join(repoRoot, 'bin/reversa.js'),
@@ -522,6 +584,7 @@ test('dataset command exposes private-corpus-search help', () => {
 
   assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.match(result.stdout, /private-corpus-search/);
+  assert.match(result.stdout, /24-TET facets/);
   assert.match(result.stdout, /does not mutate source files/);
 });
 
