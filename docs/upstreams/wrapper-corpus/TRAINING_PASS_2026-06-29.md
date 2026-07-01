@@ -39,7 +39,7 @@ Each source was shallow-cloned into the local cache, then scanned with:
 ```bash
 node ./bin/reversa.js scan \
   --project-root <local-wrapper-source> \
-  --profiles graphics_wrapper,vulkan_loader,pcgamingwiki_runtime,widescreen_framegen_runtime,render_enhancement_plugin \
+  --profiles graphics_wrapper,vulkan_loader,pcgamingwiki_runtime,dos_runtime,widescreen_framegen_runtime,render_enhancement_plugin \
   --out /home/richtofen/.android/repositories/tool-repos/wrapper-upstreams/2026-06-29/reversa/<source>
 ```
 
@@ -86,10 +86,11 @@ API and bitness first, then pick the smallest wrapper family that solves the
 specific failure.
 
 DOSBox staging is a control lane. It is useful for D: The Game research and old
-runtime containment, but current graphics-wrapper profiles generate too many
-contradictions on emulator/runtime internals. Reversa should add a dedicated
-`dos_runtime` or `emulator_runtime` profile before using it as normal wrapper
-training signal.
+runtime containment, but the first wrapper-corpus pass proved that
+graphics-wrapper profiles generate too many contradictions on emulator/runtime
+internals. Reversa now carries a dedicated `dos_runtime` profile, with
+`emulator_runtime` and `dosbox_runtime` aliases, so DOSBox evidence is separated
+from DLL proxy wrapper evidence before wrapper training.
 
 ## First Reversa-Owned Wrapper Direction
 
@@ -114,14 +115,14 @@ toward cleaner ports later.
 | 2 | DXVK-first BO3 render bridge | Best match for D3D11 to Vulkan on Windows/Linux/RM11Pro |
 | 3 | Old-game wrapper matrix | Needed for Pandemonium and D: The Game before UE/remaster work |
 | 4 | Special K-inspired Reversa overlay | Valuable, but must be Reversa-owned and not code/config copied |
-| 5 | DOS runtime profile | Needed for D control tests, but not a direct wrapper base |
+| 5 | DOS runtime profile | Added as a control lane for D-era tests; not a direct wrapper base |
 
 ## Open Work
 
 - Add a dedicated `wrapper_corpus` or `wrapper_supervisor` dataset builder so
   wrapper scans do not ride the agentic-training pack naming.
-- Add a `dos_runtime` profile to separate emulator/runtime evidence from DLL
-  proxy evidence.
+- Expand `dos_runtime` fixtures with real D: The Game and DOSBox Staging launch
+  artifacts once the local game folder is mapped.
 - Build a private local corpus from wrapper source caches and release metadata.
 - Add fixtures for old-build regression selection.
 - Add a BO3 test manifest that can compare native D3D11, DXVK, Reversa

@@ -48,7 +48,37 @@ labels, and the functionality absorption validation gate.
 | Safe diagnostics and redaction | secret-safe reports | Must reimplement |
 | Smoke capabilities | bounded proof manifests | Adapt test taxonomy |
 | Process registry/runtime boundary | lifecycle evidence | Reference for boundaries only |
-| Voice/transcription lane | optional companion plugin | Defer |
+| Voice/transcription lane | `voice_transcription_surface`, optional companion plugin | Owned optional scanner lane |
+
+## Obsolescence Gate
+
+`claude-code-matrix` is not obsolete just because a training pack exists. It only
+becomes obsolete when Reversa owns the behavior independently.
+
+Retire or delete the local `claude-code-matrix` source only after all of these
+checks pass:
+
+- Every capability in `functionality-absorption-map.json` has a Reversa-owned
+  implementation target or an explicit documented rejection.
+- Every accepted capability has tests in Reversa, and those tests pass without
+  reading `claude-code-matrix` source text.
+- The `voice_and_transcription_lane` remains optional and local-only, with
+  scanner evidence implemented and any runtime capture/transcription gated by
+  explicit consent, redaction, and retention policy.
+- Current `claude_code_modern` and `agentic_gateway` scans report no unresolved
+  functionality gaps that require returning to the parked source.
+- The latest training pack stores only metadata, evidence categories, scan
+  summaries, capability labels, hashes, and clean notes.
+- No Reversa runtime, CLI, docs, tests, or generated public artifact depends on
+  vendored or copied upstream source expression.
+
+Until those checks pass, the parked source remains a local reference/training
+vault input. After they pass, `claude-code-matrix` can be treated as obsolete
+because Reversa has its own tested implementation and retained clean concepts.
+
+Current voice status: Reversa owns the scanner evidence lane through
+`voice_transcription_surface`. Runtime microphone capture, STT/TTS execution,
+and companion UI remain future optional work and must stay local-only.
 
 ## Current Scan Proof
 

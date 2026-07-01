@@ -89,10 +89,10 @@
     {
       "id": "voice_and_transcription_lane",
       "source_paths": ["messaging/voice.py", "messaging/transcription.py", "tests/messaging/test_voice_handlers.py"],
-      "reversa_targets": ["future optional companion app voice lane"],
-      "absorption_stance": "defer_optional_plugin",
-      "test_targets": ["voice metadata fixture"],
-      "notes": "Keep optional. Do not mix voice features into core scanner truth."
+      "reversa_targets": ["voice_transcription_surface evidence", "optional companion app voice lane"],
+      "absorption_stance": "owned_optional_scanner_lane",
+      "test_targets": ["voice metadata fixture", "agentic_gateway voice_transcription_surface scan test"],
+      "notes": "Keep optional and local-only. Scanner evidence is owned; runtime capture/transcription remains consent-gated future work."
     }
   ]
 }

@@ -2,7 +2,7 @@
   "schema": "reversa.upstream_source_sync.v1",
   "generated_at": "2026-06-29T17:08:12Z",
   "target": {
-    "repo": "Fractal-Echo/reversa-fractal-echo",
+    "repo": "Fractal-Echo/Reversa-Matrix",
     "training_goal": "Teach Reversa wrapper-family mechanics, load-order evidence, API translation boundaries, and compatibility matrix selection without copying third-party wrapper implementation."
   },
   "local_cache_root": "/home/richtofen/.android/repositories/tool-repos/wrapper-upstreams/2026-06-29",
@@ -10,6 +10,7 @@
     "graphics_wrapper",
     "vulkan_loader",
     "pcgamingwiki_runtime",
+    "dos_runtime",
     "widescreen_framegen_runtime",
     "render_enhancement_plugin"
   ],

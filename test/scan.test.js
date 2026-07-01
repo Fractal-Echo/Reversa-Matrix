@@ -20,6 +20,7 @@ import {
 import { deriveEvidenceFacets } from '../lib/scan/facets.js';
 import { scanProject } from '../lib/scan/scanner.js';
 import { validateScanReport } from '../lib/scan/schema.js';
+import { getProfile, listProfiles } from '../lib/scan/profiles.js';
 import { writeScanOutputs } from '../lib/scan/writers.js';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -29,6 +30,8 @@ const referenceFixture = join(repoRoot, 'test/fixtures/android-recovery-referenc
 const bo3Fixture = join(repoRoot, 'test/fixtures/bo3-runtime-diagnostics');
 const pcgwFixture = join(repoRoot, 'test/fixtures/pcgamingwiki-runtime');
 const pandemoniumFixture = join(repoRoot, 'test/fixtures/pandemonium-pc-runtime');
+const dosRuntimeFixture = join(repoRoot, 'test/fixtures/dos-runtime');
+const windowsPackageRuntimeFixture = join(repoRoot, 'test/fixtures/windows-package-runtime');
 const agenticFixture = join(repoRoot, 'test/fixtures/agentic-toolchain');
 const agenticGatewayFixture = join(repoRoot, 'test/fixtures/agentic-gateway');
 const semanticPolicyFixture = join(repoRoot, 'test/fixtures/semantic-policy');
@@ -1448,6 +1451,97 @@ test('pcgamingwiki runtime profile detects cross-platform game fix taxonomy', as
   assert.equal(validation.valid, true, validation.errors.join('\n'));
 });
 
+test('dos runtime profile separates emulator containment from graphics wrappers', async () => {
+  const report = await scanProject({
+    projectRoot: dosRuntimeFixture,
+    profile: 'dos_runtime',
+  });
+
+  assert.equal(report.scan.profile, 'dos_runtime');
+  assertEvidence(report, 'dos_runtime_identity', 'DOSBox Staging');
+  assertEvidence(report, 'dos_mount_image_paths', 'imgmount d');
+  assertEvidence(report, 'dos_cpu_memory_timing', 'cycles=max 60000');
+  assertEvidence(report, 'dos_renderer_scaler_output', 'output=opengl');
+  assertEvidence(report, 'dos_audio_midi_stack', 'mididevice=fluidsynth');
+  assertEvidence(report, 'dos_input_mapper_timing', 'joysticktype=fcs');
+  assertEvidence(report, 'dos_runtime_wrapper_boundary', 'DOS runtime control lane');
+  assertNoEvidence(report, ['graphics_wrapper_chain', 'vulkan_loader', 'api_translation_layer'], 'output=opengl');
+  assertNoEvidence(report, ['graphics_wrapper_chain'], 'DOS runtime control lane');
+  assert(report.commands_to_run.some(command => command.includes('imgmount')));
+  assert(report.commands_to_run.some(command => command.includes('cycles=')));
+
+  const aliasReport = await scanProject({
+    projectRoot: dosRuntimeFixture,
+    profile: 'emulator_runtime',
+  });
+
+  assert.equal(aliasReport.scan.profile, 'emulator_runtime');
+  assertEvidence(aliasReport, 'dos_runtime_identity', 'DOSBox Staging');
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('windows package runtime profile inventories package layout, bitness, DLL order, and rollback', async () => {
+  const report = await scanProject({
+    projectRoot: windowsPackageRuntimeFixture,
+    profile: 'windows_package_runtime',
+  });
+
+  assert.equal(report.scan.profile, 'windows_package_runtime');
+  assertEvidence(report, 'windows_package_layout', 'ArchiveLayout=portable zip extracted into a clean test copy');
+  assertEvidence(report, 'windows_package_runtime_config', 'ConfigFile=DOSBOX/dosbox-x.conf');
+  assertEvidence(report, 'windows_package_bitness', 'ExecutableBitness=x64 host');
+  assertEvidence(report, 'windows_package_dll_load_order', 'DLLLoadOrder=DOSBOX/glide2x.dll');
+  assertEvidence(report, 'windows_package_dependencies', 'RuntimeDependencies=SDL2.dll');
+  assertEvidence(report, 'windows_package_translation_chain', 'LeastTranslationLayers=D.EXE -> DOSBox-X');
+  assertEvidence(report, 'windows_package_rollback', 'RollbackPlan=restore original DOSBOX folder');
+  assertEvidence(report, 'windows_package_binary', 'windows.package.exe:DOSBOX/dosbox-x.exe');
+  assertEvidence(report, 'windows_package_dll_load_order', 'windows.package.proxy_dll:DOSBOX/glide2x.dll');
+  assertEvidence(report, 'windows_package_runtime_config', 'windows.package.config:DOSBOX/dosbox-x.conf');
+  assertEvidence(report, 'windows_package_shader_asset', 'windows.package.shader:DOSBOX/SHADERS/fixvideo.fx');
+  assertEvidence(report, 'dos_mount_image_paths', 'imgmount d');
+  assertNoEvidence(report, ['graphics_wrapper_chain'], 'glshader=SHADERS/fixvideo.fx');
+  assert(report.commands_to_run.some(command => command.includes('ArchiveLayout')));
+  assert(report.commands_to_run.some(command => command.includes('DLLLoadOrder')));
+  assert(report.commands_to_run.some(command => command.includes('RollbackPlan')));
+
+  const aliasReport = await scanProject({
+    projectRoot: windowsPackageRuntimeFixture,
+    profile: 'game_package_runtime',
+  });
+
+  assert.equal(aliasReport.scan.profile, 'game_package_runtime');
+  assertEvidence(aliasReport, 'windows_package_layout', 'ArchiveLayout=portable zip');
+
+  const validation = validateScanReport(report);
+  assert.equal(validation.valid, true, validation.errors.join('\n'));
+});
+
+test('all profile validation commands survive read-only command filtering', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-command-retention-'));
+  const failures = [];
+
+  for (const listedProfile of listProfiles()) {
+    const profile = getProfile(listedProfile.id);
+    const report = await scanProject({
+      projectRoot: root,
+      profile: listedProfile.id,
+    });
+    const normalizedCommands = report.commands_to_run.map(command => command
+      .replaceAll(`"${root}"`, '{{projectRoot}}')
+      .replaceAll(root, '{{projectRoot}}'));
+
+    for (const expected of profile.validationCommands ?? []) {
+      if (!normalizedCommands.includes(expected)) {
+        failures.push(`${listedProfile.id}: ${expected}`);
+      }
+    }
+  }
+
+  assert.deepEqual(failures, []);
+});
+
 test('windows system profile detects services, drivers, registry, PE, and MSBuild evidence', async () => {
   const report = await scanProject({
     projectRoot: pcgwFixture,
@@ -1779,6 +1873,7 @@ test('power TDP runtime profile detects AutoTDP and handheld-daemon research sur
   assertNoEvidence(report, ['invalid_paths'], 'referenced_path_missing:device/power/wakeup');
   assert(report.commands_to_run.some(command => command.includes('ryzenadj')));
   assert(report.commands_to_run.some(command => command.includes('SimpleDeckyTDP')));
+  assert(report.commands_to_run.some(command => command.includes('systemctl\\|rm -rf')));
 
   const aliasReport = await scanProject({
     projectRoot: root,
@@ -1831,6 +1926,8 @@ test('agentic gateway profile detects provider, launcher, protocol, smoke, and s
   assertEvidence(report, 'admin_config_surface', 'Admin UI');
   assertEvidence(report, 'smoke_coverage_surface', 'FEATURE_INVENTORY');
   assertEvidence(report, 'messaging_bridge_surface', 'MESSAGING_PLATFORM = "discord"');
+  assertEvidence(report, 'voice_transcription_surface', 'voice_transcription_file:messaging/voice_transcription.md');
+  assertEvidence(report, 'voice_transcription_surface', 'TRANSCRIPTION_BACKEND=faster-whisper');
   assertEvidence(report, 'secret_redaction_surface', 'TELEGRAM_BOT_TOKEN=example-redacted');
   assertEvidence(report, 'local_code_assignments', 'input_tokens=100');
   assertEvidence(report, 'local_code_assignments', 'token_counter=count only');
@@ -1843,6 +1940,10 @@ test('agentic gateway profile detects provider, launcher, protocol, smoke, and s
   assert(
     report.commands_to_run.some(command => command.includes('ProviderDescriptor')),
     'gateway profile should include provider catalog validation commands'
+  );
+  assert(
+    report.commands_to_run.some(command => command.includes('voice note')),
+    'gateway profile should include voice/transcription validation commands'
   );
 
   const validation = validateScanReport(report);
@@ -1895,6 +1996,7 @@ test('agentic training pack absorbs Claude-code-matrix functionality map', async
   assert.deepEqual(labels.capability_ids, [...CLAUDE_CODE_BASE_CAPABILITY_IDS]);
   assert(labels.evidence_categories.includes('functionality_capability'));
   assert(labels.evidence_categories.includes('safe_diagnostics_and_redaction'));
+  assert(labels.evidence_categories.includes('voice_transcription_surface'));
   assert(labels.evidence_categories.includes('protocol_adapter_surface'));
 });
 
@@ -3166,6 +3268,7 @@ test('gui dashboard is generated from valid scan output', async () => {
   assert.match(html, /Scan Lanes/);
   assert.match(html, /windows_system/);
   assert.match(html, /pcgamingwiki_runtime/);
+  assert.match(html, /dos_runtime/);
   assert.match(html, /widescreen_framegen_runtime/);
   assert.match(html, /game_exe_patch_runtime/);
   assert.match(html, /agentic_gateway/);
