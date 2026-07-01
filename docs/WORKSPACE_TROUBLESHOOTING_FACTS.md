@@ -16,7 +16,7 @@ tooling issues during RM11Pro/Nebula work.
 Primary active repos:
 
 - Reversa-Matrix:
-  `/home/richtofen/.android/repositories/tool-repos/reversa-fractal-echo`
+  `/home/richtofen/.android/repositories/tool-repos/Reversa-Matrix`
 - Droidspaces-Nebula:
   `/home/richtofen/.android/repositories/Droidspaces-Nebula`
 - DroidSpaces OSS:

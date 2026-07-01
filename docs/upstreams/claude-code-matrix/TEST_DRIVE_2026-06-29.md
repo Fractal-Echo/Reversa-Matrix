@@ -29,8 +29,8 @@ Result: pass. The pack validates against
 | --- | --- | ---: | ---: | ---: | --- |
 | `claude-code-matrix` | `claude_code_modern` | 16721 | 0 | 0 | HIGH |
 | `claude-code-matrix` | `agentic_gateway` | 20751 | 0 | 0 | HIGH |
-| `reversa-fractal-echo` | `claude_code_modern` | 5870 | 0 | 0 | HIGH |
-| `reversa-fractal-echo` | `agentic_gateway` | 4315 | 0 | 0 | HIGH |
+| `Reversa-Matrix` | `claude_code_modern` | 5870 | 0 | 0 | HIGH |
+| `Reversa-Matrix` | `agentic_gateway` | 4315 | 0 | 0 | HIGH |
 | `BO3-Transformed` | `pcgamingwiki_runtime` | 7639 | 0 | 2 | HIGH |
 | `BO3-Transformed` | `game_exe_patch_runtime` | 8141 | 0 | 2 | HIGH |
 | `BO3-Transformed` | `rm11pro_gaming_runtime` | 7784 | 0 | 2 | HIGH |
