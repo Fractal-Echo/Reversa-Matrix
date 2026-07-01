@@ -1,0 +1,90 @@
+{
+  "schema": "reversa.upstream_source_sync.v1",
+  "generated_at": "2026-06-30T21:18:00-05:00",
+  "target": {
+    "repo": "Fractal-Echo/Reversa-Matrix",
+    "training_goal": "Teach Reversa symbolic-memory, typed fact/evidence graph, MeTTa/Atomspace, DAS query-routing, API-contract, and runtime-orchestration architecture without copying third-party implementation expression."
+  },
+  "local_cache_root": "/home/richtofen/.android/repositories/tool-repos/Reversa-Matrix/local/upstreams",
+  "source_text_policy": "metadata_committed_local_source_cache_only_personal_experimental_training_allowed",
+  "reversa_lanes": [
+    "symbolic_memory",
+    "typed_evidence_graph",
+    "agentic_reasoning_gate",
+    "query_routing",
+    "runtime_orchestration"
+  ],
+  "sources": [
+    {
+      "repo": "trueagi-io/hyperon-experimental",
+      "url": "https://github.com/trueagi-io/hyperon-experimental",
+      "commit": "3f76dc460da6961f57f69f6c3e550c59c74ada83",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/Reversa-Matrix/local/upstreams/hyperon-experimental",
+      "license_evidence": "MIT license file observed; GitHub license endpoint reports spdx=MIT path=LICENSE.",
+      "symbolic_lane": "metta_atomspace_typed_symbolic_reasoning",
+      "import_stance": "reference_only_reversa_owned_rewrite",
+      "training_allowed": true,
+      "local_experimental_training_allowed": true,
+      "redistribution_allowed": false,
+      "commercial_use_allowed": false
+    },
+    {
+      "repo": "singnet/das",
+      "url": "https://github.com/singnet/das",
+      "commit": "f6834298077ba37f2e089f6ca02b78accf111e67",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/Reversa-Matrix/local/upstreams/das",
+      "license_evidence": "No root license file observed in shallow clone; GitHub license endpoint returned HTTP 404.",
+      "symbolic_lane": "distributed_atomspace_query_engine_atomdb_attention_inference",
+      "import_stance": "local_experimental_reference_only_license_pending_no_public_copy",
+      "training_allowed": false,
+      "local_experimental_training_allowed": true,
+      "redistribution_allowed": false,
+      "commercial_use_allowed": false
+    },
+    {
+      "repo": "singnet/das-proto",
+      "url": "https://github.com/singnet/das-proto",
+      "commit": "d7cd8ecc4eb997279aa8a786498331acf67ea539",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/Reversa-Matrix/local/upstreams/das-proto",
+      "license_evidence": "No root license file observed in shallow clone; GitHub license endpoint returned HTTP 404.",
+      "symbolic_lane": "das_grpc_protobuf_api_contracts",
+      "import_stance": "local_experimental_reference_only_license_pending_no_public_copy",
+      "training_allowed": false,
+      "local_experimental_training_allowed": true,
+      "redistribution_allowed": false,
+      "commercial_use_allowed": false
+    },
+    {
+      "repo": "singnet/das-toolbox",
+      "url": "https://github.com/singnet/das-toolbox",
+      "commit": "dcac735f3ab80f931e4f3bbe3c6e4dbce0138c21",
+      "local_path": "/home/richtofen/.android/repositories/tool-repos/Reversa-Matrix/local/upstreams/das-toolbox",
+      "license_evidence": "No root license file observed in shallow clone; GitHub license endpoint returned HTTP 404.",
+      "symbolic_lane": "das_cli_runtime_orchestration",
+      "import_stance": "local_experimental_reference_only_license_pending_no_public_copy",
+      "training_allowed": false,
+      "local_experimental_training_allowed": true,
+      "redistribution_allowed": false,
+      "commercial_use_allowed": false
+    }
+  ],
+  "staged_artifacts": {
+    "private_corpus": {
+      "path": "local/reversa-training/run-20260630T030500Z/hyperon-das-suite-private-corpus-20260630T210700Z",
+      "records": 4450,
+      "sha256": "11e52366976f2de1c52409731b1177295ce65cc7af0048fd1863213d54f328e0"
+    },
+    "local_coder_sft": {
+      "path": "local/reversa-training/run-20260630T030500Z/local-coder-sft-hyperon-das-suite-supplement-20260630T211000Z",
+      "examples": 4025,
+      "train_val_test": "3280/358/387",
+      "sha256": "54b24b56147975c78d44667944e88eeacffb9b5e9495c8920bf74821eb1d9a47"
+    }
+  },
+  "public_release_gate": [
+    "Do not commit local upstream source caches or generated payload corpora.",
+    "Do not claim DAS suite is public-trainable until license evidence or permission exists.",
+    "Use DAS suite for local concept learning, metadata summaries, and independently implemented Reversa-owned architecture only.",
+    "Keep deterministic scanner evidence above model advice."
+  ]
+}

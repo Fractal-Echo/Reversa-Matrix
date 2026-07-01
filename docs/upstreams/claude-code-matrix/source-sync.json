@@ -40,7 +40,8 @@
       "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/repos/ChinaSiro__claude-code-sourcemap",
       "reversa_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/reversa/ChinaSiro__claude-code-sourcemap",
       "license_evidence": "GitHub license metadata NOASSERTION; package LICENSE says Anthropic all rights reserved/legal terms",
-      "import_stance": "reference_only_no_copy",
+      "import_stance": "reference_only_no_copy_personal_local_training_reversa_owned_rewrite",
+      "local_experimental_training_allowed": true,
       "recommended_goodies": ["sourcemap provenance detection", "restored-source contamination warning"]
     },
     {
@@ -95,7 +96,8 @@
       "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/repos/claude-code-best__claude-code",
       "reversa_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/reversa/claude-code-best__claude-code",
       "license_evidence": "GitHub license metadata NOASSERTION; no root license detected in local scan",
-      "import_stance": "reference_only_no_copy",
+      "import_stance": "reference_only_no_copy_personal_local_training_reversa_owned_rewrite",
+      "local_experimental_training_allowed": true,
       "recommended_goodies": ["idea radar only; cross-check against licensed or official sources before implementation"]
     },
     {
@@ -117,7 +119,8 @@
       "local_path": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/repos/anthropics__claude-code",
       "reversa_scan_output": "/home/richtofen/.android/repositories/tool-repos/claude-code-matrix-upstreams/2026-06-26/reversa/anthropics__claude-code",
       "license_evidence": "Custom Anthropic commercial terms in LICENSE.md",
-      "import_stance": "compatibility_reference_only_no_vendor",
+      "import_stance": "compatibility_reference_only_no_vendor_personal_local_training_reversa_owned_rewrite",
+      "local_experimental_training_allowed": true,
       "recommended_goodies": ["official plugin layout", "settings examples", "hook validator idea", "security guidance pattern"]
     }
   ]

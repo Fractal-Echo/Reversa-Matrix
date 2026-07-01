@@ -14,6 +14,7 @@ import {
   recordsFromScanReport,
   syntheticNegativeRecords,
 } from '../scripts/build-gpu-upscale-framegen-dataset.js';
+import { buildLocalCoderSftDataset } from '../scripts/build-local-coder-sft-dataset.js';
 import { buildPrivateCorpus } from '../scripts/build-private-corpus.js';
 import { queryPrivateCorpus } from '../scripts/query-private-corpus.js';
 
@@ -358,8 +359,7 @@ test('agentic pack keeps personal-local no-copy references trainable as pattern 
       local_path: join(root, 'reference'),
       claude_code_modern_scan_output: scanOut,
       license_evidence: 'No root license observed.',
-      import_stance: 'reference_only_no_copy_personal_local_training_reversa_owned_rewrite',
-      local_experimental_training_allowed: true,
+      import_stance: 'concept_only_training_reference_only_no_copy_reversa_owned_rewrite',
     }],
   }, null, 2), 'utf8');
 
@@ -383,6 +383,55 @@ test('agentic pack keeps personal-local no-copy references trainable as pattern 
   assert.equal(sourcePolicy.redistribution_allowed, false);
   assert.equal(sourcePolicy.commercial_use_allowed, false);
   assert.match(sourcePolicy.copy_boundary, /Do not copy/);
+});
+
+test('agentic pack accepts personal-local sources without scan reports', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-agentic-pack-no-scan-'));
+  const outDir = join(root, 'pack');
+  const localSource = join(root, 'wrapper-source');
+  await mkdir(localSource, { recursive: true });
+  await writeFile(join(localSource, 'README.md'), 'Wrapper reference source stays local-only.', 'utf8');
+
+  const manifestPath = join(root, 'source-sync.json');
+  await writeFile(manifestPath, JSON.stringify({
+    generated_at: '2026-06-30',
+    target: {
+      repo: 'Fractal-Echo/Reversa-Matrix',
+      local_path: repoRoot,
+    },
+    reversa_profile: 'wrapper_runtime',
+    sources: [{
+      repo: 'example/wrapper-reference',
+      url: 'https://example.test/wrapper-reference',
+      default_branch: 'main',
+      commit: 'abc123',
+      local_path: localSource,
+      license_evidence: 'No redistributable source import claimed.',
+      import_stance: 'reference_only_no_copy_personal_local_training_reversa_owned_rewrite',
+      local_experimental_training_allowed: true,
+      recommended_goodies: ['wrapper boundary patterns'],
+    }],
+  }, null, 2), 'utf8');
+
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'scripts/build-agentic-training-pack.js'),
+    '--manifest',
+    manifestPath,
+    '--out',
+    outDir,
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  const records = await readJsonl(join(outDir, 'agentic-training-pack.jsonl'));
+  const sourcePolicy = records.find(record => record.type === 'source_import_policy');
+  assert.equal(sourcePolicy.import_policy_class, 'personal_local');
+  assert.equal(sourcePolicy.scan_summary, null);
+  assert.equal(sourcePolicy.local_experimental_training_allowed, true);
+  assert.equal(sourcePolicy.redistribution_allowed, false);
+  assert.equal(sourcePolicy.commercial_use_allowed, false);
 });
 
 test('dataset command exposes private-corpus help', () => {
@@ -474,6 +523,128 @@ test('dataset command exposes private-corpus-search help', () => {
   assert.equal(result.status, 0, result.stderr || result.stdout);
   assert.match(result.stdout, /private-corpus-search/);
   assert.match(result.stdout, /does not mutate source files/);
+});
+
+test('local coder SFT builder creates local-only advisory chat examples', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-local-coder-sft-'));
+  const packPath = join(root, 'agentic-training-pack.jsonl');
+  const corpusPath = join(root, 'private-corpus-records.jsonl');
+  const outDir = join(root, 'sft');
+
+  await writeFile(packPath, [
+    JSON.stringify({
+      type: 'source_import_policy',
+      repo: 'example/reference',
+      url: 'https://example.test/reference',
+      license_evidence: 'Local-only reference.',
+      import_stance: 'reference_only_no_copy_personal_local_training_reversa_owned_rewrite',
+      import_policy_class: 'personal_local',
+      training_weight: 35,
+      local_experimental_training_allowed: true,
+      redistribution_allowed: false,
+      commercial_use_allowed: false,
+      scan_summary: null,
+      recommended_goodies: ['pattern recognition'],
+      copy_boundary: 'Do not copy source; rewrite owned behavior.',
+    }),
+    JSON.stringify({
+      type: 'evidence_category_weight',
+      repo: 'example/reference',
+      category: 'permission_safety_policy',
+      count: 3,
+      import_policy_class: 'personal_local',
+      training_weight: 35,
+      use_in_profile: true,
+    }),
+  ].join('\n') + '\n', 'utf8');
+
+  await writeFile(corpusPath, [
+    JSON.stringify(corpusRecord({
+      id: 'source-a',
+      sourceId: 'fixture_project',
+      authorityClass: 'repo_source',
+      sourceAuthority: true,
+      rawProof: false,
+      generated: false,
+      path: 'docs/runtime.md',
+      text: 'Vulkan wrapper frame pacing needs direct evidence, hashes, and reversible toggles.',
+      tags: ['graphics', 'training'],
+    })),
+    JSON.stringify({
+      ...corpusRecord({
+        id: 'local-b',
+        sourceId: 'local_reference',
+        authorityClass: 'operator_note',
+        sourceAuthority: false,
+        rawProof: false,
+        generated: false,
+        path: 'SKILL.md',
+        text: 'Reference pattern can be learned locally but should never become public source authority.',
+        tags: ['policy', 'training'],
+      }),
+      training_allowed: false,
+      local_experimental_training_allowed: true,
+      training_scope: 'personal_local_experimental_only_no_redistribution',
+    }),
+    JSON.stringify({
+      ...corpusRecord({
+        id: 'generated-c',
+        sourceId: 'generated_scan',
+        authorityClass: 'generated_artifact',
+        sourceAuthority: false,
+        rawProof: false,
+        generated: true,
+        path: 'report.json',
+        text: 'Generated report should not be SFT source authority.',
+        tags: ['training'],
+      }),
+      training_allowed: true,
+    }),
+  ].join('\n') + '\n', 'utf8');
+
+  const result = await buildLocalCoderSftDataset({
+    packs: [packPath],
+    corpus: corpusPath,
+    out: outDir,
+    maxCorpusRecords: 20,
+    includeLocalExperimental: true,
+  });
+
+  assert.equal(result.totalExamples, 4);
+  assert(existsSync(join(outDir, 'local-coder-sft.jsonl')));
+  assert(existsSync(join(outDir, 'local-coder-sft-train.jsonl')));
+  assert(existsSync(join(outDir, 'local-coder-sft-val.jsonl')));
+  assert(existsSync(join(outDir, 'local-coder-sft-test.jsonl')));
+  assert(existsSync(join(outDir, 'local-coder-sft-summary.md')));
+  assert(existsSync(join(outDir, 'source-summary.tsv')));
+  assert(existsSync(join(outDir, 'sha256sums.txt')));
+
+  const records = await readJsonl(join(outDir, 'local-coder-sft.jsonl'));
+  assert(records.every(record => record.local_only === true));
+  assert(records.every(record => record.export_allowed === false));
+  assert(records.every(record => record.advisory_only === true));
+  assert(records.every(record => record.deterministic_truth_above_model === true));
+  assert(records.every(record => Array.isArray(record.messages) && record.messages.length === 3));
+  assert(records.some(record => record.task === 'classify_source_import_policy'));
+  assert(records.some(record => record.task === 'rank_evidence_category'));
+  assert.equal(records.filter(record => record.task === 'summarize_local_evidence_chunk').length, 2);
+  assert(!records.some(record => /Generated report should not/.test(record.messages[1].content)));
+});
+
+test('dataset command exposes local-coder-sft help', () => {
+  const result = spawnSync(process.execPath, [
+    join(repoRoot, 'bin/reversa.js'),
+    'dataset',
+    'local-coder-sft',
+    '--help',
+  ], {
+    cwd: repoRoot,
+    encoding: 'utf8',
+  });
+
+  assert.equal(result.status, 0, result.stderr || result.stdout);
+  assert.match(result.stdout, /local-coder-sft/);
+  assert.match(result.stdout, /advisory training data/);
 });
 
 function fakeReport(projectRoot, evidenceRows, patchCandidates = []) {

@@ -66,6 +66,8 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--hidden-dim", type=int, default=192)
     parser.add_argument("--seed", type=int, default=20260627)
     parser.add_argument("--device", choices=["auto", "cuda", "cpu"], default="auto")
+    parser.add_argument("--split-mode", choices=["repo", "stratified"], default="repo")
+    parser.add_argument("--test-ratio", type=float, default=0.20)
     return parser.parse_args()
 
 
@@ -85,7 +87,7 @@ def main() -> int:
 
     labels = sorted({sample.label for sample in samples})
     label_to_id = {label: index for index, label in enumerate(labels)}
-    train_indices, test_indices = split_by_repo(samples, args.seed)
+    train_indices, test_indices = split_samples(samples, args.seed, args.split_mode, args.test_ratio)
 
     features = vectorize(samples, args.feature_buckets)
     target = torch.tensor([label_to_id[sample.label] for sample in samples], dtype=torch.long)
@@ -157,6 +159,8 @@ def main() -> int:
         "samples": len(samples),
         "train_samples": len(train_indices),
         "test_samples": len(test_indices),
+        "split_mode": args.split_mode,
+        "test_ratio": args.test_ratio,
         "labels": labels,
         "train_repos": sorted({samples[index].group for index in train_indices}),
         "test_repos": sorted({samples[index].group for index in test_indices}),
@@ -200,7 +204,8 @@ def build_samples(records: list[dict[str, Any]]) -> list[Sample]:
     samples: list[Sample] = []
 
     for repo, record in source_records.items():
-        top_categories = record.get("scan_summary", {}).get("top_categories", []) or []
+        scan_summary = record.get("scan_summary") or {}
+        top_categories = scan_summary.get("top_categories", []) or []
         text_parts = [
             record.get("repo", ""),
             record.get("url", ""),
@@ -220,7 +225,7 @@ def build_samples(records: list[dict[str, Any]]) -> list[Sample]:
             group=repo,
             label=record["import_policy_class"],
             text=" ".join(text_parts),
-            count=float(record.get("scan_summary", {}).get("findings") or 0),
+            count=float(scan_summary.get("findings") or 0),
             kind="source",
         ))
 
@@ -283,6 +288,12 @@ def build_samples(records: list[dict[str, Any]]) -> list[Sample]:
     return samples
 
 
+def split_samples(samples: list[Sample], seed: int, mode: str, test_ratio: float) -> tuple[list[int], list[int]]:
+    if mode == "stratified":
+        return split_stratified(samples, seed, test_ratio)
+    return split_by_repo(samples, seed)
+
+
 def split_by_repo(samples: list[Sample], seed: int) -> tuple[list[int], list[int]]:
     repos_by_label: dict[str, list[str]] = {}
     for sample in samples:
@@ -313,6 +324,27 @@ def split_by_repo(samples: list[Sample], seed: int) -> tuple[list[int], list[int
         train_indices = sorted(indices[:split])
         test_indices = sorted(indices[split:])
     return ensure_label_coverage(samples, train_indices, test_indices, rng)
+
+
+def split_stratified(samples: list[Sample], seed: int, test_ratio: float) -> tuple[list[int], list[int]]:
+    ratio = min(max(test_ratio, 0.05), 0.50)
+    rng = random.Random(seed)
+    train_indices: list[int] = []
+    test_indices: list[int] = []
+
+    labels = sorted({sample.label for sample in samples})
+    for label in labels:
+      label_indices = [index for index, sample in enumerate(samples) if sample.label == label]
+      rng.shuffle(label_indices)
+      if len(label_indices) <= 1:
+          train_indices.extend(label_indices)
+          continue
+      test_count = max(1, int(round(len(label_indices) * ratio)))
+      test_count = min(test_count, len(label_indices) - 1)
+      test_indices.extend(label_indices[:test_count])
+      train_indices.extend(label_indices[test_count:])
+
+    return ensure_label_coverage(samples, sorted(train_indices), sorted(test_indices), rng)
 
 
 def ensure_label_coverage(
@@ -443,16 +475,17 @@ def predict_target_scans(
     if not target_scan_root:
         return []
     root = Path(target_scan_root)
-    reports = sorted(root.glob("*/report.json"))
+    reports = sorted(root.glob("**/report.json"))
     items: list[tuple[str, float, str]] = []
     report_names: list[str] = []
     for report_path in reports:
         report = json.loads(report_path.read_text(encoding="utf-8"))
         by_category = report.get("summary", {}).get("by_category", {}) or {}
         top = sorted(by_category.items(), key=lambda item: (-item[1], item[0]))[:16]
-        text = " ".join([report_path.parent.name, " ".join(category for category, _ in top)])
+        scan_name = str(report_path.parent.relative_to(root))
+        text = " ".join([scan_name, " ".join(category for category, _ in top)])
         items.append((text, float(report.get("summary", {}).get("total_findings") or 0), "target_scan"))
-        report_names.append(report_path.parent.name)
+        report_names.append(scan_name)
     if not items:
         return []
     features = vectorize_texts(items, buckets).to(device)

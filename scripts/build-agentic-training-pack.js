@@ -42,7 +42,7 @@ records.push({
 const rows = [];
 for (const source of manifest.sources ?? []) {
   const reportPath = resolveReportPath(source, manifest.reversa_profile);
-  const report = existsSync(reportPath) ? await readJson(reportPath) : null;
+  const report = reportPath && existsSync(reportPath) ? await readJson(reportPath) : null;
   const policy = classifyImportPolicy(source.import_stance, source);
   const topCategories = topEntries(report?.summary?.by_category ?? {}, 12);
   const severity = report?.summary?.highest_severity ?? 'UNKNOWN';
@@ -229,7 +229,7 @@ async function readFunctionalityMap(manifest, sourcePath) {
 }
 
 function classifyImportPolicy(stance = '', source = {}) {
-  if ((/personal_local_training/.test(stance) || source.local_experimental_training_allowed) && /reference_only|no_copy/.test(stance)) {
+  if ((/personal_local_training|concept_only_training/.test(stance) || source.local_experimental_training_allowed) && /reference_only|no_copy/.test(stance)) {
     return {
       class: 'personal_local',
       weight: 35,
@@ -292,7 +292,7 @@ function resolveReportPath(source, profile = '') {
     }
   }
 
-  return join(base, 'report.json');
+  return base ? join(base, 'report.json') : null;
 }
 
 function topEntries(value, limit) {
@@ -355,7 +355,7 @@ function buildSummary(manifest, generatedAt, rows, records) {
     '## Use',
     '',
     'Use `agentic-training-pack.jsonl` as a deterministic profile-training and review dataset.',
-    'Blocked/reference-only lanes may inform classifiers but must not contribute copied source text.',
+    'Personal-local/reference-only lanes may inform concept training and classifiers, but must not contribute copied source text.',
     'Functionality capability records teach mechanism shape and test targets without copying implementation source.',
     '',
   ].join('\n');
