@@ -17,6 +17,7 @@ import {
   CLAUDE_CODE_BASE_CAPABILITY_IDS,
   CLAUDE_CODE_BASE_CONTRACT,
 } from '../lib/core/claude-code-base.js';
+import { deriveEvidenceFacets } from '../lib/scan/facets.js';
 import { scanProject } from '../lib/scan/scanner.js';
 import { validateScanReport } from '../lib/scan/schema.js';
 import { writeScanOutputs } from '../lib/scan/writers.js';
@@ -90,6 +91,71 @@ test('scanner detects placeholders, suspicious paths, missing paths, and Android
   assertEvidence(report, 'keymaster_keymint_gatekeeper_decrypt_dependencies', 'qsee');
   assertEvidence(report, 'fstab_entries', 'fstab:/dev/block/sda17->/metadata');
   assertEvidence(report, 'vendor_blobs', 'vendor_blob:vendor/lib64/libmissing_keymint.so');
+});
+
+test('24-TET facets keep near-miss evidence boundaries separate', async () => {
+  const kernelFacets = deriveEvidenceFacets({
+    category: 'build_variables',
+    severity: 'HIGH',
+    confidence: 'confirmed',
+    source_file: 'kernel.conf',
+    normalized_claim: 'CONFIG_PID_NS=n',
+    evidence_type: 'source_line',
+  }, { profileId: 'generic_source_tree' });
+
+  assert.equal(kernelFacets.subsystem, 'kernel');
+  assert.equal(kernelFacets.mutation_risk, 'boot_or_kernel_rebuild_required');
+  assert.equal(kernelFacets.required_next_artifact, 'running_kernel_config_and_requirements_check');
+  assert.equal(kernelFacets.deterministic_truth_above_model, true);
+
+  const generatedFacets = deriveEvidenceFacets({
+    category: 'source_authority',
+    severity: 'HIGH',
+    confidence: 'confirmed',
+    source_file: 'local/eval_report.md',
+    normalized_claim: 'generated artifact pretending to be source authority',
+    evidence_type: 'generated_artifact',
+  }, { profileId: 'agentic_toolchain' });
+
+  assert.equal(generatedFacets.authority, 'generated_artifact');
+  assert.equal(generatedFacets.source_boundary, 'generated_non_authority');
+  assert.equal(generatedFacets.model_role, 'advisory_only');
+
+  const referenceFacets = deriveEvidenceFacets({
+    category: 'proprietary_reference_only',
+    severity: 'MEDIUM',
+    confidence: 'likely',
+    source_file: 'docs/upstreams/tool/source-sync.json',
+    normalized_claim: 'proprietary_source=reference_only',
+    evidence_type: 'source_line',
+  }, { profileId: 'semantic_policy' });
+
+  assert.equal(referenceFacets.subsystem, 'policy');
+  assert.equal(referenceFacets.source_boundary, 'reference_only');
+  assert.equal(referenceFacets.required_next_artifact, 'license_or_notice_evidence');
+});
+
+test('scanner emits 24-TET facets and summary counts for evidence', async () => {
+  const root = await mkdtemp(join(tmpdir(), 'reversa-facets-'));
+  await writeFile(join(root, 'kernel.conf'), [
+    'CONFIG_PID_NS=n',
+    'CONFIG_IPC_NS=n',
+    'CONFIG_DEVTMPFS=n',
+  ].join('\n'), 'utf8');
+
+  const report = await scanProject({
+    projectRoot: root,
+    profile: 'generic_source_tree',
+  });
+
+  const pidEvidence = report.evidence.find(item => item.normalized_claim === 'CONFIG_PID_NS=n');
+  assert(pidEvidence, 'expected CONFIG_PID_NS evidence');
+  assert.equal(pidEvidence.facets.subsystem, 'kernel');
+  assert.equal(pidEvidence.facets.authority, 'source_line');
+  assert.equal(pidEvidence.facets.mutation_risk, 'boot_or_kernel_rebuild_required');
+  assert.equal(pidEvidence.facets.required_next_artifact, 'running_kernel_config_and_requirements_check');
+  assert.equal(report.summary.by_facet.subsystem.kernel >= 1, true);
+  assert.equal(report.summary.by_facet.model_role.advisory_only, report.evidence.length);
 });
 
 test('scanner keeps real task markers but ignores template placeholder examples', async () => {
