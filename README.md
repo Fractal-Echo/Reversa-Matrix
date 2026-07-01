@@ -37,7 +37,9 @@ Current engine surface:
 - `gui`: build an offline `dashboard.html` from existing scan or compare output.
 - `agent`: create local run scaffolds, memory templates, safe command proposals, review-only patch plans, model eval reports, and read-only ADB evidence snapshots.
 - `dataset`: build bounded advisory datasets from existing evidence.
+- `rebuild-gate`: classify whether local training/eval/audit proof is enough to start a rebuild slice.
 - `studio`: export local Reversa Studio fixtures and capture passive GPU/AMD/Power proof files.
+- `chrome`: explicit, narrow Chrome helpers such as YouTube-only resume.
 - `nebula`: read-only host bridge for Nebula active-module evidence.
 - compatibility helpers: `install`, `update`, `uninstall`, `add-agent`, `add-engine`, `patterns`, and `export-diagrams`.
 
@@ -237,6 +239,35 @@ node ./bin/reversa.js nebula status \
   --out local/nebula-status
 ```
 
+Validate a Droidspaces kernel artifact bundle before rebuilding or flashing:
+
+```bash
+node ./bin/reversa.js nebula kernel-bundle \
+  --root /path/to/droidspaces-kernel-bundle \
+  --out local/droidspaces-kernel-bundle
+```
+
+The kernel bundle gate preserves the current blocker as kernel config evidence:
+`DROIDSPACES_KERNEL_BLOCKER_CURRENT_KERNEL` until booted proof shows PID
+namespace and IPC namespace are present.
+
+Classify whether Reversa has enough local proof to start a rebuild slice:
+
+```bash
+node ./bin/reversa.js rebuild-gate \
+  --audit-root local/audits/codex-handwave-audit-20260630 \
+  --out local/rebuild-gate
+```
+
+Dry-run a YouTube resume request through Chrome DevTools:
+
+```bash
+node ./bin/reversa.js chrome youtube-resume --json
+```
+
+Only add `--click` when you explicitly want Reversa to press the main player
+play/resume button on `youtube.com/watch` or `music.youtube.com`.
+
 ## Outputs
 
 Default scan output:
@@ -319,6 +350,11 @@ Some commands intentionally write Reversa-owned artifacts when explicitly invoke
 - compatibility commands such as `install`, `update`, and `uninstall` manage Reversa-created compatibility files.
 
 The Nebula bridge is read-only by design. It does not install APKs, stage modules, reboot, launch graphics runtimes, or write `/data/adb`.
+
+The Chrome helper is explicit-request only. It targets `youtube.com/watch` and
+`music.youtube.com`, dry-runs by default, and logs URL, selector, timestamp, and
+result. It does not automate playlists, random pages, or hidden background
+clicking.
 
 Game/runtime profiles are evidence classifiers. They may flag DRM, anti-cheat, cheat, public-match, ownership, or bypass language as review boundaries, but they do not implement bypass behavior.
 

@@ -33,6 +33,7 @@ node ./bin/reversa.js nebula pending-module --adb SERIAL --out out/pending
 node ./bin/reversa.js nebula compare-modules --adb SERIAL --out out/compare
 node ./bin/reversa.js nebula frontier --adb SERIAL --out out/frontier
 node ./bin/reversa.js nebula propose --from scan-or-log-dir --out out/proposal
+node ./bin/reversa.js nebula kernel-bundle --root kernel-bundle-dir --out out/kernel-bundle
 ```
 
 `--adb SERIAL` is required unless exactly one clear ADB device is connected.
@@ -132,3 +133,50 @@ arbitrary app-side shell execution.
 
 Known-good frontier evidence beats recency. A newer failed lane is not promoted
 over older raw proof.
+
+## Droidspaces Kernel Bundle Gate
+
+`nebula kernel-bundle` is an offline artifact validator for the confirmed
+Droidspaces kernel blocker. It does not use ADB and does not flash, repack, or
+mutate a device.
+
+Required bundle evidence:
+
+- `droidspaces-v6.3.0-requirements.txt`
+- `uname-a.txt`
+- `kernel.config`
+- `defconfig`
+- `boot.img`
+- `vendor_boot.img`
+- `vendor_dlkm.img` or `vendor_dlkm/`
+- `dtbo.img`
+- `vbmeta.img`
+- `dmesg.txt`
+- `logcat.txt`
+- `build.log`, `kernel-build.log`, or `build-log.txt`
+
+Config targets:
+
+- `CONFIG_NAMESPACES=y`
+- `CONFIG_PID_NS=y`
+- `CONFIG_IPC_NS=y`
+- `CONFIG_UTS_NS=y`
+- `CONFIG_NET_NS=y`
+- `CONFIG_CGROUPS=y`
+- `CONFIG_CGROUP_NS=y`
+- `CONFIG_DEVTMPFS=y`
+- `CONFIG_DEVTMPFS_MOUNT=y` when appropriate
+
+Classifications:
+
+- `DROIDSPACES_KERNEL_BUNDLE_INCOMPLETE`
+- `DROIDSPACES_KERNEL_BLOCKER_CURRENT_KERNEL`
+- `DROIDSPACES_KERNEL_BUNDLE_REVIEW_REQUIRED`
+- `DROIDSPACES_KERNEL_BUNDLE_READY_FOR_REBUILD_REVIEW`
+
+Stop condition:
+
+```text
+Do not call this driver/security/ABL/runtime tuning again until PID namespace
+and IPC namespace are present in the booted kernel.
+```

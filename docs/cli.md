@@ -237,6 +237,59 @@ service install, power-plan mutation, or handheld-daemon install path.
 
 ---
 
+### `rebuild-gate`
+
+```bash
+node ./bin/reversa.js rebuild-gate \
+  --audit-root local/audits/codex-handwave-audit-20260630 \
+  --out local/rebuild-gate
+```
+
+Classifies whether a rebuild slice is allowed from local audit evidence. The
+gate requires full-epoch coverage proof, held-out and adversarial eval proof,
+operator-steer protocol docs, and the Droidspaces kernel blocker lock before it
+reports ready. It never treats model advice as higher authority than scanner
+evidence.
+
+Useful flags:
+
+| Flag | Meaning |
+|---|---|
+| `--audit-root <path>` | Audit/addendum root to inspect |
+| `--out <dir>` | Write `rebuild-gate.json` and `rebuild-gate.md` |
+| `--json` | Print JSON |
+| `--markdown`, `--md` | Print Markdown |
+
+---
+
+### `chrome youtube-resume`
+
+```bash
+node ./bin/reversa.js chrome youtube-resume --json
+node ./bin/reversa.js chrome youtube-resume --click --out local/chrome-youtube-resume
+```
+
+Discovers YouTube tabs from a Chrome DevTools endpoint and, only when `--click`
+is passed, presses the main player play/resume control. The command is scoped to
+`youtube.com/watch` and `music.youtube.com`, dry-runs by default, and logs URL,
+selector, timestamp, and result.
+
+Useful flags:
+
+| Flag | Meaning |
+|---|---|
+| `--endpoint <url>` | Chrome DevTools endpoint, default `http://127.0.0.1:9222` |
+| `--click` | Press play/resume on eligible YouTube tabs |
+| `--out <dir>` | Write `chrome-youtube-resume.json` and `.md` |
+| `--json` | Print JSON |
+| `--markdown`, `--md` | Print Markdown |
+| `--timeout-ms <n>` | DevTools request timeout |
+
+Forbidden scope: playlist automation, random page clicks, hidden background
+autoclicking, and non-YouTube targets.
+
+---
+
 ### `patterns`
 
 ```bash
@@ -279,6 +332,7 @@ Common subcommands:
 | `compare-modules` | Compare active vs pending and classify stage safety |
 | `frontier` | Capture active known-good frontier evidence |
 | `propose --from <dir>` | Classify an offline scan/result directory |
+| `kernel-bundle --root <dir>` | Validate offline Droidspaces kernel blocker artifacts |
 
 Safety rules:
 
@@ -287,6 +341,14 @@ Safety rules:
 - arbitrary shell commands are not accepted
 - package deployment, module staging, device restart, bootloader tooling,
   destructive delete, raw block writes, and lease actions are rejected
+- kernel bundle validation is offline and does not flash, repack, or mutate
+
+Kernel bundle classifications:
+
+- `DROIDSPACES_KERNEL_BUNDLE_INCOMPLETE`
+- `DROIDSPACES_KERNEL_BLOCKER_CURRENT_KERNEL`
+- `DROIDSPACES_KERNEL_BUNDLE_REVIEW_REQUIRED`
+- `DROIDSPACES_KERNEL_BUNDLE_READY_FOR_REBUILD_REVIEW`
 
 See `docs/NEBULA_COMPANION_LINK.md` for the full protocol.
 
