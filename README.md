@@ -192,6 +192,18 @@ node ./bin/reversa.js dataset telegram-promotion \
   --out /path/to/telegram-promotion-gate
 ```
 
+Inventory local Windows tools as metadata-only private evidence:
+
+```bash
+node ./bin/reversa.js dataset local-tool-inventory \
+  --manifest /path/to/local-tool-manifest.json \
+  --out /path/to/local-tool-inventory
+```
+
+The inventory records presence, bounded file roles, executable/DLL names, and
+representative hashes. It does not launch tools and does not imply
+redistribution rights.
+
 Scan decoded screenshots/video OCR as artifact-backed evidence:
 
 ```bash

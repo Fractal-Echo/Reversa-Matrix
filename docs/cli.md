@@ -262,6 +262,50 @@ Useful flags:
 
 ---
 
+### `dataset local-tool-inventory`
+
+```bash
+node ./bin/reversa.js dataset local-tool-inventory \
+  --manifest /path/to/local-tool-manifest.json \
+  --out /path/to/local-tool-inventory
+```
+
+Builds a local-only metadata pack for installed tools such as wrappers,
+inspectors, upscalers, profile utilities, hex editors, or ROM managers. It
+records presence, bounded file roles, executable/DLL/config/archive names,
+representative hashes, and SFT rows for boundary training.
+
+Manifest:
+
+```json
+{
+  "tools": [
+    {
+      "id": "dlss_updater",
+      "path": "D:/Applications/DLSS.Updater.2.8.0",
+      "tags": ["dlss", "framegen"]
+    }
+  ]
+}
+```
+
+Useful flags:
+
+| Flag | Meaning |
+|---|---|
+| `--manifest <json>` | Local tool manifest |
+| `--out <dir>` | Write inventory JSON/JSONL/SFT/summary/hash files |
+| `--max-depth <n>` | Bounded traversal depth |
+| `--max-files <n>` | Bounded file count per tool |
+| `--max-hashes <n>` | Representative hash count per tool |
+| `--max-hash-bytes <n>` | Maximum file size for full-file hashing |
+
+Boundary: `local_metadata_only`. The command never launches tools, never copies
+local binaries into public output, and never treats local possession as
+redistribution permission.
+
+---
+
 ### `chrome youtube-resume`
 
 ```bash
