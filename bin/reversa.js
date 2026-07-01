@@ -21,6 +21,7 @@ const commands = {
   gui:                () => import('../lib/commands/gui.js'),
   agent:              () => import('../lib/commands/agent.js'),
   dataset:            () => import('../lib/commands/dataset.js'),
+  'rebuild-gate':     () => import('../lib/commands/rebuild-gate.js'),
   studio:             () => import('../lib/commands/studio.js'),
   nebula:             () => import('../lib/commands/nebula.js'),
   uninstall:          () => import('../lib/commands/uninstall.js'),
@@ -47,6 +48,7 @@ if (!command || command === '--help' || command === '-h') {
     gui                Generate a local dashboard for scan/compare results
     agent              Run local agent doctor/models/eval/memory/patch scaffolding
     dataset            Build local advisory datasets from bounded evidence
+    rebuild-gate       Classify rebuild readiness from local audit artifacts
     studio             Export Studio fixtures and capture read-only GPU/AMD/Power/authority proof
     nebula             Read-only Nebula phone companion status bridge
     install            Install compatibility agent workflow files
