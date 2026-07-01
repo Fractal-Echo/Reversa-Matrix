@@ -3031,6 +3031,17 @@ test('scan report schema is complete and agent handoff files are written', async
 
   const jsonl = await readFile(join(outDir, 'evidence.jsonl'), 'utf8');
   assert.equal(jsonl.trim().split('\n').length, report.evidence.length);
+
+  const summary = await readFile(join(outDir, 'summary.md'), 'utf8');
+  assert.match(summary, /## Top Evidence Facet Cards/);
+  assert.match(summary, /subsystem=/);
+  assert.match(summary, /truth_above_model=true/);
+
+  const html = await readFile(join(outDir, 'report.html'), 'utf8');
+  assert.match(html, /24-TET Facet Cards/);
+  assert.match(html, /facet-card/);
+  assert.match(html, /facet-chip/);
+  assert.match(html, /Next artifact:/);
 });
 
 test('scan writer compacts oversized JSON while streaming full JSONL evidence', async () => {
